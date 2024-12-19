@@ -11,4 +11,13 @@ urlpatterns = [
     path('marks/add/', views.marks_add, name='marks_add'),
     path('logout/', views.logout_view, name='logout'),
     path('school/add/', views.school_add, name='school_add'),
+    
+    # System Administrator URLs
+    path('system-admin/dashboard/', views.system_admin_dashboard, name='system_admin_dashboard'),
+    path('system-admin/schools/', views.system_admin_school_list, name='system_admin_school_list'),
+    path('system-admin/schools/add/', views.system_admin_school_add, name='system_admin_school_add'),
+    path('system-admin/students/', views.system_admin_student_list, name='system_admin_student_list'),
+    path('system-admin/students/<int:school_id>/', views.system_admin_student_list, name='system_admin_school_students'),
+    path('system-admin/marks/', views.system_admin_marks_list, name='system_admin_marks_list'),
+    path('system-admin/marks/<int:school_id>/', views.system_admin_marks_list, name='system_admin_school_marks'),
 ]
