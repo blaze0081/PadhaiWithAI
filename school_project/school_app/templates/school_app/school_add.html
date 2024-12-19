@@ -1,0 +1,14 @@
+{% extends 'school_app/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Register Your School</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            {{ form.as_p }}
+        </div>
+        <button type="submit" class="btn btn-primary">Register School</button>
+    </form>
+</div>
+{% endblock %}
