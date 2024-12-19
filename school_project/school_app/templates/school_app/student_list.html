@@ -1,0 +1,25 @@
+{% extends 'school_app/base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Students</h2>
+    <a href="{% url 'student_add' %}" class="btn btn-primary">Add Student</a>
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Roll Number</th>
+            <th>Grade</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for student in students %}
+        <tr>
+            <td>{{ student.name }}</td>
+            <td>{{ student.roll_number }}</td>
+            <td>{{ student.grade }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends 'school_app/base.html' %}
+{% block content %}
+<h1>Welcome to {{ school.name }}</h1>
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Students</h5>
+                <p class="card-text">Total Students: {{ student_count }}</p>
+                <a href="{% url 'student_list' %}" class="btn btn-primary">View Students</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Marks</h5>
+                <p class="card-text">Manage student marks</p>
+                <a href="{% url 'marks_list' %}" class="btn btn-primary">View Marks</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends 'school_app/base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+<h2>Add Marks</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form|crispy }}
+    <button type="submit" class="btn btn-primary">Add Marks</button>
+</form>
+{% endblock %}
