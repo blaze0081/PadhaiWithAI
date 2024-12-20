@@ -5,6 +5,9 @@ from django.contrib import messages
 from .models import School, Student, Marks, CustomUser
 from .forms import StudentForm, MarksForm, SchoolForm, SchoolAdminRegistrationForm
 from django.db.models import Count
+from .math_utils import solve_math_problem, generate_similar_questions
+
+
 
 def is_system_admin(user):
     return user.is_authenticated and user.is_system_admin
@@ -153,3 +156,32 @@ def school_add(request):
 def logout_view(request):
     logout(request)
     return redirect('login')
+
+@login_required
+def math_tools(request):
+    return render(request, 'school_app/math_tools.html')
+
+@login_required
+def solve_math(request):
+    solution = None
+    if request.method == 'POST':
+        question = request.POST.get('question')
+        if question:
+            solution = solve_math_problem(question)
+    return render(request, 'school_app/math_tools.html', {'solution': solution})
+
+@login_required
+def generate_math(request):
+    generated_questions = None
+    if request.method == 'POST':
+        base_question = request.POST.get('base_question')
+        difficulty = request.POST.get('difficulty')
+        num_questions = int(request.POST.get('num_questions', 5))
+        if base_question:
+            generated_questions = generate_similar_questions(
+                base_question, 
+                difficulty,
+                num_questions
+            )
+    return render(request, 'school_app/math_tools.html', {'generated_questions': generated_questions})
+
