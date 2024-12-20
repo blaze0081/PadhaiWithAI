@@ -12,6 +12,11 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('school/add/', views.school_add, name='school_add'),
     
+    # Math Tools URLs
+    path('math-tools/', views.math_tools, name='math_tools'),
+    path('math-tools/solve/', views.solve_math, name='solve_math'),
+    path('math-tools/generate/', views.generate_math, name='generate_math'),
+    
     # System Administrator URLs
     path('system-admin/dashboard/', views.system_admin_dashboard, name='system_admin_dashboard'),
     path('system-admin/schools/', views.system_admin_school_list, name='system_admin_school_list'),

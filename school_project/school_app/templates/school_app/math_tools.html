@@ -1,0 +1,89 @@
+{% extends 'school_app/base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Mathematics Tools</h2>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Solve Questions</h5>
+                    <form method="post" action="{% url 'solve_math' %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="question">Enter Question:</label>
+                            <textarea class="form-control" id="question" name="question" rows="3" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary mt-3">Solve</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Generate Similar Questions</h5>
+                    <form method="post" action="{% url 'generate_math' %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="base_question">Base Question:</label>
+                            <textarea class="form-control" id="base_question" name="base_question" rows="3" required></textarea>
+                        </div>
+                        <div class="form-group mt-2">
+                            <label for="difficulty">Difficulty Level:</label>
+                            <select class="form-control" id="difficulty" name="difficulty">
+                                <option value="Same Level">Same Level</option>
+                                <option value="Harder">Harder</option>
+                                <option value="Most Hard">Most Hard</option>
+                            </select>
+                        </div>
+                        <div class="form-group mt-2">
+                            <label for="num_questions">Number of Questions:</label>
+                            <input type="number" class="form-control" id="num_questions" name="num_questions" min="1" max="50" value="5">
+                        </div>
+                        <button type="submit" class="btn btn-primary mt-3">Generate</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% if solution %}
+    <div class="mt-4">
+        <h3>Solution:</h3>
+        <div class="card">
+            <div class="card-body solution-content">
+                {{ solution|safe }}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    {% if generated_questions %}
+    <div class="mt-4">
+        <h3>Generated Questions:</h3>
+        <div class="card">
+            <div class="card-body generated-content">
+                {{ generated_questions|safe }}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- MathJax Integration -->
+<script>
+    window.MathJax = {
+        tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']]
+        },
+        svg: {
+            fontCache: 'global'
+        }
+    };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js" async></script>
+{% endblock %}
