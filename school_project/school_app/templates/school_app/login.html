@@ -4,21 +4,19 @@
     <div class="col-md-6">
         <div class="card">
             <div class="card-body">
-                <h2 class="card-title">Login</h2>
-                <form method="post">
+                <h2 class="card-title mb-4">Login</h2>
+                <form method="post" action="{% url 'login' %}">
                     {% csrf_token %}
                     <div class="mb-3">
-                        <label for="username" class="form-label">Username</label>
-                        <input type="text" class="form-control" name="username" required>
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
                     </div>
                     <div class="mb-3">
                         <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control" name="password" required>
+                        <input type="password" class="form-control" id="password" name="password" required>
                     </div>
-                    <button type="submit" class="btn btn-primary">Login</button>
+                    <button type="submit" class="btn btn-primary w-100">Login</button>
                 </form>
-                {% comment %} <!-- Uncomment and implement the URL for password reset when ready --> {% endcomment %}
-                {% comment %} <!-- <a href="{% url 'password_reset' %}" class="btn btn-secondary">Forget Password</a> --> {% endcomment %}
             </div>
         </div>
     </div>

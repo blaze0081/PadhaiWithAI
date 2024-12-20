@@ -23,7 +23,6 @@ def login_view(request):
             else:
                 return redirect('school_add')
         messages.error(request, 'Invalid credentials')
-        
     return render(request, 'school_app/login.html')
 
 @login_required
@@ -41,7 +40,7 @@ def dashboard(request):
         messages.error(request, "No school found for the current user.")
         return redirect('login')
 
-    return render(request, 'school_app/dashboard.html', context)
+    return render(request, 'school_app/system_admin_dashboard.html', context)
 
 @user_passes_test(is_system_admin)
 def system_admin_dashboard(request):
