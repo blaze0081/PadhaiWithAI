@@ -8,7 +8,7 @@
     <thead>
         <tr>
             <th>Student</th>
-            <th>Subject</th>
+            <th>Test Number</th>
             <th>Marks</th>
             <th>Date</th>
         </tr>
@@ -17,7 +17,7 @@
         {% for mark in marks %}
         <tr>
             <td>{{ mark.student.name }}</td>
-            <td>{{ mark.subject }}</td>
+            <td>{{ mark.test_number }}</td>
             <td>{{ mark.marks }}</td>
             <td>{{ mark.date }}</td>
         </tr>
