@@ -1,0 +1,102 @@
+{
+  "chapter": "Polynomials",
+  "exercises": [
+    {
+      "exercise": "2.1",
+      "questions": [
+        {
+          "question": "Find the number of zeroes of the polynomial p(x) in each case based on its graph.",
+          "sub_questions": [
+            "Graph of y = p(x) for given polynomials in the provided figures."
+          ]
+        }
+      ]
+    },
+    {
+      "exercise": "2.2",
+      "questions": [
+        {
+          "question": "Find the zeroes of the following quadratic polynomials and verify the relationship between the zeroes and the coefficients.",
+          "sub_questions": [
+            "x^2 - 2x - 8",
+            "4s^2 - 4s + 1",
+            "6x^2 - 3 - 7x",
+            "4u^2 + 8u",
+            "t^2 - 15",
+            "3x^2 - x - 4"
+          ]
+        },
+        {
+          "question": "Find a quadratic polynomial with the given numbers as the sum and product of its zeroes, respectively.",
+          "sub_questions": [
+            "Sum: -1/4, Product: 1",
+            "Sum: 12, Product: 3",
+            "Sum: 0, Product: 5",
+            "Sum: 1, Product: 1",
+            "Sum: -1/4, Product: -1/4",
+            "Sum: 4, Product: 1"
+          ]
+        }
+      ]
+    },
+    {
+      "exercise": "2.3",
+      "questions": [
+        {
+          "question": "Divide the polynomial p(x) by g(x) and find the quotient and remainder in each case.",
+          "sub_questions": [
+            "p(x) = x^3 - 3x^2 + 5x - 3, g(x) = x^2 - 2",
+            "p(x) = x^4 - 3x^2 + 4x + 5, g(x) = x^2 + 1 - x",
+            "p(x) = x^4 - 5x + 6, g(x) = 2 - x^2"
+          ]
+        },
+        {
+          "question": "Check if the first polynomial is a factor of the second by dividing the second polynomial by the first.",
+          "sub_questions": [
+            "t^2 - 3, 2t^4 + 3t^3 - 2t^2 - 9t - 12",
+            "x^2 + 3x + 1, 3x^4 + 5x^3 - 7x^2 + 2x + 2",
+            "x^3 - 3x + 1, x^5 - 4x^3 + x^2 + 3x + 1"
+          ]
+        },
+        {
+          "question": "Obtain all other zeroes of the polynomial 3x^4 + 6x^3 - 2x^2 - 10x - 5 if two of its zeroes are 5/3 and -5/3."
+        },
+        {
+          "question": "On dividing x^3 - 3x^2 + x + 2 by g(x), the quotient and remainder were x - 2 and -2x + 4, respectively. Find g(x)."
+        },
+        {
+          "question": "Give examples of polynomials p(x), g(x), q(x), and r(x) that satisfy the division algorithm and",
+          "sub_questions": [
+            "deg p(x) = deg q(x)",
+            "deg q(x) = deg r(x)",
+            "deg r(x) = 0"
+          ]
+        }
+      ]
+    },
+    {
+      "exercise": "2.4 (Optional)",
+      "questions": [
+        {
+          "question": "Verify that the numbers given alongside the cubic polynomials below are their zeroes, and verify the relationship between the zeroes and coefficients.",
+          "sub_questions": [
+            "2x^3 + x^2 - 5x + 2; Zeroes: 1/2, 1, -2",
+            "x^3 - 4x^2 + 5x - 2; Zeroes: 2, 1, 1"
+          ]
+        },
+        {
+          "question": "Find a cubic polynomial with the sum, sum of the product of its zeroes taken two at a time, and the product of its zeroes as 2, -7, and -14, respectively."
+        },
+        {
+          "question": "If the zeroes of the polynomial x^3 - 3x^2 + x + 1 are a - b, a, a + b, find a and b."
+        },
+        {
+          "question": "If two zeroes of the polynomial x^4 - 6x^3 - 26x^2 + 138x - 35 are ±2√3, find the other zeroes."
+        },
+        {
+          "question": "If the polynomial x^4 - 6x^3 + 16x^2 - 25x + 10 is divided by x^2 - 2x + k, and the remainder is x + a, find k and a."
+        }
+      ]
+    }
+  ]
+}

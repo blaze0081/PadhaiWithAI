@@ -1,0 +1,100 @@
+{
+  "chapter": "Circles",
+  "exercises": [
+    {
+      "exercise": "10.1",
+      "questions": [
+        {
+          "question": "How many tangents can a circle have?"
+        },
+        {
+          "question": "Fill in the blanks:",
+          "sub_questions": [
+            "A tangent to a circle intersects it in ______ point(s).",
+            "A line intersecting a circle in two points is called a ______.",
+            "A circle can have ______ parallel tangents at the most.",
+            "The common point of a tangent to a circle and the circle is called ______."
+          ]
+        },
+        {
+          "question": "A tangent PQ at a point P of a circle of radius 5 cm meets a line through the centre O at a point Q such that OQ = 12 cm. Find the length of PQ.",
+          "options": [
+            "12 cm",
+            "13 cm",
+            "8.5 cm",
+            "11.9 cm"
+          ]
+        },
+        {
+          "question": "Draw a circle and two lines parallel to a given line such that one is a tangent and the other a secant to the circle."
+        }
+      ]
+    },
+    {
+      "exercise": "10.2",
+      "questions": [
+        {
+          "question": "From a point Q, the length of the tangent to a circle is 24 cm, and the distance of Q from the centre is 25 cm. Find the radius of the circle.",
+          "options": [
+            "7 cm",
+            "12 cm",
+            "15 cm",
+            "24.5 cm"
+          ]
+        },
+        {
+          "question": "In Fig. 10.11, if TP and TQ are the two tangents to a circle with centre O such that ∠POQ = 110°, then ∠PTQ is equal to:",
+          "options": [
+            "60°",
+            "70°",
+            "80°",
+            "90°"
+          ],
+          "image": "Fig_10.11.png"
+        },
+        {
+          "question": "If tangents PA and PB from a point P to a circle with centre O are inclined to each other at an angle of 80°, then ∠POA is equal to:",
+          "options": [
+            "50°",
+            "60°",
+            "70°",
+            "80°"
+          ]
+        },
+        {
+          "question": "Prove that the tangents drawn at the ends of a diameter of a circle are parallel."
+        },
+        {
+          "question": "Prove that the perpendicular at the point of contact to the tangent to a circle passes through the centre."
+        },
+        {
+          "question": "The length of a tangent from a point A at distance 5 cm from the centre of the circle is 4 cm. Find the radius of the circle."
+        },
+        {
+          "question": "Two concentric circles are of radii 5 cm and 3 cm. Find the length of the chord of the larger circle which touches the smaller circle."
+        },
+        {
+          "question": "A quadrilateral ABCD is drawn to circumscribe a circle. Prove that AB + CD = AD + BC.",
+          "image": "Fig_10.12.png"
+        },
+        {
+          "question": "In Fig. 10.13, XY and X'Y' are two parallel tangents to a circle with centre O, and another tangent AB with point of contact C intersects XY at A and X'Y' at B. Prove that ∠AOB = 90°.",
+          "image": "Fig_10.13.png"
+        },
+        {
+          "question": "Prove that the angle between the two tangents drawn from an external point to a circle is supplementary to the angle subtended by the line segment joining the points of contact at the centre."
+        },
+        {
+          "question": "Prove that the parallelogram circumscribing a circle is a rhombus."
+        },
+        {
+          "question": "A triangle ABC is drawn to circumscribe a circle of radius 4 cm such that the segments BD and DC into which BC is divided by the point of contact D are of lengths 8 cm and 6 cm, respectively. Find the sides AB and AC.",
+          "image": "Fig_10.14.png"
+        },
+        {
+          "question": "Prove that opposite sides of a quadrilateral circumscribing a circle subtend supplementary angles at the centre of the circle."
+        }
+      ]
+    }
+  ]
+}

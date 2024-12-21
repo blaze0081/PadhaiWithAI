@@ -1,0 +1,91 @@
+{
+  "chapter": "Quadratic Equations",
+  "exercises": [
+    {
+      "exercise": "4.1",
+      "questions": [
+        {
+          "question": "Check whether the following are quadratic equations:",
+          "sub_questions": [
+            "(x + 1)^2 = 2(x - 3)",
+            "x^2 - 2x = (-2)(3 - x)",
+            "(x - 2)(x + 1) = (x - 1)(x + 3)",
+            "(x - 3)(2x + 1) = x(x + 5)",
+            "(2x - 1)(x - 3) = (x + 5)(x - 1)",
+            "x^2 + 3x + 1 = (x - 2)^2",
+            "(x + 2)^3 = 2x(x^2 - 1)",
+            "x^3 - 4x^2 - x + 1 = (x - 2)^3"
+          ]
+        },
+        {
+          "question": "Represent the following situations in the form of quadratic equations:",
+          "sub_questions": [
+            "The area of a rectangular plot is 528 m^2. The length of the plot (in metres) is one more than twice its breadth. We need to find the length and breadth of the plot.",
+            "The product of two consecutive positive integers is 306. We need to find the integers.",
+            "Rohan’s mother is 26 years older than him. The product of their ages (in years) 3 years from now will be 360. We would like to find Rohan’s present age.",
+            "A train travels a distance of 480 km at a uniform speed. If the speed had been 8 km/h less, then it would have taken 3 hours more to cover the same distance. We need to find the speed of the train."
+          ]
+        }
+      ]
+    },
+    {
+      "exercise": "4.2",
+      "questions": [
+        {
+          "question": "Find the roots of the following quadratic equations by factorisation:",
+          "sub_questions": [
+            "x^2 - 3x - 10 = 0",
+            "2x^2 + x - 6 = 0",
+            "2/3x^2 + 7/5x + 1/2 = 0",
+            "2x^2 - x + 1/8 = 0",
+            "100x^2 - 20x + 1 = 0"
+          ]
+        },
+        {
+          "question": "Solve the problems given in Example 1."
+        },
+        {
+          "question": "Find two numbers whose sum is 27 and product is 182."
+        },
+        {
+          "question": "Find two consecutive positive integers, sum of whose squares is 365."
+        },
+        {
+          "question": "The altitude of a right triangle is 7 cm less than its base. If the hypotenuse is 13 cm, find the other two sides."
+        },
+        {
+          "question": "A cottage industry produces a certain number of pottery articles in a day. It was observed on a particular day that the cost of production of each article (in rupees) was 3 more than twice the number of articles produced on that day. If the total cost of production on that day was ₹90, find the number of articles produced and the cost of each article."
+        }
+      ]
+    },
+    {
+      "exercise": "4.3",
+      "questions": [
+        {
+          "question": "Find the nature of the roots of the following quadratic equations. If the real roots exist, find them:",
+          "sub_questions": [
+            "2x^2 - 3x + 5 = 0",
+            "3x^2 - 4√3 x + 4 = 0",
+            "2x^2 - 6x + 3 = 0"
+          ]
+        },
+        {
+          "question": "Find the values of k for each of the following quadratic equations, so that they have two equal roots:",
+          "sub_questions": [
+            "2x^2 + kx + 3 = 0",
+            "kx(x - 2) + 6 = 0"
+          ]
+        },
+        {
+          "question": "Is it possible to design a rectangular mango grove whose length is twice its breadth, and the area is 800 m^2? If so, find its length and breadth."
+        },
+        {
+          "question": "Is the following situation possible? If so, determine their present ages. The sum of the ages of two friends is 20 years. Four years ago, the product of their ages in years was 48."
+        },
+        {
+          "question": "Is it possible to design a rectangular park of perimeter 80 m and area 400 m^2? If so, find its length and breadth."
+        }
+      ]
+    }
+  ]
+}

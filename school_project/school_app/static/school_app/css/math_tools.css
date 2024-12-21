@@ -1,0 +1,238 @@
+/* Card Styles */
+.card {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+.card-title {
+    color: #333;
+    font-weight: 600;
+}
+
+/* Select Options Section */
+.form-select {
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+.form-select:disabled {
+    background-color: #f8f9fa;
+    cursor: not-allowed;
+}
+
+/* Selected Questions Queue */
+.selected-questions-container {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    padding: 8px;
+    background-color: #f8f9fa;
+}
+
+.selected-question {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    padding: 8px;
+    margin: 4px 0;
+    border-radius: 4px;
+    border: 1px solid #e0e0e0;
+}
+
+.question-text {
+    flex: 1;
+    margin-right: 8px;
+    font-size: 0.9rem;
+}
+
+.remove-question {
+    padding: 0 6px;
+    font-size: 14px;
+    line-height: 1;
+}
+
+/* Questions List */
+.exercise-section {
+    border: 1px solid #eee;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+.exercise-header {
+    background-color: #f8f9fa;
+    padding: 12px;
+    margin: 0;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.toggle-icon {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #666;
+}
+
+.exercise-content {
+    padding: 0 12px;
+}
+
+.question-item {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+}
+
+.question-item:last-child {
+    border-bottom: none;
+}
+
+.sub-questions {
+    margin-left: 24px;
+    margin-top: 8px;
+    padding-left: 12px;
+    border-left: 2px solid #eee;
+}
+
+.sub-question {
+    margin: 4px 0;
+    color: #555;
+}
+
+/* Question Images */
+.question-image {
+    margin: 12px 0;
+    text-align: center;
+}
+
+.question-image img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Form Elements */
+.form-check-input {
+    cursor: pointer;
+}
+
+.form-check-label {
+    cursor: pointer;
+    padding-left: 4px;
+}
+
+/* Action Buttons */
+.btn {
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Results Section */
+.result-content {
+    background-color: #f8f9fa;
+    padding: 16px;
+    border-radius: 4px;
+    margin-top: 12px;
+}
+
+/* Math Content */
+.math-content {
+    overflow-x: auto;
+    padding: 16px;
+    background-color: white;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+    
+    .col-md-3,
+    .col-md-9 {
+        margin-bottom: 20px;
+    }
+    
+    .selected-questions-container {
+        max-height: 200px;
+    }
+}
+
+/* Loading State */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.loading::after {
+    content: "Loading...";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.9);
+    padding: 8px 16px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* LaTeX Content */
+.latex-content {
+    font-size: 1.1em;
+    line-height: 1.6;
+}
+
+/* Highlight selected questions */
+.question-checkbox:checked + label {
+    color: #007bff;
+    font-weight: 500;
+}
+
+/* Error Messages */
+.error-message {
+    color: #dc3545;
+    font-size: 0.9rem;
+    margin-top: 4px;
+}
+
+/* Success Messages */
+.success-message {
+    color: #28a745;
+    font-size: 0.9rem;
+    margin-top: 4px;
+}
+
+/* Add this to your math_tools.css */
+select:disabled {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+}
+
+select option {
+    padding: 8px;
+}
+
+.select-container {
+    position: relative;
+}
+
+.select-container::after {
+    content: '▼';
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+}

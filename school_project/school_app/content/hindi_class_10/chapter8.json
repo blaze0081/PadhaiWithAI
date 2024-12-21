@@ -1,0 +1,133 @@
+{
+  "chapter": "त्रिकोणमिति का परिचय",
+  "exercises": [
+    {
+      "exercise": "8.1",
+      "questions": [
+        {
+          "question": "1. ∆ABC में, जिसका कोण B समकोण है, AB = 24 cm और BC = 7 cm है। निम्नलिखित का मान ज्ञात कीजिए:",
+          "sub_questions": [
+            "I. sin A, cos A",
+            "II. sin C, cos C"
+          ]
+        },
+        {
+          "question": "2. आकृति 8.13 में, tan P - cot R का मान ज्ञात कीजिए।"
+        },
+        {
+          "question": "3. यदि sin A = 3/4, तो cos A और tan A का मान परिकलित कीजिए।"
+        },
+        {
+          "question": "4. यदि 15cot A = 8 हो तो sin A और sec A का मान ज्ञात कीजिए।"
+        },
+        {
+          "question": "5. यदि secθ = 13/12 हो, तो अन्य सभी त्रिकोणमितीय अनुपात परिकलित कीजिए।"
+        },
+        {
+          "question": "6. यदि ∠A और ∠B न्यून कोण हैं, जहाँ cosA = cosB, तो दिखाइए कि ∠A = ∠B।"
+        },
+        {
+          "question": "7. यदि cotθ = 7/8, तो निम्नलिखित का मान निकालिए:",
+          "sub_questions": [
+            "I. (1 + sinθ)(1 - sinθ) / (1 + cosθ)(1 - cosθ)",
+            "II. cot²θ"
+          ]
+        },
+        {
+          "question": "8. यदि 3cot A = 4, तो जाँच कीजिए कि (1 - tan²A) / (1 + tan²A) = cos²A - sin²A है या नहीं।"
+        },
+        {
+          "question": "9. त्रिभुज ABC में, जिसका कोण B समकोण है, यदि tan A = 1/√3, तो निम्नलिखित के मान ज्ञात कीजिए:",
+          "sub_questions": [
+            "I. sin A cos C + cos A sin C",
+            "II. cos A cos C - sin A sin C"
+          ]
+        },
+        {
+          "question": "10. △PQR में, जिसका Q कोण समकोण है, PR + QR = 25 cm और PQ = 5 cm है। sin P, cos P और tan P के मान ज्ञात कीजिए।"
+        },
+        {
+          "question": "11. बताइए कि निम्नलिखित कथन सत्य हैं या असत्य। कारण सहित अपने उत्तर की पुष्टि कीजिए।",
+          "sub_questions": [
+            "I. tan A का मान सदैव 1 से कम होता है।",
+            "II. cos A, कोण A के cosecant के लिए प्रयुक्त एक संक्षिप्त रूप है।",
+            "III. cot A, cot और A का गुणनफल होता है।",
+            "IV. किसी भी कोण θ के लिए sinθ = 4/3।"
+          ]
+        }
+      ]
+    },
+    {
+      "exercise": "8.2",
+      "questions": [
+        {
+          "question": "1. निम्नलिखित के मान निकालिए:",
+          "sub_questions": [
+            "I. sin 60° * cos 30° + sin 30° * cos 60°",
+            "II. 2tan²45° + cos²30° - sin²60°",
+            "III. cos 45° / sec 30° + cosec 30°",
+            "IV. sin 30° + tan 45° - cosec 60° / sec 30° + cos 60° + cot 45°",
+            "V. 5cos²60° + 4sec²30° - tan²45° / sin²30° + cos²30°"
+          ]
+        },
+        {
+          "question": "2. सही विकल्प चुनिए और अपने विकल्प का औचित्य दीजिए:",
+          "sub_questions": [
+            "I. 2tan 30° / (1 + tan²30°) = (A) sin 60° (B) cos 60° (C) 1 (D) tan 60°",
+            "II. (1 - tan²45°) / (1 + tan²45°) = (A) tan 90° (B) 1 (C) sin 45° (D) 0",
+            "III. sin 2A = 2 sin A तब सत्य होता है, जबकि A बराबर है: (A) 0° (B) 30° (C) 45° (D) 60°",
+            "IV. 2tan 30° / (1 - tan²30°) बराबर है : (A) cos 60° (B) sin 60° (C) tan 60° (D) sin 30°"
+          ]
+        },
+        {
+          "question": "3. यदि tan(A + B) = √3 और tan(A - B) = 1/√3; 0° < A + B <= 90°, A > B, तो A और B का मान ज्ञात कीजिए।"
+        },
+        {
+          "question": "4. निम्नलिखित कथनों के लिए सत्य-असत्य जाँचिए और कारण सहित उत्तर दीजिए:",
+          "sub_questions": [
+            "I. sin(A + B) = sin A + sin B",
+            "II. θ में वृद्धि होने के साथ sin θ के मान में भी वृद्धि होती है।",
+            "III. θ में वृद्धि होने के साथ cos θ के मान में भी वृद्धि होती है।",
+            "IV. θ के सभी मानों पर sin θ = cos θ",
+            "V. A = 0° पर cot A परिभाषित नहीं है।"
+          ]
+        }
+      ]
+    },
+    {
+      "exercise": "8.3",
+      "questions": [
+        {
+          "question": "1. त्रिकोणमितीय अनुपातों sin A, sec A और tan A को cot A के पदों में व्यक्त कीजिए।"
+        },
+        {
+          "question": "2. ∠A के अन्य सभी त्रिकोणमितीय अनुपातों को sec A के पदों में लिखिए।"
+        },
+        {
+          "question": "3. सही विकल्प चुनिए और अपने विकल्प की पुष्टि कीजिए:",
+          "sub_questions": [
+            "I. 9sec²A - 9tan²A = (A) 1 (B) 9 (C) 8 (D) 0",
+            "II. (1 + tanθ + secθ)(1 + cotθ - cosecθ) = (A) 0 (B) 1 (C) 2 (D) -1",
+            "III. ( sec A + tan A ) ( 1 - sin A ) = (A) sec A (B) sin A (C) cosec A (D) cos A",
+            "IV. (1 + tan²A) / (1 + cot²A) = (A) sec²A (B) -1 (C) cot²A (D) tan²A"
+          ]
+        },
+        {
+          "question": "4. निम्नलिखित सर्वसमिकाएँ सिद्ध कीजिए:",
+          "sub_questions": [
+            "I. (cosec θ – cot θ)² = (1 - cos θ) / (1 + cos θ)",
+            "II. cos A / (1 + sin A) + (1 + sin A) / cos A = 2sec A",
+            "III. tan θ / (1 – cot θ) / cot θ / (1 – tan θ) = 1 + sec θ cosec θ",
+            "IV. 1 + sec A / sec A = sin²A / (1 – cos A)",
+            "V. सर्वसमिका cosec² A = 1 + cot² A को लागू करके (cos A - sin A + 1) / (cos A + sin A - 1) = cosec A + cot A",
+            "VI. √((1 + sin A) / (1 - sin A)) = sec A + tan A",
+            "VII. (sin θ – 2sin³θ) / (2cos³θ - cos θ) = tan θ",
+            "VIII. (sin A + cosec A)² + (cos A + sec A)² = 7 + tan²A + cot²A",
+            "IX. (cosec A - sin A)(sec A - cos A) = 1 / (tan A + cot A)",
+            "X. ((1 + tan²A) / (1 + cot²A)) = ((1 - tan A) / (1 - cot A))² = tan²A"
+          ]
+        }
+      ]
+    }
+  ]
+}
