@@ -1,0 +1,171 @@
+{
+  "chapter": "Probability",
+  "exercises": [
+    {
+      "exercise": "14.1",
+      "questions": [
+        {
+          "question": "Complete the following statements:",
+          "sub_questions": [
+            "Probability of an event E + Probability of the event ‘not E’ = __.",
+            "The probability of an event that cannot happen is __. Such an event is called __.",
+            "The probability of an event that is certain to happen is __. Such an event is called __.",
+            "The sum of the probabilities of all the elementary events of an experiment is __.",
+            "The probability of an event is greater than or equal to __ and less than or equal to __."
+          ]
+        },
+        {
+          "question": "Which of the following experiments have equally likely outcomes? Explain.",
+          "sub_questions": [
+            "A driver attempts to start a car. The car starts or does not start.",
+            "A player attempts to shoot a basketball. She/he shoots or misses the shot.",
+            "A trial is made to answer a true-false question. The answer is right or wrong.",
+            "A baby is born. It is a boy or a girl."
+          ]
+        },
+        {
+          "question": "Why is tossing a coin considered to be a fair way of deciding which team should get the ball at the beginning of a football game?"
+        },
+        {
+          "question": "Which of the following cannot be the probability of an event?",
+          "options": ["2/3", "-1.5", "15%", "0.7"]
+        },
+        {
+          "question": "If P(E) = 0.05, what is the probability of ‘not E’?"
+        },
+        {
+          "question": "A bag contains lemon-flavoured candies only. Malini takes out one candy without looking into the bag. What is the probability that she takes out",
+          "sub_questions": [
+            "an orange-flavoured candy?",
+            "a lemon-flavoured candy?"
+          ]
+        },
+        {
+          "question": "It is given that in a group of 3 students, the probability of 2 students not having the same birthday is 0.992. What is the probability that the 2 students have the same birthday?"
+        },
+        {
+          "question": "A bag contains 3 red balls and 5 black balls. A ball is drawn at random from the bag. What is the probability that the ball drawn is",
+          "sub_questions": [
+            "red?",
+            "not red?"
+          ]
+        },
+        {
+          "question": "A box contains 5 red marbles, 8 white marbles, and 4 green marbles. One marble is taken out of the box at random. What is the probability that the marble taken out will be",
+          "sub_questions": [
+            "red?",
+            "white?",
+            "not green?"
+          ]
+        },
+        {
+          "question": "A piggy bank contains hundred 50p coins, fifty ₹1 coins, twenty ₹2 coins, and ten ₹5 coins. If it is equally likely that one of the coins will fall out when the bank is turned upside down, what is the probability that the coin",
+          "sub_questions": [
+            "will be a 50p coin?",
+            "will not be a ₹5 coin?"
+          ]
+        },
+        {
+          "question": "Gopi buys a fish from a shop for his aquarium. The shopkeeper takes out one fish at random from a tank containing 5 male fish and 8 female fish. What is the probability that the fish taken out is a male fish?",
+          "image": "Figure 14.4"
+        },
+        {
+          "question": "A game of chance consists of spinning an arrow which comes to rest pointing at one of the numbers 1, 2, 3, 4, 5, 6, 7, 8. What is the probability that it will point at",
+          "sub_questions": [
+            "8?",
+            "an odd number?",
+            "a number greater than 2?",
+            "a number less than 9?"
+          ],
+          "image": "Figure 14.5"
+        },
+        {
+          "question": "A die is thrown once. Find the probability of getting",
+          "sub_questions": [
+            "a prime number",
+            "a number lying between 2 and 6",
+            "an odd number"
+          ]
+        },
+        {
+          "question": "One card is drawn from a well-shuffled deck of 52 cards. Find the probability of getting",
+          "sub_questions": [
+            "a king of red colour",
+            "a face card",
+            "a red face card",
+            "the jack of hearts",
+            "a spade",
+            "the queen of diamonds"
+          ]
+        },
+        {
+          "question": "Five cards—the ten, jack, queen, king, and ace of diamonds—are well-shuffled with their faces down. One card is picked up at random. What is the probability that",
+          "sub_questions": [
+            "the card is the queen?",
+            "If the queen is drawn and put aside, what is the probability that the second card picked up is an ace?",
+            "If the queen is drawn and put aside, what is the probability that the second card picked up is a queen?"
+          ]
+        },
+        {
+          "question": "12 defective pens are accidentally mixed with 132 good ones. One pen is taken out at random from this lot. Determine the probability that the pen taken out is a good one."
+        },
+        {
+          "question": "A lot of 20 bulbs contains 4 defective ones. One bulb is drawn at random from the lot.",
+          "sub_questions": [
+            "What is the probability that this bulb is defective?",
+            "Suppose the bulb drawn is not defective and is not replaced. Now one bulb is drawn at random from the rest. What is the probability that this bulb is not defective?"
+          ]
+        },
+        {
+          "question": "A box contains 90 discs numbered from 1 to 90. If one disc is drawn at random from the box, find the probability that it bears",
+          "sub_questions": [
+            "a two-digit number",
+            "a perfect square number",
+            "a number divisible by 5"
+          ]
+        },
+        {
+          "question": "A child has a die whose six faces show the letters as given below: A B C D E A. The die is thrown once. What is the probability of getting",
+          "sub_questions": [
+            "A?",
+            "D?"
+          ]
+        },
+        {
+          "question": "Suppose you drop a die at random on the rectangular region shown in Fig. 14.6. What is the probability that it will land inside the circle with diameter 1m?",
+          "image": "Figure 14.6"
+        },
+        {
+          "question": "A lot consists of 144 ball pens of which 20 are defective and the others are good. Nuri will buy a pen if it is good but will not buy if it is defective. The shopkeeper draws one pen at random and gives it to her. What is the probability that",
+          "sub_questions": [
+            "she will buy it?",
+            "she will not buy it?"
+          ]
+        },
+        {
+          "question": "Refer to Example 13. (i) Complete the following table: Event : ‘Sum on 2 dice’ - 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12. Probability : 1/36, 2/36, 3/36, 4/36, 5/36, 6/36, 5/36, 4/36, 3/36, 2/36, 1/36.",
+          "sub_questions": [
+            "A student argues that there are 11 possible outcomes 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, and 12. Therefore, each of them has a probability of 1/11. Do you agree with this argument? Justify your answer."
+          ]
+        },
+        {
+          "question": "A game consists of tossing a one-rupee coin 3 times and noting its outcome each time. Hanif wins if all the tosses give the same result, i.e., three heads or three tails, and loses otherwise. Calculate the probability that Hanif will lose the game."
+        },
+        {
+          "question": "A die is thrown twice. What is the probability that",
+          "sub_questions": [
+            "5 will not come up either time?",
+            "5 will come up at least once?"
+          ]
+        },
+        {
+          "question": "Which of the following arguments are correct and which are not correct? Give reasons for your answer.",
+          "sub_questions": [
+            "If two coins are tossed simultaneously, there are three possible outcomes: two heads, two tails, or one of each. Therefore, for each of these outcomes, the probability is 1/3.",
+            "If a die is thrown, there are two possible outcomes: an odd number or an even number. Therefore, the probability of getting an odd number is 1/2."
+          ]
+        }
+      ]
+    }
+  ]
+}

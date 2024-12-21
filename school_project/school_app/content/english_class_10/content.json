@@ -1,0 +1,22 @@
+{
+    "book_name": "Mathematics - Class 10",
+    "language": "English",
+    "class": "10",
+    "chapters": [
+      {
+        "id": 1,
+        "name": "Real Numbers",
+        "topics": ["Rational and Irrational Numbers", "Density of Real Numbers"]
+      },
+      {
+        "id": 2,
+        "name": "Polynomials",
+        "topics": ["Introduction to Polynomials", "Zeros of Polynomials", "Division of Polynomials"]
+      },
+      {
+        "id": 3,
+        "name": "Pair of Linear Equations in Two Variables",
+        "topics": ["Linear Equations", "Graphical Method", "Substitution Method"]
+      }
+    ]
+  }

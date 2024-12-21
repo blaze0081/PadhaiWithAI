@@ -1,0 +1,75 @@
+{
+  "chapter": "Surface Areas and Volumes",
+  "exercises": [
+    {
+      "exercise": "12.1",
+      "questions": [
+        {
+          "question": "2 cubes each of volume 64 cm³ are joined end to end. Find the surface area of the resulting cuboid."
+        },
+        {
+          "question": "A vessel is in the form of a hollow hemisphere mounted by a hollow cylinder. The diameter of the hemisphere is 14 cm and the total height of the vessel is 13 cm. Find the inner surface area of the vessel."
+        },
+        {
+          "question": "A toy is in the form of a cone of radius 3.5 cm mounted on a hemisphere of the same radius. The total height of the toy is 15.5 cm. Find the total surface area of the toy."
+        },
+        {
+          "question": "A cubical block of side 7 cm is surmounted by a hemisphere. What is the greatest diameter the hemisphere can have? Find the surface area of the solid."
+        },
+        {
+          "question": "A hemispherical depression is cut out from one face of a cubical wooden block such that the diameter of the hemisphere is equal to the edge of the cube. Determine the surface area of the remaining solid."
+        },
+        {
+          "question": "A medicine capsule is in the shape of a cylinder with two hemispheres stuck to each of its ends. The length of the entire capsule is 14 mm and the diameter of the capsule is 5 mm. Find its surface area.",
+          "image": "Fig. 12.10"
+        },
+        {
+          "question": "A tent is in the shape of a cylinder surmounted by a conical top. If the height and diameter of the cylindrical part are 2.1 m and 4 m, respectively, and the slant height of the top is 2.8 m, find the area of the canvas used for making the tent. Also, find the cost of the canvas at the rate of ₹500 per m².",
+          "image": "Fig. 12.11"
+        },
+        {
+          "question": "From a solid cylinder whose height is 2.4 cm and diameter 1.4 cm, a conical cavity of the same height and base is hollowed out. Find the total surface area of the remaining solid.",
+          "image": "Fig. 12.12"
+        },
+        {
+          "question": "A wooden article was made by scooping out a hemisphere from each end of a solid cylinder, as shown in Fig. 12.13. If the height of the cylinder is 10 cm, and its base is of radius 3.5 cm, find the total surface area of the article.",
+          "image": "Fig. 12.13"
+        }
+      ]
+    },
+    {
+      "exercise": "12.2",
+      "questions": [
+        {
+          "question": "A solid is in the shape of a cone standing on a hemisphere with both their radii being equal to 1 cm and the height of the cone is equal to its radius. Find the volume of the solid in terms of π."
+        },
+        {
+          "question": "Rachel, an engineering student, was asked to make a model shaped like a cylinder with two cones attached at its two ends by using a thin aluminium sheet. The diameter of the model is 3 cm and its length is 12 cm. If each cone has a height of 2 cm, find the volume of air contained in the model that Rachel made.",
+          "image": "Fig. 12.14"
+        },
+        {
+          "question": "A gulab jamun contains sugar syrup up to about 30% of its volume. Find approximately how much syrup would be found in 45 gulab jamuns, each shaped like a cylinder with two hemispherical ends with length 5 cm and diameter 2.8 cm.",
+          "image": "Fig. 12.15"
+        },
+        {
+          "question": "A pen stand made of wood is in the shape of a cuboid with four conical depressions to hold pens. The dimensions of the cuboid are 15 cm by 10 cm by 3.5 cm. The radius of each of the depressions is 0.5 cm and the depth is 1.4 cm. Find the volume of wood in the entire stand.",
+          "image": "Fig. 12.16"
+        },
+        {
+          "question": "A vessel is in the form of an inverted cone. Its height is 8 cm and the radius of its top, which is open, is 5 cm. It is filled with water up to the brim. When lead shots, each of which is a sphere of radius 0.5 cm, are dropped into the vessel, one-fourth of the water flows out. Find the number of lead shots dropped in the vessel."
+        },
+        {
+          "question": "A spherical glass vessel has a cylindrical neck 8 cm long, 2 cm in diameter; the diameter of the spherical part is 8.5 cm. By measuring the amount of water it holds, find the volume of the vessel.",
+          "image": "Fig. 12.17"
+        },
+        {
+          "question": "A solid toy is in the form of a hemisphere surmounted by a right circular cone. The height of the cone is 4 cm and the diameter of the base is 10 cm. If a right circular cylinder circumscribes the solid, find the difference of the volumes of the cylinder and the solid.",
+          "image": "Fig. 12.18"
+        },
+        {
+          "question": "A spherical ball of radius 3 cm is melted and recast into three smaller balls. If the radii of two of these balls are 1.5 cm and 2 cm, find the diameter of the third ball."
+        }
+      ]
+    }
+  ]
+}

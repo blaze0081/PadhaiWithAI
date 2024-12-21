@@ -88,3 +88,12 @@ class Marks(models.Model):
     
     def __str__(self):
         return f"{self.student.name} - {self.test_number}: {self.marks}"
+    
+class Book(models.Model):
+    name = models.CharField(max_length=100)
+    language = models.CharField(max_length=20)
+    json_file_path = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f"{self.name} ({self.language})"
+

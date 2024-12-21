@@ -1,0 +1,128 @@
+{
+  "chapter": "Trigonometry",
+  "exercises": [
+    {
+      "exercise": "8.1",
+      "questions": [
+        {
+          "question": "In Δ ABC, right-angled at B, AB = 24 cm, BC = 7 cm. Determine:",
+          "sub_questions": [
+            "sin A, cos A",
+            "sin C, cos C"
+          ]
+        },
+        {
+          "question": "In Fig. 8.13, find tan P - cot R.",
+          "image": "Figure 8.13 (attached in the PDF)"
+        },
+        {
+          "question": "If sin A = 3/4, calculate cos A and tan A."
+        },
+        {
+          "question": "Given 15 cot A = 8, find sin A and sec A."
+        },
+        {
+          "question": "Given sec θ = 13/12, calculate all other trigonometric ratios."
+        },
+        {
+          "question": "If ∠A and ∠B are acute angles such that cos A = cos B, then show that ∠A = ∠B."
+        },
+        {
+          "question": "If cot θ = 7/8, evaluate:",
+          "sub_questions": [
+            "(1 + sin θ)(1 - sin θ) / (1 + cos θ)(1 - cos θ)",
+            "cot² θ"
+          ]
+        },
+        {
+          "question": "If 3 cot A = 4, check whether (1 - tan² A) / (1 + tan² A) = cos² A - sin² A."
+        },
+        {
+          "question": "In triangle ABC, right-angled at B, if tan A = 1/3, find the value of:",
+          "sub_questions": [
+            "sin A cos C + cos A sin C",
+            "cos A cos C - sin A sin C"
+          ]
+        },
+        {
+          "question": "In Δ PQR, right-angled at Q, PR + QR = 25 cm and PQ = 5 cm. Determine the values of sin P, cos P, and tan P."
+        },
+        {
+          "question": "State whether the following are true or false. Justify your answer.",
+          "sub_questions": [
+            "The value of tan A is always less than 1.",
+            "sec A = 12/5 for some value of angle A.",
+            "cos A is the abbreviation used for the cosecant of angle A."
+          ]
+        }
+      ]
+    },
+    {
+      "exercise": "8.2",
+      "questions": [
+        {
+          "question": "Evaluate the following:",
+          "sub_questions": [
+            "sin 60° cos 30° + sin 30° cos 60°",
+            "2 tan² 45° + cos² 30° - sin² 60°",
+            "cos 45° / (sec 30° + cosec 30°)",
+            "(sin 30° + tan 45° - cosec 60°) / (sec 30° + cos 60° + cot 45°)",
+            "(5 cos² 60° + 4 sec² 30° - tan² 45°) / (sin² 30° + cos² 30°)"
+          ]
+        },
+        {
+          "question": "Choose the correct option and justify your choice:",
+          "sub_questions": [
+            "2 tan² 30° / (1 + tan² 30°) = ?",
+            "(1 - tan² 45°) / (1 + tan² 45°) = ?",
+            "sin 2A = 2 sin A is true when A = ?",
+            "2 tan² 30° / (1 - tan² 30°) = ?"
+          ]
+        },
+        {
+          "question": "If tan (A + B) = 3 and tan (A - B) = 1/3, 0° < A + B ≤ 90°, A > B, find A and B."
+        },
+        {
+          "question": "State whether the following are true or false. Justify your answer.",
+          "sub_questions": [
+            "sin (A + B) = sin A + sin B.",
+            "The value of sin θ increases as θ increases.",
+            "The value of cos θ increases as θ increases.",
+            "sin θ = cos θ for all values of θ.",
+            "cot A is not defined for A = 0°."
+          ]
+        }
+      ]
+    },
+    {
+      "exercise": "8.3",
+      "questions": [
+        {
+          "question": "Express the trigonometric ratios sin A, sec A, and tan A in terms of cot A."
+        },
+        {
+          "question": "Write all the other trigonometric ratios of ∠A in terms of sec A."
+        },
+        {
+          "question": "Choose the correct option. Justify your choice.",
+          "sub_questions": [
+            "9 sec² A - 9 tan² A = ?",
+            "(1 + tan θ + sec θ)(1 + cot θ - cosec θ) = ?",
+            "(sec A + tan A)(1 - sin A) = ?",
+            "(1 + tan² A) / (1 + cot² A) = ?"
+          ]
+        },
+        {
+          "question": "Prove the following identities, where the angles involved are acute angles for which the expressions are defined.",
+          "sub_questions": [
+            "(cosec θ - cot θ)² = (1 - cos θ) / (1 + cos θ)",
+            "(cos A + 1)/(sec A + tan A) = 2 sec A / (1 + sin A)",
+            "(tan θ + cot θ) = (sec θ - cosec θ)",
+            "(sec² A - 1) / tan² A = tan² A",
+            "(sin A - cos A + 1)/(cos A + sin A - 1) = cot A"
+          ]
+        }
+      ]
+    }
+  ]
+}

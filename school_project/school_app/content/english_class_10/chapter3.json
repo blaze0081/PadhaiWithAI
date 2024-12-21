@@ -1,0 +1,98 @@
+{
+  "chapter": "Pair of Linear Equations in Two Variables",
+  "exercises": [
+    {
+      "exercise": "3.1",
+      "questions": [
+        {
+          "question": "Form the pair of linear equations in the following problems, and find their solutions graphically.",
+          "sub_questions": [
+            "10 students took part in a Mathematics quiz. If the number of girls is 4 more than the number of boys, find the number of boys and girls.",
+            "5 pencils and 7 pens together cost ₹50, whereas 7 pencils and 5 pens together cost ₹46. Find the cost of one pencil and one pen."
+          ]
+        },
+        {
+          "question": "Compare the ratios a₁/a₂, b₁/b₂, and c₁/c₂, and determine whether the lines representing the given pairs of linear equations intersect at a point, are parallel, or are coincident.",
+          "sub_questions": [
+            "5x – 4y + 8 = 0 and 7x + 6y - 9 = 0",
+            "9x + 3y + 12 = 0 and 18x + 6y + 24 = 0",
+            "6x - 3y + 10 = 0 and 2x - y + 9 = 0"
+          ]
+        },
+        {
+          "question": "On comparing the ratios a₁/a₂ and b₁/b₂, find out whether the following pairs of linear equations are consistent or inconsistent.",
+          "sub_questions": [
+            "3x + 2y = 5 and 2x - 3y = 7",
+            "2x - 3y = 8 and 4x - 6y = 9",
+            "3/2x + 5/2y = 7/2 and 9x - 10y = 14"
+          ]
+        },
+        {
+          "question": "Determine if the following pairs of linear equations are consistent/inconsistent. If consistent, obtain the solution graphically.",
+          "sub_questions": [
+            "x + y = 5 and 2x + 2y = 10",
+            "x - y = 8 and 3x - 3y = 16",
+            "2x + y - 6 = 0 and 4x - 2y - 4 = 0"
+          ]
+        },
+        {
+          "question": "Half the perimeter of a rectangular garden, whose length is 4 m more than its width, is 36 m. Find the dimensions of the garden."
+        },
+        {
+          "question": "Given the linear equation 2x + 3y - 8 = 0, write another linear equation in two variables such that the geometrical representation of the pair so formed is:",
+          "sub_questions": [
+            "intersecting lines",
+            "parallel lines",
+            "coincident lines"
+          ]
+        },
+        {
+          "question": "Draw the graphs of the equations x - y + 1 = 0 and 3x + 2y - 12 = 0. Determine the coordinates of the vertices of the triangle formed by these lines and the x-axis, and shade the triangular region."
+        }
+      ]
+    },
+    {
+      "exercise": "3.2",
+      "questions": [
+        {
+          "question": "Solve the following pairs of linear equations by the substitution method.",
+          "sub_questions": [
+            "x + y = 14 and x - y = 4",
+            "s - t = 3 and 6s + 2t = 20",
+            "3x - y = 3 and 9x - 3y = 9"
+          ]
+        },
+        {
+          "question": "Solve 2x + 3y = 11 and 2x - 4y = -24 and find the value of ‘m’ for which y = mx + 3."
+        },
+        {
+          "question": "Form the pair of linear equations for the following problems and solve by substitution method.",
+          "sub_questions": [
+            "The difference between two numbers is 26, and one number is three times the other. Find them.",
+            "The larger of two supplementary angles exceeds the smaller by 18 degrees. Find them.",
+            "The taxi charges consist of a fixed charge along with a charge per kilometer. For a 10 km journey, the charge is ₹105, and for a 15 km journey, it is ₹155. Find the fixed and per km charges."
+          ]
+        }
+      ]
+    },
+    {
+      "exercise": "3.3",
+      "questions": [
+        {
+          "question": "Solve the following pairs of linear equations by the elimination method and substitution method.",
+          "sub_questions": [
+            "x + y = 5 and 2x - 3y = 4",
+            "3x + 4y = 10 and 2x - 2y = 2"
+          ]
+        },
+        {
+          "question": "Form the pair of linear equations in the following problems and solve by elimination method.",
+          "sub_questions": [
+            "If we add 1 to the numerator and subtract 1 from the denominator, a fraction reduces to 1. It becomes 1/2 if we only add 1 to the denominator. What is the fraction?",
+            "Five years ago, Nuri was thrice as old as Sonu. Ten years later, Nuri will be twice as old as Sonu. How old are they?"
+          ]
+        }
+      ]
+    }
+  ]
+}

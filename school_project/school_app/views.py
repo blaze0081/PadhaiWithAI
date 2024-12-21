@@ -6,7 +6,10 @@ from .models import School, Student, Marks, CustomUser
 from .forms import StudentForm, MarksForm, SchoolForm, SchoolAdminRegistrationForm
 from django.db.models import Count
 from .math_utils import solve_math_problem, generate_similar_questions
-
+import json
+import os
+from django.conf import settings
+from django.http import JsonResponse
 
 
 def is_system_admin(user):
@@ -92,7 +95,6 @@ def system_admin_marks_list(request, school_id=None):
         marks = Marks.objects.all()
     return render(request, 'school_app/marks_list.html', {'marks': marks})
 
-# Existing views remain the same
 @login_required
 def student_list(request):
     school = School.objects.get(admin=request.user)
@@ -157,9 +159,125 @@ def logout_view(request):
     logout(request)
     return redirect('login')
 
+# Math Tools Functions
+def get_available_books():
+    """Return a list of available books from the content directory"""
+    content_dir = os.path.join(settings.BASE_DIR, 'school_app', 'content')
+    books = []
+    
+    try:
+        # List all directories (books) in content folder
+        book_dirs = [d for d in os.listdir(content_dir) 
+                    if os.path.isdir(os.path.join(content_dir, d))]
+        
+        for book_dir in book_dirs:
+            content_file = os.path.join(content_dir, book_dir, 'content.json')
+            if os.path.exists(content_file):
+                with open(content_file, 'r', encoding='utf-8') as f:
+                    book_info = json.load(f)
+                    books.append({
+                        'id': book_dir,  # Use directory name as ID
+                        'name': book_info['book_name'],
+                        'language': book_info['language'],
+                        'class': book_info['class']
+                    })
+    except Exception as e:
+        print(f"Error loading books: {e}")
+    
+    return books
+
+def load_chapter_content(book_id, chapter_id):
+    """Load the content of a specific chapter from a book"""
+    try:
+        chapter_file = os.path.join(
+            settings.BASE_DIR, 
+            'school_app', 
+            'content', 
+            book_id, 
+            f'chapter{chapter_id}.json'
+        )
+        
+        with open(chapter_file, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception as e:
+        print(f"Error loading chapter content: {e}")
+        return None
+    
+def get_book_chapters(book_id):
+    """Return a list of chapters for a given book ID"""
+    try:
+        content_file = os.path.join(
+            settings.BASE_DIR,
+            'school_app',
+            'content',
+            book_id,
+            'content.json'
+        )
+        
+        if os.path.exists(content_file):
+            with open(content_file, 'r', encoding='utf-8') as f:
+                book_info = json.load(f)
+                return book_info.get('chapters', [])
+        return []
+        
+    except Exception as e:
+        print(f"Error loading chapters for book {book_id}: {e}")
+        return []
+
 @login_required
 def math_tools(request):
-    return render(request, 'school_app/math_tools.html')
+    context = {
+        'books': get_available_books(),
+        'selected_book': request.session.get('selected_book'),
+        'selected_chapter': request.session.get('selected_chapter')
+    }
+    
+    # If a book is selected, load its chapters
+    if context['selected_book']:
+        context['chapters'] = get_book_chapters(context['selected_book'])
+    
+    return render(request, 'school_app/math_tools.html', context)
+
+@login_required
+def load_questions(request):
+    if request.method == 'POST':
+        book_id = request.POST.get('book')
+        chapter_id = request.POST.get('chapter')
+        
+        if not book_id or not chapter_id:
+            messages.error(request, 'Please select both book and chapter')
+            return redirect('math_tools')
+        
+        # Store selections in session
+        request.session['selected_book'] = book_id
+        request.session['selected_chapter'] = chapter_id
+        
+        # Load chapter content
+        content = load_chapter_content(book_id, chapter_id)
+        
+        context = {
+            'books': get_available_books(),
+            'selected_book': book_id,
+            'chapters': get_book_chapters(book_id),
+            'selected_chapter': chapter_id,
+        }
+        
+        if content:
+            context['questions'] = content.get('exercises', [])
+            # Get chapter name for display
+            for chapter in context['chapters']:
+                if str(chapter['id']) == str(chapter_id):
+                    context['chapter_name'] = chapter['name']
+                    break
+        else:
+            messages.warning(
+                request, 
+                f'No content found for Chapter {chapter_id} in selected book'
+            )
+        
+        return render(request, 'school_app/math_tools.html', context)
+    
+    return redirect('math_tools')
 
 @login_required
 def solve_math(request):
@@ -185,3 +303,11 @@ def generate_math(request):
             )
     return render(request, 'school_app/math_tools.html', {'generated_questions': generated_questions})
 
+
+@login_required
+def get_chapters(request, book_id):
+    try:
+        chapters = get_book_chapters(book_id)
+        return JsonResponse({'chapters': chapters})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)

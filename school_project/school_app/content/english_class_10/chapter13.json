@@ -1,0 +1,400 @@
+{
+  "chapter": "Statistics",
+  "exercises": [
+    {
+      "exercise": "13.1",
+      "questions": [
+        {
+          "question": "A survey was conducted by a group of students as a part of their environment awareness programme, in which they collected the following data regarding the number of plants in 20 houses in a locality. Find the mean number of plants per house.",
+          "sub_questions": [
+            {
+              "Number of plants": "0 - 2",
+              "Number of houses": "1"
+            },
+            {
+              "Number of plants": "2 - 4",
+              "Number of houses": "2"
+            },
+            {
+              "Number of plants": "4 - 6",
+              "Number of houses": "1"
+            },
+            {
+              "Number of plants": "6 - 8",
+              "Number of houses": "5"
+            },
+            {
+              "Number of plants": "8 - 10",
+              "Number of houses": "6"
+            },
+            {
+              "Number of plants": "10 - 12",
+              "Number of houses": "2"
+            },
+            {
+              "Number of plants": "12 - 14",
+              "Number of houses": "3"
+            }
+          ]
+        },
+        {
+          "question": "Consider the following distribution of daily wages of 50 workers of a factory.",
+          "sub_questions": [
+            {
+              "Daily wages (in Rs)": "500 - 520",
+              "Number of workers": "12"
+            },
+            {
+              "Daily wages (in Rs)": "520 - 540",
+              "Number of workers": "14"
+            },
+            {
+              "Daily wages (in Rs)": "540 - 560",
+              "Number of workers": "8"
+            },
+            {
+              "Daily wages (in Rs)": "560 - 580",
+              "Number of workers": "6"
+            },
+            {
+              "Daily wages (in Rs)": "580 - 600",
+              "Number of workers": "10"
+            }
+          ]
+        },
+        {
+          "question": "The following distribution shows the daily pocket allowance of children of a locality. The mean pocket allowance is Rs 18. Find the missing frequency f.",
+          "sub_questions": [
+            {
+              "Daily pocket allowance (in Rs)": "11 - 13",
+              "Number of children": "7"
+            },
+            {
+              "Daily pocket allowance (in Rs)": "13 - 15",
+              "Number of children": "6"
+            },
+            {
+              "Daily pocket allowance (in Rs)": "15 - 17",
+              "Number of children": "9"
+            },
+            {
+              "Daily pocket allowance (in Rs)": "17 - 19",
+              "Number of children": "13"
+            },
+            {
+              "Daily pocket allowance (in Rs)": "19 - 21",
+              "Number of children": "f"
+            },
+            {
+              "Daily pocket allowance (in Rs)": "21 - 23",
+              "Number of children": "5"
+            },
+            {
+              "Daily pocket allowance (in Rs)": "23 - 25",
+              "Number of children": "4"
+            }
+          ]
+        },
+        {
+          "question": "Thirty women were examined in a hospital by a doctor, and the number of heartbeats per minute were recorded and summarised as follows. Find the mean heartbeats per minute for these women, choosing a suitable method.",
+          "sub_questions": [
+            {
+              "Number of heartbeats per minute": "65 - 68",
+              "Number of women": "2"
+            },
+            {
+              "Number of heartbeats per minute": "68 - 71",
+              "Number of women": "4"
+            },
+            {
+              "Number of heartbeats per minute": "71 - 74",
+              "Number of women": "3"
+            },
+            {
+              "Number of heartbeats per minute": "74 - 77",
+              "Number of women": "8"
+            },
+            {
+              "Number of heartbeats per minute": "77 - 80",
+              "Number of women": "7"
+            },
+            {
+              "Number of heartbeats per minute": "80 - 83",
+              "Number of women": "4"
+            },
+            {
+              "Number of heartbeats per minute": "83 - 86",
+              "Number of women": "2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "exercise": "13.2",
+      "questions": [
+        {
+          "question": "The following table shows the ages of the patients admitted in a hospital during a year:",
+          "sub_questions": [
+            {
+              "Age (in years)": "5 - 15",
+              "Number of patients": "6"
+            },
+            {
+              "Age (in years)": "15 - 25",
+              "Number of patients": "11"
+            },
+            {
+              "Age (in years)": "25 - 35",
+              "Number of patients": "21"
+            },
+            {
+              "Age (in years)": "35 - 45",
+              "Number of patients": "23"
+            },
+            {
+              "Age (in years)": "45 - 55",
+              "Number of patients": "14"
+            },
+            {
+              "Age (in years)": "55 - 65",
+              "Number of patients": "5"
+            }
+          ]
+        },
+        {
+          "question": "The following data gives the information on the observed lifetimes (in hours) of 225 electrical components:",
+          "sub_questions": [
+            {
+              "Lifetimes (in hours)": "0 - 20",
+              "Frequency": "10"
+            },
+            {
+              "Lifetimes (in hours)": "20 - 40",
+              "Frequency": "35"
+            },
+            {
+              "Lifetimes (in hours)": "40 - 60",
+              "Frequency": "52"
+            },
+            {
+              "Lifetimes (in hours)": "60 - 80",
+              "Frequency": "61"
+            },
+            {
+              "Lifetimes (in hours)": "80 - 100",
+              "Frequency": "38"
+            },
+            {
+              "Lifetimes (in hours)": "100 - 120",
+              "Frequency": "29"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "exercise": "13.3",
+      "questions": [
+        {
+          "question": "The following frequency distribution gives the monthly consumption of electricity of 68 consumers of a locality. Find the median, mean, and mode of the data and compare them.",
+          "sub_questions": [
+            {
+              "Monthly consumption (in units)": "65 - 85",
+              "Number of consumers": "4"
+            },
+            {
+              "Monthly consumption (in units)": "85 - 105",
+              "Number of consumers": "5"
+            },
+            {
+              "Monthly consumption (in units)": "105 - 125",
+              "Number of consumers": "13"
+            },
+            {
+              "Monthly consumption (in units)": "125 - 145",
+              "Number of consumers": "20"
+            },
+            {
+              "Monthly consumption (in units)": "145 - 165",
+              "Number of consumers": "14"
+            },
+            {
+              "Monthly consumption (in units)": "165 - 185",
+              "Number of consumers": "8"
+            },
+            {
+              "Monthly consumption (in units)": "185 - 205",
+              "Number of consumers": "4"
+            }
+          ]
+        },
+        {
+          "question": "If the median of the distribution given below is 28.5, find the values of x and y.",
+          "sub_questions": [
+            {
+              "Class interval": "0 - 10",
+              "Frequency": "5"
+            },
+            {
+              "Class interval": "10 - 20",
+              "Frequency": "x"
+            },
+            {
+              "Class interval": "20 - 30",
+              "Frequency": "20"
+            },
+            {
+              "Class interval": "30 - 40",
+              "Frequency": "15"
+            },
+            {
+              "Class interval": "40 - 50",
+              "Frequency": "y"
+            },
+            {
+              "Class interval": "50 - 60",
+              "Frequency": "5"
+            }
+          ]
+        },
+        {
+          "question": "A life insurance agent found the following data for distribution of ages of 100 policyholders. Calculate the median age, if policies are given only to persons aged 18 years and above but less than 60 years.",
+          "sub_questions": [
+            {
+              "Age (in years)": "Below 20",
+              "Number of policyholders": "2"
+            },
+            {
+              "Age (in years)": "Below 25",
+              "Number of policyholders": "6"
+            },
+            {
+              "Age (in years)": "Below 30",
+              "Number of policyholders": "24"
+            },
+            {
+              "Age (in years)": "Below 35",
+              "Number of policyholders": "45"
+            },
+            {
+              "Age (in years)": "Below 40",
+              "Number of policyholders": "78"
+            },
+            {
+              "Age (in years)": "Below 45",
+              "Number of policyholders": "89"
+            },
+            {
+              "Age (in years)": "Below 50",
+              "Number of policyholders": "92"
+            },
+            {
+              "Age (in years)": "Below 55",
+              "Number of policyholders": "98"
+            },
+            {
+              "Age (in years)": "Below 60",
+              "Number of policyholders": "100"
+            }
+          ]
+        },
+        {
+          "question": "The lengths of 40 leaves of a plant are measured correct to the nearest millimetre, and the data obtained is represented in the following table. Find the median length of the leaves.",
+          "sub_questions": [
+            {
+              "Length (in mm)": "118 - 126",
+              "Number of leaves": "3"
+            },
+            {
+              "Length (in mm)": "127 - 135",
+              "Number of leaves": "5"
+            },
+            {
+              "Length (in mm)": "136 - 144",
+              "Number of leaves": "9"
+            },
+            {
+              "Length (in mm)": "145 - 153",
+              "Number of leaves": "12"
+            },
+            {
+              "Length (in mm)": "154 - 162",
+              "Number of leaves": "5"
+            },
+            {
+              "Length (in mm)": "163 - 171",
+              "Number of leaves": "4"
+            },
+            {
+              "Length (in mm)": "172 - 180",
+              "Number of leaves": "2"
+            }
+          ]
+        },
+        {
+          "question": "The following table gives the distribution of the lifetime of 400 neon lamps. Find the median lifetime of a lamp.",
+          "sub_questions": [
+            {
+              "Lifetime (in hours)": "1500 - 2000",
+              "Number of lamps": "14"
+            },
+            {
+              "Lifetime (in hours)": "2000 - 2500",
+              "Number of lamps": "56"
+            },
+            {
+              "Lifetime (in hours)": "2500 - 3000",
+              "Number of lamps": "60"
+            },
+            {
+              "Lifetime (in hours)": "3000 - 3500",
+              "Number of lamps": "86"
+            },
+            {
+              "Lifetime (in hours)": "3500 - 4000",
+              "Number of lamps": "74"
+            },
+            {
+              "Lifetime (in hours)": "4000 - 4500",
+              "Number of lamps": "62"
+            },
+            {
+              "Lifetime (in hours)": "4500 - 5000",
+              "Number of lamps": "48"
+            }
+          ]
+        },
+        {
+          "question": "100 surnames were randomly picked up from a local telephone directory, and the frequency distribution of the number of letters in the surnames was obtained as follows. Determine the median number of letters in the surnames.",
+          "sub_questions": [
+            {
+              "Number of letters": "1 - 4",
+              "Number of surnames": "6"
+            },
+            {
+              "Number of letters": "4 - 7",
+              "Number of surnames": "30"
+            },
+            {
+              "Number of letters": "7 - 10",
+              "Number of surnames": "40"
+            },
+            {
+              "Number of letters": "10 - 13",
+              "Number of surnames": "16"
+            },
+            {
+              "Number of letters": "13 - 16",
+              "Number of surnames": "4"
+            },
+            {
+              "Number of letters": "16 - 19",
+              "Number of surnames": "4"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

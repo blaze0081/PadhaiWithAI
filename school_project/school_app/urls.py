@@ -16,6 +16,7 @@ urlpatterns = [
     path('math-tools/', views.math_tools, name='math_tools'),
     path('math-tools/solve/', views.solve_math, name='solve_math'),
     path('math-tools/generate/', views.generate_math, name='generate_math'),
+    path('math-tools/load-questions/', views.load_questions, name='load_questions'),
     
     # System Administrator URLs
     path('system-admin/dashboard/', views.system_admin_dashboard, name='system_admin_dashboard'),
@@ -25,4 +26,7 @@ urlpatterns = [
     path('system-admin/students/<int:school_id>/', views.system_admin_student_list, name='system_admin_school_students'),
     path('system-admin/marks/', views.system_admin_marks_list, name='system_admin_marks_list'),
     path('system-admin/marks/<int:school_id>/', views.system_admin_marks_list, name='system_admin_school_marks'),
+
+    path('get-chapters/<str:book_id>/', views.get_chapters, name='get_chapters'),
+
 ]

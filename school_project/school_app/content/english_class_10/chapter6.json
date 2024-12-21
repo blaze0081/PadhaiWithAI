@@ -1,0 +1,76 @@
+{
+  "chapter": "Triangles",
+  "exercises": [
+    {
+      "exercise": "6.1",
+      "questions": [
+        {
+          "question": "Fill in the blanks using the correct word given in brackets:",
+          "sub_questions": [
+            "All circles are ________. (congruent, similar)",
+            "All squares are ________. (similar, congruent)",
+            "All equilateral triangles are ________. (isosceles, similar)",
+            "Two polygons of the same number of sides are similar, if (a) their corresponding angles are ________ and (b) their corresponding sides are ________. (equal, proportional)"
+          ]
+        },
+        {
+          "question": "Give two different examples of pairs of:",
+          "sub_questions": [
+            "Similar figures",
+            "Non-similar figures"
+          ]
+        },
+        {
+          "question": "State whether the following quadrilaterals are similar or not:",
+          "image": "Figure 6.8"
+        }
+      ]
+    },
+    {
+      "exercise": "6.2",
+      "questions": [
+        {
+          "question": "In Fig. 6.17, DE || BC. Find EC in (i) and AD in (ii).",
+          "image": "Figure 6.17"
+        },
+        {
+          "question": "E and F are points on the sides PQ and PR respectively of a ΔPQR. For each of the following cases, state whether EF || QR:",
+          "sub_questions": [
+            "PE = 3.9 cm, EQ = 3 cm, PF = 3.6 cm, FR = 2.4 cm",
+            "PE = 4 cm, QE = 4.5 cm, PF = 8 cm, RF = 9 cm",
+            "PQ = 1.28 cm, PR = 2.56 cm, PE = 0.18 cm, PF = 0.36 cm"
+          ]
+        },
+        {
+          "question": "In Fig. 6.18, if LM || CB and LN || CD, prove that AM/AB = AN/AD.",
+          "image": "Figure 6.18"
+        },
+        {
+          "question": "In Fig. 6.19, DE || AC and DF || AE. Prove that BF/FE = BE/EC.",
+          "image": "Figure 6.19"
+        }
+      ]
+    },
+    {
+      "exercise": "6.3",
+      "questions": [
+        {
+          "question": "State which pairs of triangles in Fig. 6.34 are similar. Write the similarity criterion used and the symbolic form of similar triangles.",
+          "image": "Figure 6.34"
+        },
+        {
+          "question": "In Fig. 6.35, ΔODC ~ ΔOBA, ∠BOC = 125°, and ∠CDO = 70°. Find ∠DOC, ∠DCO, and ∠OAB.",
+          "image": "Figure 6.35"
+        },
+        {
+          "question": "Diagonals AC and BD of a trapezium ABCD with AB || DC intersect at O. Using a similarity criterion for two triangles, show that AO/OB = CO/OD.",
+          "image": "Figure 6.35"
+        },
+        {
+          "question": "In Fig. 6.36, QR/QT = QS/PR and ∠1 = ∠2. Show that ΔPQS ~ ΔTQR.",
+          "image": "Figure 6.36"
+        }
+      ]
+    }
+  ]
+}

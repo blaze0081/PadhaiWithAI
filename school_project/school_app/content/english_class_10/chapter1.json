@@ -1,0 +1,68 @@
+{
+    "chapter": "Real Numbers",
+    "exercises": [
+      {
+        "exercise": "1.1",
+        "questions": [
+          {
+            "question": "Express each number as a product of its prime factors:",
+            "sub_questions": [
+              "140",
+              "156",
+              "3825",
+              "5005",
+              "7429"
+            ]
+          },
+          {
+            "question": "Find the LCM and HCF of the following pairs of integers and verify that LCM × HCF = product of the two numbers:",
+            "sub_questions": [
+              "26 and 91",
+              "510 and 92",
+              "336 and 54"
+            ]
+          },
+          {
+            "question": "Find the LCM and HCF of the following integers by applying the prime factorisation method:",
+            "sub_questions": [
+              "12, 15 and 21",
+              "17, 23 and 29",
+              "8, 9 and 25"
+            ]
+          },
+          {
+            "question": "Given that HCF (306, 657) = 9, find LCM (306, 657)."
+          },
+          {
+            "question": "Check whether 6n can end with the digit 0 for any natural number n."
+          },
+          {
+            "question": "Explain why 7 × 11 × 13 + 13 and 7 × 6 × 5 × 4 × 3 × 2 × 1 + 5 are composite numbers."
+          },
+          {
+            "question": "There is a circular path around a sports field. Sonia takes 18 minutes to drive one round of the field, while Ravi takes 12 minutes for the same. Suppose they both start at the same point and at the same time, and go in the same direction. After how many minutes will they meet again at the starting point?"
+          }
+        ]
+      },
+      {
+        "exercise": "1.2",
+        "questions": [
+          {
+            "question": "Prove that √5 is irrational."
+          },
+          {
+            "question": "Prove that 3√2 + 5 is irrational."
+          },
+          {
+            "question": "Prove that the following are irrationals:",
+            "sub_questions": [
+              "1/√2",
+              "√7 - √5",
+              "√6 + √2"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+  

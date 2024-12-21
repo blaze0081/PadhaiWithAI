@@ -1,89 +1,166 @@
 {% extends 'school_app/base.html' %}
+{% load static %}
 
 {% block content %}
 <div class="container">
-    <h2>Mathematics Tools</h2>
-    
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-3">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Solve Questions</h5>
-                    <form method="post" action="{% url 'solve_math' %}">
+                    <h5 class="card-title">Select Options</h5>
+                    
+                    <form method="post" action="{% url 'load_questions' %}" id="optionsForm">
                         {% csrf_token %}
-                        <div class="form-group">
-                            <label for="question">Enter Question:</label>
-                            <textarea class="form-control" id="question" name="question" rows="3" required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary mt-3">Solve</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Generate Similar Questions</h5>
-                    <form method="post" action="{% url 'generate_math' %}">
-                        {% csrf_token %}
-                        <div class="form-group">
-                            <label for="base_question">Base Question:</label>
-                            <textarea class="form-control" id="base_question" name="base_question" rows="3" required></textarea>
-                        </div>
-                        <div class="form-group mt-2">
-                            <label for="difficulty">Difficulty Level:</label>
-                            <select class="form-control" id="difficulty" name="difficulty">
-                                <option value="Same Level">Same Level</option>
-                                <option value="Harder">Harder</option>
-                                <option value="Most Hard">Most Hard</option>
+                        
+                        <!-- Book Selection -->
+                        <div class="mb-3">
+                            <label for="bookSelect" class="form-label">Select Book</label>
+                            <select class="form-select" id="bookSelect" name="book">
+                                <option value="">Choose a book...</option>
+                                {% for book in books %}
+                                    <option value="{{ book.id }}" 
+                                            {% if book.id == selected_book %}selected{% endif %}
+                                            data-language="{{ book.language }}">
+                                        {{ book.name }} ({{ book.language }})
+                                    </option>
+                                {% endfor %}
                             </select>
                         </div>
-                        <div class="form-group mt-2">
-                            <label for="num_questions">Number of Questions:</label>
-                            <input type="number" class="form-control" id="num_questions" name="num_questions" min="1" max="50" value="5">
+
+                        <div class="mb-3">
+                            <label for="chapterSelect" class="form-label">Select Chapter</label>
+                            <select class="form-select" id="chapterSelect" name="chapter" disabled>
+                                <option value="">Select a chapter...</option>
+                                {% if chapters %}
+                                    {% for chapter in chapters %}
+                                        <option value="{{ chapter.id }}"
+                                                {% if chapter.id == selected_chapter %}selected{% endif %}>
+                                            {{ chapter.name }}
+                                        </option>
+                                    {% endfor %}
+                                {% endif %}
+                            </select>
                         </div>
-                        <button type="submit" class="btn btn-primary mt-3">Generate</button>
+                        
+                        
+
+                        <button type="submit" class="btn btn-primary" id="loadQuestionsBtn">
+                            Load Questions
+                        </button>
                     </form>
+
+                    <!-- Selected Questions Queue -->
+                    <div class="mt-4">
+                        <h6>Selected Questions Queue</h6>
+                        <div id="selectedQuestions" class="selected-questions-container">
+                            {% if selected_questions %}
+                                {% for question in selected_questions %}
+                                    <div class="selected-question">
+                                        <div class="question-text">{{ question }}</div>
+                                        <button class="btn btn-sm btn-danger remove-question" 
+                                                data-question="{{ question }}">×</button>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <p class="text-muted">No questions selected.</p>
+                            {% endif %}
+                        </div>
+                        <div class="mt-2">
+                            <button class="btn btn-danger btn-sm" onclick="clearSelectedQuestions()">
+                                Clear Selected
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    
-    {% if solution %}
-    <div class="mt-4">
-        <h3>Solution:</h3>
-        <div class="card">
-            <div class="card-body solution-content">
-                {{ solution|safe }}
-            </div>
-        </div>
-    </div>
-    {% endif %}
-    
-    {% if generated_questions %}
-    <div class="mt-4">
-        <h3>Generated Questions:</h3>
-        <div class="card">
-            <div class="card-body generated-content">
-                {{ generated_questions|safe }}
-            </div>
-        </div>
-    </div>
-    {% endif %}
-</div>
 
-<!-- MathJax Integration -->
-<script>
-    window.MathJax = {
-        tex: {
-            inlineMath: [['$', '$'], ['\\(', '\\)']],
-            displayMath: [['$$', '$$'], ['\\[', '\\]']]
-        },
-        svg: {
-            fontCache: 'global'
-        }
-    };
-</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js" async></script>
+        <div class="col-md-9">
+            <!-- Questions List -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        {% if chapter_name %}
+                            Questions from {{ chapter_name }}
+                        {% else %}
+                            Questions
+                        {% endif %}
+                    </h5>
+
+                    {% if questions %}
+                        <div id="questionsList">
+                            {% for exercise in questions %}
+                                <div class="exercise-section mb-4">
+                                    <h6 class="exercise-header">
+                                        Exercise {{ exercise.exercise }}
+                                        <span class="toggle-icon">+</span>
+                                    </h6>
+                                    <div class="exercise-content" style="display: none;">
+                                        {% for question in exercise.questions %}
+                                            <div class="question-item p-2 border-bottom">
+                                                <div class="form-check">
+                                                    <input type="checkbox" 
+                                                           class="form-check-input question-checkbox" 
+                                                           id="question_{{ forloop.parentloop.counter }}_{{ forloop.counter }}"
+                                                           value="{{ question.question }}">
+                                                    <label class="form-check-label" 
+                                                           for="question_{{ forloop.parentloop.counter }}_{{ forloop.counter }}">
+                                                        {{ question.question }}
+                                                    </label>
+                                                </div>
+                                                {% if question.image %}
+                                                    <div class="question-image mt-2">
+                                                        <img src="{% static 'school_app/content/'|add:selected_book|add:'/images/'|add:question.image %}" 
+                                                             alt="Question image" 
+                                                             class="img-fluid">
+                                                    </div>
+                                                {% endif %}
+                                                {% if question.sub_questions %}
+                                                    <div class="sub-questions mt-2 ml-4">
+                                                        {% for sub_q in question.sub_questions %}
+                                                            <div class="sub-question">
+                                                                {{ sub_q }}
+                                                            </div>
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Select a book and chapter to view questions.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="mt-3">
+                <button class="btn btn-success" onclick="solveSelected()" id="solveBtn" disabled>
+                    Solve
+                </button>
+                <button class="btn btn-primary" onclick="generateMore()" id="generateBtn" disabled>
+                    Generate More
+                </button>
+            </div>
+
+            <!-- Results Section -->
+            {% if solution or generated_questions %}
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            {% if solution %}Solutions{% else %}Generated Questions{% endif %}
+                        </h5>
+                        <div class="result-content">
+                            {{ solution|safe }}
+                            {{ generated_questions|safe }}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
 {% endblock %}
