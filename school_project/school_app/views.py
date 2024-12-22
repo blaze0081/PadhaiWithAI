@@ -281,12 +281,41 @@ def load_questions(request):
 
 @login_required
 def solve_math(request):
-    solution = None
     if request.method == 'POST':
-        question = request.POST.get('question')
-        if question:
-            solution = solve_math_problem(question)
-    return render(request, 'school_app/math_tools.html', {'solution': solution})
+        try:
+            # Get questions from POST data
+            questions_json = request.POST.get('questions')
+            if not questions_json:
+                messages.error(request, 'No questions selected')
+                return redirect('math_tools')
+
+            # Parse the JSON string to get list of questions
+            questions = json.loads(questions_json)
+            
+            # Solve each question
+            solutions = []
+            for question in questions:
+                solution = solve_math_problem(question)
+                solutions.append({
+                    'question': question,
+                    'solution': solution
+                })
+
+            context = {
+                'solutions': solutions,
+                # Store original state in context
+                'original_book': request.session.get('selected_book'),
+                'original_chapter': request.session.get('selected_chapter')
+            }
+
+            return render(request, 'school_app/solutions.html', context)
+            
+        except json.JSONDecodeError:
+            messages.error(request, 'Invalid question data received')
+        except Exception as e:
+            messages.error(request, f'Error solving questions: {str(e)}')
+    
+    return redirect('math_tools')
 
 @login_required
 def generate_math(request):
