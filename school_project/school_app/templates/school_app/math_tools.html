@@ -88,51 +88,52 @@
                     </h5>
 
                     {% if questions %}
-                        <div id="questionsList">
-                            {% for exercise in questions %}
-                                <div class="exercise-section mb-4">
-                                    <h6 class="exercise-header">
-                                        Exercise {{ exercise.exercise }}
-                                        <span class="toggle-icon">+</span>
-                                    </h6>
-                                    <div class="exercise-content" style="display: none;">
-                                        {% for question in exercise.questions %}
-                                            <div class="question-item p-2 border-bottom">
+                    <div id="questionsList">
+                        {% for exercise in questions %}
+                            <div class="exercise-section mb-4">
+                                <h6 class="exercise-header" style="cursor: pointer;">
+                                    Exercise {{ exercise.exercise }}
+                                    <span class="toggle-icon">-</span>
+                                </h6>
+                                <div class="exercise-content">
+                                    {% for question in exercise.questions %}
+                                        <div class="question-item p-2 border-bottom">
+                                            {% if question.sub_questions %}
+                                                <div class="main-question mb-2">{{ question.question }}</div>
+                                                <div class="sub-questions ms-4">
+                                                    {% for sub_q in question.sub_questions %}
+                                                        <div class="form-check">
+                                                            <input type="checkbox" 
+                                                                   class="form-check-input question-checkbox" 
+                                                                   id="question_{{ forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}">
+                                                            <label class="form-check-label" 
+                                                                   for="question_{{ forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}">
+                                                                {{ sub_q }}
+                                                                <span class="text-muted">({{ question.question }})</span>
+                                                            </label>
+                                                        </div>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
                                                 <div class="form-check">
                                                     <input type="checkbox" 
                                                            class="form-check-input question-checkbox" 
-                                                           id="question_{{ forloop.parentloop.counter }}_{{ forloop.counter }}"
-                                                           value="{{ question.question }}">
+                                                           id="question_{{ forloop.parentloop.counter }}_{{ forloop.counter }}">
                                                     <label class="form-check-label" 
                                                            for="question_{{ forloop.parentloop.counter }}_{{ forloop.counter }}">
                                                         {{ question.question }}
                                                     </label>
                                                 </div>
-                                                {% if question.image %}
-                                                    <div class="question-image mt-2">
-                                                        <img src="{% static 'school_app/content/'|add:selected_book|add:'/images/'|add:question.image %}" 
-                                                             alt="Question image" 
-                                                             class="img-fluid">
-                                                    </div>
-                                                {% endif %}
-                                                {% if question.sub_questions %}
-                                                    <div class="sub-questions mt-2 ml-4">
-                                                        {% for sub_q in question.sub_questions %}
-                                                            <div class="sub-question">
-                                                                {{ sub_q }}
-                                                            </div>
-                                                        {% endfor %}
-                                                    </div>
-                                                {% endif %}
-                                            </div>
-                                        {% endfor %}
-                                    </div>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
                                 </div>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        <p class="text-muted">Select a book and chapter to view questions.</p>
-                    {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">Select a book and chapter to view questions.</p>
+                {% endif %}
                 </div>
             </div>
 
@@ -163,4 +164,24 @@
         </div>
     </div>
 </div>
+{% if solutions %}
+    <div class="card mt-4">
+        <div class="card-body">
+            <h5 class="card-title">Solutions</h5>
+            {% for solution in solutions %}
+                <div class="solution-item mb-4">
+                    <div class="question mb-2">
+                        <strong>Question:</strong>
+                        <div>{{ solution.question }}</div>
+                    </div>
+                    <div class="solution">
+                        <strong>Solution:</strong>
+                        <div>{{ solution.solution|safe }}</div>
+                    </div>
+                    <hr>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}
 {% endblock %}

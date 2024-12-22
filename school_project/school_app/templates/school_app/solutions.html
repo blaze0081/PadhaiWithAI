@@ -1,0 +1,77 @@
+{% extends 'school_app/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+            <div class="position-sticky pt-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'math_tools' %}">
+                            <i class="bi bi-arrow-left-circle"></i>
+                            Back to Questions
+                        </a>
+                    </li>
+                    {% if solutions %}
+                        <li class="nav-item">
+                            <hr>
+                            <div class="px-3">
+                                <h6>Questions</h6>
+                                {% for solution in solutions %}
+                                    <div class="small mb-2">
+                                        <a href="#solution-{{ forloop.counter }}" class="text-decoration-none">
+                                            Question {{ forloop.counter }}
+                                        </a>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main content -->
+        <div class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Solutions</h1>
+            </div>
+
+            {% if solutions %}
+                <div class="solutions-container">
+                    {% for solution in solutions %}
+                        <div class="card mb-4" id="solution-{{ forloop.counter }}">
+                            <div class="card-header bg-light">
+                                <h5 class="card-title mb-0">Question {{ forloop.counter }}</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="question mb-4">
+                                    <h6 class="text-muted">Question:</h6>
+                                    <div class="p-3 bg-light rounded">
+                                        {{ solution.question }}
+                                    </div>
+                                </div>
+                                <div class="solution">
+                                    <h6 class="text-muted">Solution:</h6>
+                                    <div class="solution-content p-3">
+                                        {{ solution.solution|safe }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    No solutions available. Please select questions to solve.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Add MathJax for rendering mathematical expressions -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js"></script>
+{% endblock %}
