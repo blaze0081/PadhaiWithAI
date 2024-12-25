@@ -1,0 +1,105 @@
+{% extends 'school_app/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">{% if language == "Hindi" %}समान प्रश्न उत्पन्न करें{% else %}Generate Similar Questions{% endif %}</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{% url 'generate_math' %}">
+                        {% csrf_token %}
+                        
+                        <!-- Hidden field for selected questions -->
+                        <input type="hidden" name="questions" value="{{ questions_json }}">
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <!-- Question Type -->
+                                <div class="mb-3">
+                                    <label for="question_type" class="form-label">
+                                        {% if language == "Hindi" %}प्रश्न का प्रकार{% else %}Question Type{% endif %}
+                                    </label>
+                                    <select class="form-select" id="question_type" name="question_type" required>
+                                        <option value="Same as Original">{% if language == "Hindi" %}मूल प्रश्न के समान{% else %}Same as Original{% endif %}</option>
+                                        <option value="Multiple Choice Questions">{% if language == "Hindi" %}बहुविकल्पीय प्रश्न{% else %}Multiple Choice Questions{% endif %}</option>
+                                        <option value="Fill in the Blanks">{% if language == "Hindi" %}रिक्त स्थान भरें{% else %}Fill in the Blanks{% endif %}</option>
+                                        <option value="Short Answer Type">{% if language == "Hindi" %}लघु उत्तरीय प्रश्न{% else %}Short Answer Type{% endif %}</option>
+                                        <option value="True/False">{% if language == "Hindi" %}सही/गलत{% else %}True/False{% endif %}</option>
+                                    </select>
+                                </div>
+
+                                <!-- Difficulty Selection -->
+                                <div class="mb-3">
+                                    <label for="difficulty" class="form-label">
+                                        {% if language == "Hindi" %}कठिनाई स्तर{% else %}Difficulty Level{% endif %}
+                                    </label>
+                                    <select class="form-select" id="difficulty" name="difficulty" required>
+                                        <option value="Same Level" selected>
+                                            {% if language == "Hindi" %}समान स्तर (मूल प्रश्न के समान){% else %}Same Level (Similar to original){% endif %}
+                                        </option>
+                                        <option value="Harder">
+                                            {% if language == "Hindi" %}कठिन (अधिक चुनौतीपूर्ण){% else %}Harder (More challenging){% endif %}
+                                        </option>
+                                        <option value="Most Hard">
+                                            {% if language == "Hindi" %}सबसे कठिन (बहुत अधिक चुनौतीपूर्ण){% else %}Most Hard (Much more challenging){% endif %}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <!-- Number of Questions -->
+                                <div class="mb-3">
+                                    <label for="num_questions" class="form-label">
+                                        {% if language == "Hindi" %}उत्पन्न करने के लिए प्रश्नों की संख्या{% else %}Number of questions to generate{% endif %}
+                                    </label>
+                                    <input type="number" class="form-control" id="num_questions" 
+                                           name="num_questions" value="5" min="1" max="50" required>
+                                </div>
+
+                                <!-- Language Selection -->
+                                <div class="mb-3">
+                                    <label for="language" class="form-label">
+                                        {% if language == "Hindi" %}भाषा{% else %}Language{% endif %}
+                                    </label>
+                                    <select class="form-select" id="language" name="language" required>
+                                        <option value="English" {% if language == "English" %}selected{% endif %}>English</option>
+                                        <option value="Hindi" {% if language == "Hindi" %}selected{% endif %}>हिंदी (Hindi)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-end mt-3">
+                            <a href="{% url 'math_tools' %}" class="btn btn-secondary me-2">
+                                {% if language == "Hindi" %}रद्द करें{% else %}Cancel{% endif %}
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                {% if language == "Hindi" %}प्रश्न उत्पन्न करें{% else %}Generate Questions{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if generated_questions %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">
+                {% if language == "Hindi" %}उत्पन्न प्रश्न और समाधान{% else %}Generated Questions and Solutions{% endif %}
+            </h5>
+        </div>
+        <div class="card-body">
+            {{ generated_questions|safe }}
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -319,18 +319,99 @@ def solve_math(request):
 
 @login_required
 def generate_math(request):
-    generated_questions = None
-    if request.method == 'POST':
-        base_question = request.POST.get('base_question')
-        difficulty = request.POST.get('difficulty')
-        num_questions = int(request.POST.get('num_questions', 5))
-        if base_question:
-            generated_questions = generate_similar_questions(
-                base_question, 
-                difficulty,
-                num_questions
-            )
-    return render(request, 'school_app/math_tools.html', {'generated_questions': generated_questions})
+    """
+    View function to handle enhanced math question generation.
+    Supports multiple languages, question types, and difficulty levels.
+    """
+    # Get the current language from session or default to English
+    current_language = request.session.get('language', 'English')
+    
+    messages = {
+        'Hindi': {
+            'no_questions': 'कोई प्रश्न नहीं चुना गया है। कृपया मुख्य पृष्ठ से प्रश्न चुनें।',
+            'generating': 'प्रश्न उत्पन्न किए जा रहे हैं... कृपया प्रतीक्षा करें',
+            'error': 'प्रश्न उत्पन्न करने में त्रुटि:',
+            'invalid_data': 'अमान्य प्रश्न डेटा प्राप्त हुआ'
+        },
+        'English': {
+            'no_questions': 'No questions selected. Please select questions from the main page.',
+            'generating': 'Generating questions... please wait',
+            'error': 'Error generating questions:',
+            'invalid_data': 'Invalid question data received'
+        }
+    }
+
+    try:
+        # Get questions from POST data
+        questions_json = request.POST.get('questions')
+        if not questions_json:
+            messages.error(request, messages[current_language]['no_questions'])
+            return redirect('math_tools')
+
+        # Parse the JSON string to get list of questions
+        questions = json.loads(questions_json)
+        
+        if request.method == 'POST':
+            # Get form parameters
+            difficulty = request.POST.get('difficulty', 'Same Level')
+            num_questions = int(request.POST.get('num_questions', 5))
+            language = request.POST.get('language', 'English')
+            question_type = request.POST.get('question_type', 'Same as Original')
+
+            # Calculate how many variations to generate for each selected question
+            num_selected = len(questions)
+            base_count = num_questions // num_selected
+            remainder = num_questions % num_selected
+            
+            # Distribute questions evenly
+            distribution = [base_count] * num_selected
+            for i in range(remainder):
+                distribution[i] += 1
+
+            all_generated_questions = []
+            total_progress = len(questions)
+
+            # Generate questions for each selected question
+            for i, (question, count) in enumerate(zip(questions, distribution)):
+                try:
+                    generated_content = generate_similar_questions(
+                        question=question,
+                        difficulty=difficulty,
+                        num_questions=count,
+                        language=language,
+                        question_type=question_type
+                    )
+                    all_generated_questions.append(generated_content)
+                    
+                except Exception as e:
+                    error_msg = f"{messages[current_language]['error']} {str(e)}"
+                    messages.error(request, error_msg)
+                    continue
+
+            # Combine all generated questions
+            combined_content = "\n\n".join(all_generated_questions)
+
+            # Store original selections in context
+            context = {
+                'generated_questions': combined_content,
+                'original_questions': questions,
+                'language': language,
+                'question_type': question_type,
+                'difficulty': difficulty,
+                'num_questions': num_questions,
+                # Store for form pre-filling
+                'questions_json': questions_json
+            }
+
+            return render(request, 'school_app/math_tools.html', context)
+
+    except json.JSONDecodeError:
+        messages.error(request, messages[current_language]['invalid_data'])
+    except Exception as e:
+        error_msg = f"{messages[current_language]['error']} {str(e)}"
+        messages.error(request, error_msg)
+
+    return redirect('math_tools')
 
 
 @login_required
@@ -340,3 +421,14 @@ def get_chapters(request, book_id):
         return JsonResponse({'chapters': chapters})
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
+    
+@login_required
+def generate_form(request):
+    if request.method == 'POST':
+        questions = json.loads(request.POST.get('questions', '[]'))
+        context = {
+            'questions': questions,
+            'questions_json': request.POST.get('questions')
+        }
+        return render(request, 'school_app/generate_form.html', context)
+    return redirect('math_tools')

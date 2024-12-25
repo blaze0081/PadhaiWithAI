@@ -216,18 +216,12 @@ function generateMore() {
     try {
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = '/math-tools/generate/';
-        
-        // Add CSRF token
-        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
-        if (!csrfToken) {
-            throw new Error('CSRF token not found');
-        }
+        form.action = '/math-tools/generate-form/';  // Changed from /math-tools/generate/
         
         const csrfInput = document.createElement('input');
         csrfInput.type = 'hidden';
         csrfInput.name = 'csrfmiddlewaretoken';
-        csrfInput.value = csrfToken;
+        csrfInput.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
         form.appendChild(csrfInput);
         
         const questionsInput = document.createElement('input');
@@ -239,7 +233,7 @@ function generateMore() {
         document.body.appendChild(form);
         form.submit();
     } catch (error) {
-        console.error('Error submitting generate form:', error);
-        alert('An error occurred while trying to generate questions. Please try again.');
+        console.error('Error:', error);
+        alert('Error submitting form. Please try again.');
     }
 }
