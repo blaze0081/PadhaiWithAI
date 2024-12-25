@@ -28,5 +28,6 @@ urlpatterns = [
     path('system-admin/marks/<int:school_id>/', views.system_admin_marks_list, name='system_admin_school_marks'),
 
     path('get-chapters/<str:book_id>/', views.get_chapters, name='get_chapters'),
+    path('math-tools/generate-form/', views.generate_form, name='generate_form'),
 
 ]

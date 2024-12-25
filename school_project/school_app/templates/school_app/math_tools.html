@@ -19,7 +19,6 @@
                                 <option value="">Choose a book...</option>
                                 {% for book in books %}
                                     <option value="{{ book.id }}" 
-                                            {% if book.id == selected_book %}selected{% endif %}
                                             data-language="{{ book.language }}">
                                         {{ book.name }} ({{ book.language }})
                                     </option>
@@ -65,10 +64,21 @@
                                 <p class="text-muted">No questions selected.</p>
                             {% endif %}
                         </div>
+                        <!-- In the sidebar where the buttons are -->
                         <div class="mt-2">
                             <button class="btn btn-danger btn-sm" onclick="clearSelectedQuestions()">
                                 Clear Selected
                             </button>
+                            
+                            <div class="mt-3">
+                                <button class="btn btn-success w-100 mb-2" onclick="solveSelected()" id="solveBtn" disabled>
+                                    Solve
+                                </button>
+                                <!-- Update this button to use our new route -->
+                                <button class="btn btn-primary w-100" onclick="generateMore()" id="generateBtn" disabled>
+                                    Generate More
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -135,16 +145,6 @@
                     <p class="text-muted">Select a book and chapter to view questions.</p>
                 {% endif %}
                 </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="mt-3">
-                <button class="btn btn-success" onclick="solveSelected()" id="solveBtn" disabled>
-                    Solve
-                </button>
-                <button class="btn btn-primary" onclick="generateMore()" id="generateBtn" disabled>
-                    Generate More
-                </button>
             </div>
 
             <!-- Results Section -->

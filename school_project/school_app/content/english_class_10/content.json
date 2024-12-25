@@ -1,22 +1,63 @@
 {
-    "book_name": "Mathematics - Class 10",
-    "language": "English",
-    "class": "10",
-    "chapters": [
-      {
-        "id": 1,
-        "name": "Real Numbers",
-        "topics": ["Rational and Irrational Numbers", "Density of Real Numbers"]
-      },
-      {
-        "id": 2,
-        "name": "Polynomials",
-        "topics": ["Introduction to Polynomials", "Zeros of Polynomials", "Division of Polynomials"]
-      },
-      {
-        "id": 3,
-        "name": "Pair of Linear Equations in Two Variables",
-        "topics": ["Linear Equations", "Graphical Method", "Substitution Method"]
-      }
-    ]
-  }
+  "book_name": "Mathematics - Class 10",
+  "language": "English",
+  "class": "10",
+  "chapters": [
+    {
+      "id": 1,
+      "name": "Real Numbers"
+    },
+    {
+      "id": 2,
+      "name": "Polynomials"
+    },
+    {
+      "id": 3,
+      "name": "Pair of Linear Equations in Two Variables"
+    },
+    {
+      "id": 4,
+      "name": "Quadratic Equations"
+    },
+    {
+      "id": 5,
+      "name": "Arithmetic Progressions"
+    },
+    {
+      "id": 6,
+      "name": "Triangles"
+    },
+    {
+      "id": 7,
+      "name": "Coordinate Geometry"
+    },
+    {
+      "id": 8,
+      "name": "Introduction to Trigonometry"
+    },
+    {
+      "id": 9,
+      "name": "Some Applications of Trigonometry"
+    },
+    {
+      "id": 10,
+      "name": "Circles"
+    },
+    {
+      "id": 11,
+      "name": "Areas Related to Circles"
+    },
+    {
+      "id": 12,
+      "name": "Surface Areas and Volumes"
+    },
+    {
+      "id": 13,
+      "name": "Statistics"
+    },
+    {
+      "id": 14,
+      "name": "Probability"
+    }
+  ]
+}
