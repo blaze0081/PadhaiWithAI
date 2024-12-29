@@ -1,0 +1,62 @@
+{% extends 'school_app/base.html' %}
+{% block content %}
+<div>
+    <h2>Test Results for "{{ test.test_name }}"</h2>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>
+                    <a href="?sort_by=student__name&order={% if current_sort_by == 'student__name' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                        Student Name
+                        {% if current_sort_by == 'student__name' %}
+                            {% if current_order == 'asc' %}
+                                ▲
+                            {% else %}
+                                ▼
+                            {% endif %}
+                        {% endif %}
+                    </a>
+                </th>
+                <th>
+                    <a href="?sort_by=marks&order={% if current_sort_by == 'marks' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                        Marks
+                        {% if current_sort_by == 'marks' %}
+                            {% if current_order == 'asc' %}
+                                ▲
+                            {% else %}
+                                ▼
+                            {% endif %}
+                        {% endif %}
+                    </a>
+                </th>
+                <th>
+                    <a href="?sort_by=date&order={% if current_sort_by == 'date' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                        Date
+                        {% if current_sort_by == 'date' %}
+                            {% if current_order == 'asc' %}
+                                ▲
+                            {% else %}
+                                ▼
+                            {% endif %}
+                        {% endif %}
+                    </a>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for result in results %}
+            <tr>
+                <td>{{ result.student.name }}</td>
+                <td>{{ result.marks }}</td>
+                <td>{{ result.date }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3" class="text-center">No results available for this test.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{% url 'collector_dashboard' %}" class="btn btn-secondary mt-3">Back to Dashboard</a>
+</div>
+{% endblock %}

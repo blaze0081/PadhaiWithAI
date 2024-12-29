@@ -8,23 +8,24 @@
     <!-- Button to create a new test -->
     <a href="{% url 'add_test' %}" class="btn btn-success">Create New Test</a>
 </div>
-
-
 <div>
     <h2>Tests List</h2>
     <table class="table table-bordered table-striped">
         <thead>
             <tr>
+                <th>#</th>
                 <th>Test Name</th>
                 <th>Subject Name</th>
                 <th>Test Date</th>
                 <th>Status</th>
-                <th>Action</th>
+                <th>Actions</th>
+                <th>Test Results</th> <!-- New Column -->
             </tr>
         </thead>
         <tbody>
             {% for test in tests %}
             <tr>
+                <td>{{ forloop.counter }}</td>
                 <td>{{ test.test_name }}</td>
                 <td>{{ test.subject_name }}</td>
                 <td>{{ test.test_date }}</td>
@@ -36,8 +37,18 @@
                     {% endif %}
                 </td>
                 <td>
-                    <a href="{% url 'activate_test' test.test_number %}" class="btn btn-primary">Activate</a>
+                    <a href="{{ test.pdf_file.url }}" class="btn btn-info btn-sm" download>Download PDF</a>
+                    {% if not test.is_active %}
+                    <a href="{% url 'activate_test' test.test_number %}" class="btn btn-primary btn-sm">Activate</a>
+                    {% endif %}
                 </td>
+                <td>
+                    <a href="{% url 'view_test_results' test.test_number %}" class="btn btn-warning btn-sm">View Results</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="text-center">No tests available.</td>
             </tr>
             {% endfor %}
         </tbody>

@@ -80,6 +80,9 @@ class Student(models.Model):
         choices=CLASS_CHOICES,
         verbose_name='Class'
     )
+
+    def __str__(self):
+        return self.name  # Ensure this returns the student's name
     
 
     

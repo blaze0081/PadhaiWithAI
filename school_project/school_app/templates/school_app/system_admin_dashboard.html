@@ -1,6 +1,7 @@
 {% extends 'school_app/base.html' %}
 {% block content %}
 <h1>Welcome to {{ school.name }}</h1>
+
 <div class="row mt-4">
     <div class="col-md-4">
         <div class="card">
@@ -31,29 +32,32 @@
     </div>
 </div>
 
-<!-- test list Dashboard Section -->
-<div class="row mt-4">
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">View Test</h5>
-                <p class="card-text">Access the Test List.</p>
-                <a href="{% url 'Test_list' %}" class="btn btn-primary">Go to Test List</a>
-            </div>
-        </div>
-    </div>
-</div>
+<h2 class="mt-5">Active Tests</h2>
+<table class="table table-bordered mt-3">
+    <thead>
+        <tr>
+            <th>Test Number</th>
+            <th>Test Name</th>
+            <th>Subject Name</th>
+            <th>PDF File</th>
+            <th>Test Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for test in active_tests %}
+        <tr>
+            <td>{{ test.test_number }}</td>
+            <td>{{ test.test_name }}</td>
+            <td>{{ test.subject_name }}</td>
+            <td><a href="{{ test.pdf_file.url }}" target="_blank">Download</a></td>
+            <td>{{ test.test_date }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5">No active tests available.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
-<!-- Collectors Dashboard Section sushil
-<div class="row mt-4">
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Collectors Dashboard</h5>
-                <p class="card-text">Access the collectors dashboard.</p>
-                <a href="{% url 'collector_dashboard' %}" class="btn btn-primary">Go to Collectors Dashboard</a>
-            </div>
-        </div>
-    </div>
-</div>-->
 {% endblock %}
