@@ -34,9 +34,8 @@ urlpatterns = [
     path('collector-dashboard/', views.collector_dashboard, name='collector_dashboard'),
     path('add-test/', views.add_test, name='add_test'),
     path('activate-test/<int:test_id>/', views.activate_test, name='activate_test'),
+    path('test-results/<int:test_number>/', views.view_test_results, name='view_test_results'),
 
-#View Test
-    path('Test-list', views.Test_list, name='Test_list'),
 
 ]
 

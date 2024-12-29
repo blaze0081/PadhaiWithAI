@@ -11,6 +11,10 @@ class MarksForm(forms.ModelForm):
         model = Marks
         fields = ['student', 'test_number', 'marks']
 
+    # Optional: you can specify custom labels for better clarity if needed
+    student = forms.ModelChoiceField(queryset=Student.objects.all(), label="Select Student")
+
+
 class SchoolForm(forms.ModelForm):
     class Meta:
         model = School
@@ -39,15 +43,18 @@ class SchoolAdminRegistrationForm(forms.ModelForm):
         if commit:
             school.save()
         return school
-    
+
 class TestForm(forms.ModelForm):
+    test_date = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={
+            'type': 'date',  # This enables the HTML5 date picker
+            'class': 'form-control',  # Bootstrap class for styling (optional)
+        }),
+    )
+
     class Meta:
         model = Test
-        fields = ['test_name', 'subject_name', 'pdf_file', 'test_date']  # Added 'test_date'
+        fields = ['test_name', 'subject_name', 'pdf_file', 'test_date']
 
-    # Optional: You can customize the form field's appearance if necessary
-    test_date = forms.DateField(
-        required=False,  # Makes the test_date field optional in the form
-        widget=forms.SelectDateWidget(years=range(2000, 2101))  # This gives a date picker for test_date
-    )
     
