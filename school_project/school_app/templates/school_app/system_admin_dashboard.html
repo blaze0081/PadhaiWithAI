@@ -1,8 +1,10 @@
 {% extends 'school_app/base.html' %}
+{% load static %}
+
 {% block content %}
 <h1>Welcome to {{ school.name }}</h1>
 <div class="row mt-4">
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Students</h5>
@@ -11,7 +13,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Marks</h5>
@@ -20,7 +22,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Solve Math</h5>
@@ -29,5 +31,70 @@
             </div>
         </div>
     </div>
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Analysis</h5>
+                <p class="card-text">Student Performance Analysis</p>
+                <a href="{% url 'analysis_dashboard' %}" class="btn btn-primary">View Analysis</a>
+            </div>
+        </div>
+    </div>
 </div>
+{% if user.administered_school %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Test Papers and Answer Keys</h5>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Subject</th>
+                                <th>Class</th>
+                                <th>Uploaded By</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for paper in test_papers %}
+                            <tr>
+                                <td>{{ paper.title }}</td>
+                                <td>{{ paper.get_subject_display }}</td>
+                                <td>Class {{ paper.class_level }}</td>
+                                <td>{{ paper.uploaded_by.username }}</td>
+                                <td>{{ paper.uploaded_at|date:"M d, Y" }}</td>
+                                <td>
+                                    <a href="{{ paper.question_paper.url }}" class="btn btn-sm btn-primary" target="_blank">
+                                        <i class="fas fa-file-pdf"></i> Question Paper
+                                    </a>
+                                    <a href="{{ paper.answer_key.url }}" class="btn btn-sm btn-secondary" target="_blank">
+                                        <i class="fas fa-key"></i> Answer Key
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center">No test papers uploaded yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-3">
+                    <a href="{% url 'admin:school_app_testpaper_add' %}" class="btn btn-success">
+                        <i class="fas fa-plus"></i> Upload New Test Paper
+                    </a>
+                    <a href="{% url 'admin:school_app_testpaper_changelist' %}" class="btn btn-info">
+                        <i class="fas fa-list"></i> View All Test Papers
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
 {% endblock %}

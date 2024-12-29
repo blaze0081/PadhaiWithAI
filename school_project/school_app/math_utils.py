@@ -1,58 +1,15 @@
 import os
-from openai import OpenAI
 from dotenv import load_dotenv
-import json
-import re
+import google.generativeai as genai
+from .solution_formatter import format_solution  
 
 load_dotenv()
-api_key = os.getenv("OPENAI_API_KEY")
+api_key = os.getenv("GOOGLE_API_KEY")
 
-def init_openai():
-    return OpenAI(api_key=api_key)
-
-def format_math_content(content: str) -> str:
-    """Formats mathematical content consistently for both display and download."""
-    sections = content.split('\n\n')
-    formatted_sections = []
-    
-    current_section = None
-    current_items = []
-    
-    for section in sections:
-        if section.strip().startswith('Questions:') or section.strip().startswith('प्रश्न:'):
-            if current_section and current_items:
-                formatted_sections.append(f"{current_section}\n" + "\n\n".join(current_items))
-            current_section = "Questions:" if "Questions:" in section else "प्रश्न:"
-            current_items = []
-        elif section.strip().startswith('Answers:') or section.strip().startswith('उत्तर:'):
-            if current_section and current_items:
-                formatted_sections.append(f"{current_section}\n" + "\n\n".join(current_items))
-            current_section = "Answers:" if "Answers:" in section else "उत्तर:"
-            current_items = []
-        else:
-            lines = section.strip().split('\n')
-            formatted_item = []
-            
-            for line in lines:
-                if re.match(r'^\d+\.', line):
-                    if formatted_item:
-                        current_items.append('\n'.join(formatted_item))
-                        formatted_item = []
-                    formatted_item.append(line)
-                elif re.match(r'^[a-d]\)', line):
-                    formatted_item.append(line)
-                elif line.strip().startswith('Steps:') or line.strip().startswith('चरण:'):
-                    formatted_item.append('\n' + line)
-                else:
-                    formatted_item.append(line)
-            
-            if formatted_item:
-                current_items.append('\n'.join(formatted_item))
-    
-    if current_section and current_items:
-        formatted_sections.append(f"{current_section}\n" + "\n\n".join(current_items))
-    
-    return '\n\n'.join(formatted_sections)
+def init_gemini():
+    """Initialize the Gemini API client"""
+    genai.configure(api_key=api_key)
+    return genai.GenerativeModel('gemini-1.5-pro')
 
 def get_system_message(language: str, difficulty: str, question_type: str) -> str:
     """Returns the appropriate system message based on language and question type."""
@@ -82,7 +39,7 @@ def get_system_message(language: str, difficulty: str, question_type: str) -> st
 def generate_similar_questions(question: str, difficulty: str, num_questions: int, 
                             language: str, question_type: str) -> str:
     """
-    Generate similar mathematics questions with specified parameters.
+    Generate similar mathematics questions with specified parameters using Gemini API.
     
     Args:
         question: Original question to base variations on
@@ -94,7 +51,7 @@ def generate_similar_questions(question: str, difficulty: str, num_questions: in
     Returns:
         Formatted string containing generated questions and solutions
     """
-    client = init_openai()
+    model = init_gemini()
     
     system_message = get_system_message(language, difficulty, question_type)
     
@@ -131,21 +88,18 @@ def generate_similar_questions(question: str, difficulty: str, num_questions: in
     
     prompt = prompts.get(language, prompts["English"])
     
-    response = client.chat.completions.create(
-        model="gpt-4o",
-        messages=[
-            {"role": "system", "content": system_message},
-            {"role": "user", "content": prompt}
-        ],
-        temperature=0.7
-    )
+    # Combine system message and prompt for Gemini
+    full_prompt = f"{system_message}\n\n{prompt}"
     
-    generated_content = response.choices[0].message.content
-    return format_math_content(generated_content)
+    response = model.generate_content(full_prompt)
+    
+    # generated_content = response.text
+    raw_solution = response.candidates[0].content.parts[0].text
+    return format_solution(raw_solution)
 
 def solve_math_problem(question: str, language: str = "English") -> str:
-    """Solve a given mathematics problem with detailed explanation."""
-    client = init_openai()
+    """Solve a given mathematics problem with detailed explanation using Gemini API."""
+    model = init_gemini()
     
     system_messages = {
         "Hindi": """आप एक अनुभवी गणित शिक्षक हैं। प्रश्न का हल इन नियमों का पालन करते हुए करें:
@@ -156,20 +110,17 @@ def solve_math_problem(question: str, language: str = "English") -> str:
             5. तकनीकी शब्दों को सरल भाषा में समझाएं""",
             
         "English": """You are an experienced mathematics teacher. Solve the question following these guidelines:
-            1. Use LaTeX for mathematical expressions
-            2. Provide step-by-step solutions
-            3. Explain concepts in simple terms
-            4. Include examples and counter-examples
-            5. Explain technical terms in simple language"""
+        1. Use ^^ for inline LaTeX expressions (e.g., ^^x^2^^)
+        2. Use '' for display LaTeX expressions (e.g., ''\\frac{1}{2}'')
+        3. Mark each step clearly with **Step 1:**, **Step 2:**, etc.
+        4. Explain concepts in simple terms
+        5. Use proper formatting for mathematical expressions
+        """
     }
     
-    response = client.chat.completions.create(
-        model="gpt-4o",
-        messages=[
-            {"role": "system", "content": system_messages[language]},
-            {"role": "user", "content": f"Please solve this mathematics question step by step: {question}"}
-        ],
-        temperature=0.7
-    )
+    full_prompt = f"{system_messages[language]}\n\nPlease solve this mathematics question step by step: {question}"
     
-    return format_math_content(response.choices[0].message.content)
+    response = model.generate_content(full_prompt)
+    # print(response.candidates[0].content.parts[0].text)
+    raw_solution = response.candidates[0].content.parts[0].text
+    return format_solution(raw_solution)

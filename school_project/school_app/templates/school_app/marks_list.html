@@ -11,6 +11,7 @@
             <th>Test Number</th>
             <th>Marks</th>
             <th>Date</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -20,6 +21,9 @@
             <td>{{ mark.test_number }}</td>
             <td>{{ mark.marks }}</td>
             <td>{{ mark.date }}</td>
+            <td>
+                <a href="{% url 'marks_edit' mark.id %}" class="btn btn-sm btn-primary">Edit</a>
+            </td>
         </tr>
         {% endfor %}
     </tbody>

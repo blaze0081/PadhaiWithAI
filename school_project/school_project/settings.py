@@ -85,6 +85,9 @@ STATICFILES_DIRS = [
 ]
 CONTENT_DIR = os.path.join(BASE_DIR, 'school_app/content')
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
