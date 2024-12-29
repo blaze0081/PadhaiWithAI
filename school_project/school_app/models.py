@@ -1,5 +1,6 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.contrib.auth.models import AbstractUser, BaseUserManager, User
+from django.conf import settings
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -79,15 +80,11 @@ class Student(models.Model):
         choices=CLASS_CHOICES,
         verbose_name='Class'
     )
-    
-class Marks(models.Model):
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    test_number = models.CharField(max_length=50)
-    marks = models.DecimalField(max_digits=5, decimal_places=2)
-    date = models.DateField(auto_now_add=True)
-    
+
     def __str__(self):
-        return f"{self.student.name} - {self.test_number}: {self.marks}"
+        return self.name  # Ensure this returns the student's name
+    
+
     
 class Book(models.Model):
     name = models.CharField(max_length=100)
@@ -96,4 +93,27 @@ class Book(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.language})"
+    
+class Test(models.Model):
+    test_number = models.AutoField(primary_key=True)
+    test_name = models.CharField(max_length=255)
+    subject_name = models.CharField(max_length=255)
+    pdf_file = models.FileField(upload_to='test_pdfs/')  # Uploads PDFs to a folder called 'test_pdfs'
+    is_active = models.BooleanField(default=False)  # Field to activate/deactivate the test
+    test_date = models.DateField(null=True, blank=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)  # Reference to the collector who created the test
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.test_name
+    
+class Marks(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    # test = models.ForeignKey(Test, on_delete=models.CASCADE)
+    test_number = models.CharField(max_length=50)
+    marks = models.DecimalField(max_digits=5, decimal_places=2)
+    date = models.DateField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"{self.student.name} - {self.test_number}: {self.marks}"
 
