@@ -1,0 +1,75 @@
+{% extends 'school_app/base.html' %}
+{% block content %}
+<div>
+    <h1 style="text-align: center;">Collector Dashboard</h1>
+</div>
+
+<div class="text-end mb-4">
+    <!-- Button to create a new test -->
+    <a href="{% url 'add_test' %}" class="btn btn-success">Create New Test</a>
+</div>
+
+
+<div>
+    <h2>Tests List</h2>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Test Name</th>
+                <th>Subject Name</th>
+                <th>Test Date</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for test in tests %}
+            <tr>
+                <td>{{ test.test_name }}</td>
+                <td>{{ test.subject_name }}</td>
+                <td>{{ test.test_date }}</td>
+                <td>
+                    {% if test.is_active %}
+                        <span class="badge bg-success">Active</span>
+                    {% else %}
+                        <span class="badge bg-secondary">Inactive</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'activate_test' test.test_number %}" class="btn btn-primary">Activate</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+<div class="mt-5">
+    <h2>Schools List</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>School Name</th>
+                <th>Admin</th>
+                <th>Created At</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for school in schools %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ school.name }}</td>
+                    <td>{{ school.admin }}</td>
+                    <td>{{ school.created_at|date:"d M Y, H:i" }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="4">No schools available.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
