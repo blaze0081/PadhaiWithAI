@@ -1,15 +1,18 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
-from .models import School, Student, Marks, CustomUser
-from .forms import StudentForm, MarksForm, SchoolForm, SchoolAdminRegistrationForm
+from .models import School, Student, Marks
+from .forms import StudentForm, MarksForm, SchoolForm, SchoolAdminRegistrationForm, TestForm, Test
 from django.db.models import Count
 from .math_utils import solve_math_problem, generate_similar_questions
 import json
 import os
 from django.conf import settings
 from django.http import JsonResponse
+from django.http import HttpResponseRedirect
+from django.http import HttpResponseForbidden
+
 
 
 def is_system_admin(user):
@@ -22,14 +25,132 @@ def login_view(request):
         user = authenticate(request, email=email, password=password)
         if user is not None:
             login(request, user)
+
+            # Check if the user is in the "Collector" group
+            if user.groups.filter(name='Collector').exists():
+                return redirect('collector_dashboard')
+
+            # Redirect based on other roles
             if user.is_system_admin:
                 return redirect('system_admin_dashboard')
             elif School.objects.filter(admin=user).exists():
                 return redirect('dashboard')
             else:
                 return redirect('school_add')
+
         messages.error(request, 'Invalid credentials')
     return render(request, 'school_app/login.html')
+
+# def login_view(request):
+#     if request.method == 'POST':
+#         email = request.POST.get('email')
+#         password = request.POST.get('password')
+#         user = authenticate(request, email=email, password=password)
+#         if user is not None:
+#             login(request, user)
+#             if user.is_system_admin:
+#                 return redirect('system_admin_dashboard')
+#             elif School.objects.filter(admin=user).exists():
+#                 return redirect('dashboard')
+#             else:
+#                 return redirect('school_add')
+#         messages.error(request, 'Invalid credentials')
+#     return render(request, 'school_app/login.html')
+
+# Writtern by Sushil
+@login_required
+def collector_dashboard(request):
+    # Fetch tests created by the collector
+    if not request.user.groups.filter(name='Collector').exists():
+        return HttpResponseForbidden("You are not authorized to access this page.")
+    tests = Test.objects.all()
+    # tests = Test.objects.filter(created_by=request.user)
+
+    # Fetch all schools (You can add filters here if necessary)
+    schools = School.objects.all()
+
+    return render(request, 'school_app/collector_dashboard.html', {
+        'tests': tests,
+        'schools': schools
+    })
+
+@login_required
+def view_test_results(request, test_number):
+    test = get_object_or_404(Test, test_number=test_number)
+    results = Marks.objects.filter(test_number=test_number).select_related('student')
+
+    # Get sorting parameters
+    sort_by = request.GET.get('sort_by', 'student__name')  # Default sorting by student name
+    order = request.GET.get('order', 'asc')  # Default order is ascending
+
+    # Adjust the ordering
+    if order == 'desc':
+        sort_by = f"-{sort_by}"
+    
+    results = results.order_by(sort_by)
+
+    context = {
+        'test': test,
+        'results': results,
+        'current_sort_by': request.GET.get('sort_by', 'student__name'),
+        'current_order': request.GET.get('order', 'asc'),
+    }
+    return render(request, 'school_app/test_results.html', context)
+
+# Written by Sushil
+@login_required
+def add_test(request):
+    if request.method == 'POST':
+        form = TestForm(request.POST, request.FILES)
+        if form.is_valid():
+            test = form.save(commit=False)
+            test.created_by = request.user  # Set the collector as the creator of the test
+            test.save()
+            messages.success(request, 'Test details have been successfully added!')
+            return redirect('collector_dashboard')  # Redirect to collector dashboard or wherever appropriate
+    else:
+        form = TestForm()
+
+    return render(request, 'school_app/add_test.html', {'form': form})
+
+from django.shortcuts import get_object_or_404
+from django.contrib import messages
+from django.http import HttpResponseRedirect
+from .models import Test
+
+@login_required
+def activate_test(request, test_id):
+    # Change `id` to `test_number`, since that is your primary key
+    test = get_object_or_404(Test, test_number=test_id)
+    test.is_active = True
+    test.save()
+    messages.success(request, 'Test has been activated successfully!')
+    # if request.user == test.created_by:  # Ensure only the creator can activate the test
+    #     test.is_active = True
+    #     test.save()
+
+    #     messages.success(request, 'Test has been activated successfully!')
+    # else:
+    #     messages.error(request, 'You do not have permission to activate this test.')
+
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+# @login_required
+# def dashboard(request):
+#     if request.user.is_system_admin:
+#         return redirect('system_admin_dashboard')
+    
+#     try:
+#         school = School.objects.get(admin=request.user)
+#         context = {
+#             'school': school,
+#             'student_count': Student.objects.filter(school=school).count(),
+#         }
+#     except School.DoesNotExist:
+#         messages.error(request, "No school found for the current user.")
+#         return redirect('login')
+
+#     return render(request, 'school_app/system_admin_dashboard.html', context)
 
 @login_required
 def dashboard(request):
@@ -38,15 +159,18 @@ def dashboard(request):
     
     try:
         school = School.objects.get(admin=request.user)
+        active_tests = Test.objects.filter(is_active=True)  # Fetch only active tests
         context = {
             'school': school,
             'student_count': Student.objects.filter(school=school).count(),
+            'active_tests': active_tests,  # Pass active tests to the template
         }
     except School.DoesNotExist:
         messages.error(request, "No school found for the current user.")
         return redirect('login')
 
     return render(request, 'school_app/system_admin_dashboard.html', context)
+
 
 @user_passes_test(is_system_admin)
 def system_admin_dashboard(request):

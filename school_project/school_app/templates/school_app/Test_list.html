@@ -1,0 +1,33 @@
+{% extends 'school_app/base.html' %}
+{% block content %}
+<div>
+    <h1 style="text-align: center;">Test List</h1>
+</div>
+
+<div>
+    <h2>View Tests List</h2>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Test Name</th>
+                <th>Subject Name</th>
+                <th>Test Date</th>
+                <th>Download</th>
+                            </tr>
+        </thead>
+        <tbody>
+            {% for test in tests %}
+            <tr>
+                <td>{{ test.test_name }}</td>
+                <td>{{ test.subject_name }}</td>
+                <td>{{ test.test_date }}</td>
+                <td>{{ test.pdf_file }}</td>
+                
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+{% endblock %}
