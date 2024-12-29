@@ -1,9 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
-from django.db import models
-from django.core.validators import FileExtensionValidator
-from django.contrib.auth import get_user_model  # Add this import
-
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -101,36 +97,3 @@ class Book(models.Model):
     def __str__(self):
         return f"{self.name} ({self.language})"
 
-
-class TestPaper(models.Model):
-    SUBJECT_CHOICES = [
-        ('MATH', 'Mathematics'),
-    ]
-    
-    CLASS_CHOICES = [
-        ('10', 'Class 10'),
-    ]
-    
-    title = models.CharField(max_length=200)
-    subject = models.CharField(max_length=4, choices=SUBJECT_CHOICES)
-    class_level = models.CharField(max_length=2, choices=CLASS_CHOICES)
-    question_paper = models.FileField(
-        upload_to='test_papers/',
-        validators=[FileExtensionValidator(['pdf'])]
-    )
-    answer_key = models.FileField(
-        upload_to='answer_keys/',
-        validators=[FileExtensionValidator(['pdf'])]
-    )
-    # Fix the User model reference
-    uploaded_by = models.ForeignKey(
-        get_user_model(),
-        on_delete=models.CASCADE
-    )
-    uploaded_at = models.DateTimeField(auto_now_add=True)
-    
-    class Meta:
-        ordering = ['-uploaded_at']
-        
-    def __str__(self):
-        return f"{self.get_subject_display()} - {self.title} ({self.get_class_level_display()})"

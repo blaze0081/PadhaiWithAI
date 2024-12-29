@@ -1,9 +1,6 @@
 from django.urls import path
 from . import views
 from django.contrib.auth.views import LogoutView
-from django.conf import settings
-from django.conf.urls.static import static
-
 
 urlpatterns = [
     path('', views.login_view, name='login'),
@@ -33,13 +30,4 @@ urlpatterns = [
     path('get-chapters/<str:book_id>/', views.get_chapters, name='get_chapters'),
     path('math-tools/generate-form/', views.generate_form, name='generate_form'),
 
-    path('analysis-dashboard/', views.analysis_dashboard, name='analysis_dashboard'),
-    path('analysis-data/', views.analysis_dashboard, name='analysis_data'),
-
-    path('students/<int:student_id>/edit/', views.student_edit, name='student_edit'),
-
-    path('marks/<int:marks_id>/edit/', views.marks_edit, name='marks_edit'),
-
-
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
+]
