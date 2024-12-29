@@ -1,3 +1,3 @@
 # PadhaiWithAI
-superuser: bhaskar, password: admin, bhaskar@mail.com
-school, admin@123
+superuser: sushil@nic.in, password: admin, 
+school, pa@gmail.com nic*12345
