@@ -10,6 +10,7 @@
             <th>Name</th>
             <th>Roll Number</th>
             <th>Grade</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -18,6 +19,9 @@
             <td>{{ student.name }}</td>
             <td>{{ student.roll_number }}</td>
             <td>{{ student.class_name }}</td>
+            <td>
+                <a href="{% url 'student_edit' student.id %}" class="btn btn-sm btn-primary">Edit</a>
+            </td>
         </tr>
         {% endfor %}
     </tbody>

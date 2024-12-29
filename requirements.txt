@@ -1,5 +1,5 @@
 Django==5.0
 django-crispy-forms==2.1
 crispy-bootstrap4
-openai
+google-generativeai
 python-dotenv
