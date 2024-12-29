@@ -1,19 +1,22 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from .models import School, Student, Marks, CustomUser
-from .forms import StudentForm, MarksForm, SchoolForm, SchoolAdminRegistrationForm
+from .forms import StudentForm, MarksForm, SchoolForm, SchoolAdminRegistrationForm, TestForm, Test
 from django.db.models import Count
 from .math_utils import solve_math_problem, generate_similar_questions
 import json
 import os
 from django.conf import settings
 from django.http import JsonResponse
+from django.http import HttpResponseRedirect
+
 
 
 def is_system_admin(user):
     return user.is_authenticated and user.is_system_admin
+
 
 def login_view(request):
     if request.method == 'POST':
@@ -30,6 +33,65 @@ def login_view(request):
                 return redirect('school_add')
         messages.error(request, 'Invalid credentials')
     return render(request, 'school_app/login.html')
+
+# Writtern by sushil
+@login_required
+def collector_dashboard(request):
+    # Fetch tests created by the collector
+    tests = Test.objects.filter(created_by=request.user)
+
+    # Fetch all schools (You can add filters here if necessary)
+    schools = School.objects.all()
+
+    return render(request, 'school_app/collector_dashboard.html', {
+        'tests': tests,
+        'schools': schools
+    })
+
+
+# Written by sushil
+@login_required
+def add_test(request):
+    if request.method == 'POST':
+        form = TestForm(request.POST, request.FILES)
+        if form.is_valid():
+            test = form.save(commit=False)
+            test.created_by = request.user  # Set the collector as the creator of the test
+            test.save()
+            messages.success(request, 'Test details have been successfully added!')
+            return redirect('collector_dashboard')  # Redirect to collector dashboard or wherever appropriate
+    else:
+        form = TestForm()
+
+    return render(request, 'school_app/add_test.html', {'form': form})
+@login_required
+def Test_list(request):
+   # school = School.objects.get(admin=request.user)
+   # marks = Marks.objects.filter(student__school=school)
+   # tests = Test.objects.all()
+    tests = Test.objects.filter(is_active=True).order_by('-test_date')
+    return render(request, 'school_app/Test_list.html', {'test': tests})
+
+
+from django.shortcuts import get_object_or_404
+from django.contrib import messages
+from django.http import HttpResponseRedirect
+from .models import Test
+
+@login_required
+def activate_test(request, test_id):
+    # Change `id` to `test_number`, since that is your primary key
+    test = get_object_or_404(Test, test_number=test_id)
+
+    if request.user == test.created_by:  # Ensure only the creator can activate the test
+        test.is_active = True
+        test.save()
+
+        messages.success(request, 'Test has been activated successfully!')
+    else:
+        messages.error(request, 'You do not have permission to activate this test.')
+
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
 @login_required
 def dashboard(request):
@@ -58,7 +120,7 @@ def system_admin_dashboard(request):
         'total_schools': schools.count(),
         'total_students': Student.objects.count(),
     }
-    return render(request, 'school_app/system_admin_dashboard.html', context)
+    return render(request, 'school_app/collector_dashboard.html', context)
 
 @user_passes_test(is_system_admin)
 def system_admin_school_list(request):
