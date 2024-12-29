@@ -39,4 +39,3 @@ class SchoolAdminRegistrationForm(forms.ModelForm):
         if commit:
             school.save()
         return school
-

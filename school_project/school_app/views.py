@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
-from .models import School, Student, Marks, CustomUser, TestPaper
+from .models import School, Student, Marks, CustomUser
 from .forms import StudentForm, MarksForm, SchoolForm, SchoolAdminRegistrationForm
 from django.db.models import Count
 from .math_utils import solve_math_problem, generate_similar_questions
@@ -10,14 +10,6 @@ import json
 import os
 from django.conf import settings
 from django.http import JsonResponse
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-from django.db.models import Avg, Max, Min, Count
-from django.http import JsonResponse
-from .models import Student, Marks
-from django.core.exceptions import PermissionDenied
-from django.shortcuts import get_object_or_404
-
 
 
 def is_system_admin(user):
@@ -440,143 +432,3 @@ def generate_form(request):
         }
         return render(request, 'school_app/generate_form.html', context)
     return redirect('math_tools')
-
-@login_required
-def analysis_dashboard(request):
-    # Only allow school admins to access this view
-    if not hasattr(request.user, 'administered_school'):
-        raise PermissionDenied
-    
-    school = request.user.administered_school
-    
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        # Handle AJAX requests for chart data
-        class_name = request.GET.get('class_name')
-        
-        # Base query for students in this school
-        students = Student.objects.filter(school=school)
-        
-        if class_name:
-            students = students.filter(class_name=class_name)
-            
-        marks_data = Marks.objects.filter(student__in=students)
-        
-        analysis_data = {
-            'class_performance': list(marks_data.filter(
-                student__class_name=class_name
-            ).values('test_number').annotate(
-                average=Avg('marks'),
-                max_mark=Max('marks'),
-                min_mark=Min('marks')
-            ).order_by('test_number')) if class_name else [],
-            
-            'students': list(students.values('id', 'name', 'roll_number'))
-        }
-        
-        return JsonResponse(analysis_data)
-    
-    # Initial page load context
-    context = {
-        'school': school,
-        'class_choices': Student.CLASS_CHOICES
-    }
-    print("Context being sent:", context)  # Debug print
-    return render(request, 'school_app/analysis_dashboard.html', context)
-
-@login_required
-def analysis_dashboard(request):
-    # Only allow school admins to access this view
-    if not hasattr(request.user, 'administered_school'):
-        raise PermissionDenied
-    
-    school = request.user.administered_school
-    
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        # Handle AJAX requests for chart data
-        class_name = request.GET.get('class_name')
-        student_id = request.GET.get('student_id')
-        
-        # Base query for students in this school
-        students = Student.objects.filter(school=school)
-        
-        if class_name:
-            students = students.filter(class_name=class_name)
-            
-        marks_data = Marks.objects.filter(student__in=students)
-        
-        # If student_id is provided, get their specific marks
-        student_progress = []
-        if student_id:
-            student_progress = list(Marks.objects.filter(
-                student_id=student_id
-            ).values('test_number', 'marks', 'date').order_by('date'))
-        
-        analysis_data = {
-            'student_progress': student_progress,
-            'class_performance': list(marks_data.filter(
-                student__class_name=class_name
-            ).values('test_number').annotate(
-                average=Avg('marks'),
-                max_mark=Max('marks'),
-                min_mark=Min('marks')
-            ).order_by('test_number')) if class_name else [],
-            
-            'students': list(students.values('id', 'name', 'roll_number'))
-        }
-        
-        return JsonResponse(analysis_data)
-    
-    # Convert CLASS_CHOICES tuple into list for the template
-    class_choices = list(Student.CLASS_CHOICES)
-    
-    # Initial page load context
-    context = {
-        'school': school,
-        'class_choices': class_choices
-    }
-    return render(request, 'school_app/analysis_dashboard.html', context)
-
-def system_admin_dashboard(request):
-    test_papers = TestPaper.objects.all().order_by('-uploaded_at')[:5]  # Show latest 5 papers
-
-    context = {
-        'school': request.user.administered_school,
-        'student_count': Student.objects.filter(school=request.user.administered_school).count(),
-        'class_choices': json.dumps(dict(Student.CLASS_CHOICES)),
-        'test_papers': test_papers,
-    }
-    return render(request, 'school_app/system_admin_dashboard.html', context)
-
-@login_required
-def student_edit(request, student_id):
-    school = School.objects.get(admin=request.user)
-    student = get_object_or_404(Student, id=student_id, school=school)
-    
-    if request.method == 'POST':
-        form = StudentForm(request.POST, instance=student)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Student updated successfully!')
-            return redirect('student_list')
-    else:
-        form = StudentForm(instance=student)
-    
-    return render(request, 'school_app/student_edit.html', {'form': form})
-
-@login_required
-def marks_edit(request, marks_id):
-    school = School.objects.get(admin=request.user)
-    marks = get_object_or_404(Marks, id=marks_id, student__school=school)
-    
-    if request.method == 'POST':
-        form = MarksForm(request.POST, instance=marks)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Marks updated successfully!')
-            return redirect('marks_list')
-    else:
-        form = MarksForm(instance=marks)
-        # Limit student choices to only those in the current school
-        form.fields['student'].queryset = Student.objects.filter(school=school)
-    
-    return render(request, 'school_app/marks_edit.html', {'form': form})
