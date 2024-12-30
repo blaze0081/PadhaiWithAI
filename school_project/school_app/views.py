@@ -149,7 +149,47 @@ def deactivate_test(request, test_id):
     messages.success(request, 'Test has been activated successfully!')
     
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+@login_required
+def student_ranking(request):
+    # Student ranking
+     if not request.user.groups.filter(name='Collector').exists():
+        return HttpResponseForbidden("You are not authorized to access this page.")
+     rankings = Marks.objects.select_related('student', 'student__school').order_by('-marks')
+     return render(request, 'student_ranking.html', {'rankings': rankings})
+    
+@login_required
+def student_report(request):
+   
+    if not request.user.groups.filter(name='Collector').exists():
+        return HttpResponseForbidden("You are not authorized to access this page.")
+    total_students = Student.objects.count()
+    return render(request, 'student_report.html', {'total_students': total_students})
 
+
+@login_required
+def edit_student(request, student_id):
+    
+    student = get_object_or_404(Student, id=student_id)
+    if request.method == 'POST':
+        student.name = request.POST['name']
+        student.roll_number = request.POST['roll_number']
+        student.save()
+        return redirect('dashboard')
+    return render(request, 'edit_student.html', {'student': student})
+
+
+@login_required
+def delete_student(request, student_id):
+   
+    student = get_object_or_404(Student, id=student_id)
+    student.delete()
+    return redirect('dashboard')
+
+@login_required
+def delete_student_mark(request, mark_id):
+    mark = get_object_or_404(Marks, id=mark_id)
+    mark.delete()
+    return redirect('add_marks')
 # @login_required
 # def dashboard(request):
 #     if request.user.is_system_admin:
@@ -293,6 +333,28 @@ def school_add(request):
         form = SchoolForm()
     
     return render(request, 'school_app/school_add.html', {'form': form})
+
+from django.http import JsonResponse
+from .models import Marks
+
+@login_required
+def update_marks(request, mark_id):
+    if request.method == 'POST':
+        try:
+            import json
+            data = json.loads(request.body)
+            new_marks = data.get('marks')
+
+            mark = Marks.objects.get(id=mark_id)
+            mark.marks = new_marks
+            mark.save()
+
+            return JsonResponse({'success': True, 'message': 'Marks updated successfully'})
+        except Marks.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'Mark record not found'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
+
 
 def logout_view(request):
     logout(request)

@@ -1,0 +1,23 @@
+{% extends 'school_app/base.html' %}
+{% block title %}Edit Student{% endblock %}
+{% block content %}
+
+<h2 class="mb-4">Edit Student</h2>
+
+<form method="POST" class="row g-3">
+    {% csrf_token %}
+    <div class="col-md-6">
+        <label for="name" class="form-label">Student Name</label>
+        <input type="text" class="form-control" id="name" name="name" value="{{ student.name }}" required>
+    </div>
+    <div class="col-md-6">
+        <label for="roll_number" class="form-label">Roll Number</label>
+        <input type="text" class="form-control" id="roll_number" name="roll_number" value="{{ student.roll_number }}" required>
+    </div>
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">Update Student</button>
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+
+{% endblock %}

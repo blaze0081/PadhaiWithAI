@@ -66,7 +66,14 @@ class TestForm(forms.ModelForm):
             'class': 'form-control',  # Bootstrap class for styling (optional)
         }),
     )
-    pdf_file = forms.FileField(
+    pdf_file_questions = forms.FileField(
+        required=False,  # Optional field (doesn't need to be filled)
+        widget=forms.ClearableFileInput(attrs={
+            'class': 'form-control',  # Apply Bootstrap class for styling
+            'accept': '.pdf',  # Limit to PDF file selection (optional)
+        })
+    )
+    pdf_file_answers = forms.FileField(
         required=False,  # Optional field (doesn't need to be filled)
         widget=forms.ClearableFileInput(attrs={
             'class': 'form-control',  # Apply Bootstrap class for styling
@@ -76,4 +83,4 @@ class TestForm(forms.ModelForm):
 
     class Meta:
         model = Test
-        fields = ['test_name', 'subject_name', 'pdf_file', 'test_date']
+        fields = ['test_name', 'subject_name', 'pdf_file_questions', 'pdf_file_answers',  'test_date']

@@ -44,6 +44,11 @@ urlpatterns = [
     path('deactivate/<int:test_id>/', views.deactivate_test, name='deactivate_test'),
     path('test-results/<int:test_number>/', views.view_test_results, name='view_test_results'),
 
-
+    path('student-ranking/', views.student_ranking, name='student_ranking'),
+    path('student-report/', views.student_report, name='student_report'),
+    path('edit_student/<int:student_id>/', views.edit_student, name='edit_student'),
+    path('delete_student/<int:student_id>/', views.delete_student, name='delete_student'),
+    path('delete_student_mark/<int:mark_id>/', views.delete_student_mark, name='delete_student_mark'),
+    path('update-marks/<int:mark_id>/', views.update_marks, name='update_marks'),
 ]
 

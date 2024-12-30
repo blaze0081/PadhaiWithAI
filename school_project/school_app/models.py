@@ -98,7 +98,8 @@ class Test(models.Model):
     test_number = models.AutoField(primary_key=True)
     test_name = models.CharField(max_length=255)
     subject_name = models.CharField(max_length=255)
-    pdf_file = models.FileField(upload_to='test_pdfs/')  # Uploads PDFs to a folder called 'test_pdfs'
+    pdf_file_questions = models.FileField(upload_to='test_pdfs/questions/', null=True, blank=True)  # Uploads question PDFs
+    pdf_file_answers = models.FileField(upload_to='test_pdfs/answers/', null=True, blank=True)  # Uploads answer PDFs
     is_active = models.BooleanField(default=False)  # Field to activate/deactivate the test
     test_date = models.DateField(null=True, blank=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)  # Reference to the collector who created the test

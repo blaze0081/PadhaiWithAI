@@ -1,0 +1,16 @@
+{% extends 'school_app/base.html' %}
+
+{% block title %}Student Report{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Student Report</h2>
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title">Total Students</h5>
+            <p class="card-text display-4">{{ total_students }}</p>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

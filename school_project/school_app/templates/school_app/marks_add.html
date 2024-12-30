@@ -2,6 +2,7 @@
 {% load crispy_forms_tags %}
 {% block content %}
 <h2>Add Marks</h2>
+
 <form method="post">
     {% csrf_token %}
     {{ form|crispy }}

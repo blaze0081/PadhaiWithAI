@@ -44,5 +44,5 @@ admin.site.register(Student, StudentAdmin)
 admin.site.register(Marks, MarksAdmin)
 # admin.site.register(Group)  # Ensure the Group model is registered
 
-collector_group, created = Group.objects.get_or_create(name='Collector')
+#collector_group, created = Group.objects.get_or_create(name='Collector')
 

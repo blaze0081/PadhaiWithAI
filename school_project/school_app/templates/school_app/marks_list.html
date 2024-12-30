@@ -4,7 +4,8 @@
     <h2>Marks</h2>
     <a href="{% url 'marks_add' %}" class="btn btn-primary">Add Marks</a>
 </div>
-<table class="table">
+
+<table class="table table-bordered">
     <thead>
         <tr>
             <th>Student</th>
@@ -16,16 +17,58 @@
     </thead>
     <tbody>
         {% for mark in marks %}
-        <tr>
+        <tr id="row-{{ mark.id }}">
             <td>{{ mark.student.name }}</td>
             <td>{{ mark.test_number }}</td>
-            <td>{{ mark.marks }}</td>
+            <td>
+                <span id="marks-display-{{ mark.id }}">{{ mark.marks }}</span>
+                <input type="number" id="marks-input-{{ mark.id }}" value="{{ mark.marks }}" class="form-control d-none">
+            </td>
             <td>{{ mark.date }}</td>
             <td>
-                <a href="{% url 'marks_edit' mark.id %}" class="btn btn-sm btn-primary">Edit</a>
+                <button class="btn btn-sm btn-warning" onclick="editMark({{ mark.id }})">Edit</button>
+                <button class="btn btn-sm btn-success d-none" onclick="saveMark({{ mark.id }})" id="save-btn-{{ mark.id }}">Save</button>
+                <a href="{% url 'delete_student_mark' mark.id %}" class="btn btn-sm btn-danger">Delete</a>
             </td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
+
+<script>
+    function editMark(id) {
+        // Toggle display and input fields
+        document.getElementById(`marks-display-${id}`).classList.add('d-none');
+        document.getElementById(`marks-input-${id}`).classList.remove('d-none');
+        document.getElementById(`save-btn-${id}`).classList.remove('d-none');
+    }
+
+    function saveMark(id) {
+        const marksValue = document.getElementById(`marks-input-${id}`).value;
+
+        fetch(`/update-marks/${id}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ marks: marksValue })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById(`marks-display-${id}`).innerText = marksValue;
+                document.getElementById(`marks-display-${id}`).classList.remove('d-none');
+                document.getElementById(`marks-input-${id}`).classList.add('d-none');
+                document.getElementById(`save-btn-${id}`).classList.add('d-none');
+            } else {
+                alert('Failed to update marks.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while updating marks.');
+        });
+    }
+</script>
 {% endblock %}
