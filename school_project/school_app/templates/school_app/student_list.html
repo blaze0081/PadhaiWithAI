@@ -1,27 +1,36 @@
 {% extends 'school_app/base.html' %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>Students</h2>
+<div class="d-flex justify-content-between align-items-right mb-4">
+    
     <a href="{% url 'student_add' %}" class="btn btn-primary">Add Student</a>
 </div>
-<table class="table">
-    <thead>
+
+
+<!-- Student List Table -->
+<h3 class="mt-4">Student List</h3>
+<table class="table table-bordered table-hover">
+    <thead class="table-dark">
         <tr>
+            <th>#</th>
             <th>Name</th>
             <th>Roll Number</th>
-            <th>Grade</th>
             <th>Actions</th>
         </tr>
     </thead>
     <tbody>
         {% for student in students %}
         <tr>
+            <td>{{ forloop.counter }}</td>
             <td>{{ student.name }}</td>
             <td>{{ student.roll_number }}</td>
-            <td>{{ student.class_name }}</td>
             <td>
-                <a href="{% url 'student_edit' student.id %}" class="btn btn-sm btn-primary">Edit</a>
+                <a href="{% url 'edit_student' student.id %}" class="btn btn-sm btn-secondary">Edit</a>
+                <a href="{% url 'delete_student' student.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this student?');">Delete</a>
             </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4" class="text-center">No students added yet.</td>
         </tr>
         {% endfor %}
     </tbody>

@@ -1,11 +1,22 @@
 {% extends 'school_app/base.html' %}
 {% block content %}
-<h1>Add Test Details</h1>
+<h2 class="text-center m-7">Add Test Details</h2>
 
-<form method="POST" enctype="multipart/form-data">
+<form method="POST" enctype="multipart/form-data" class="container mt-6">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Submit</button>
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card">
+                <div class="card-body">
+                    {{ form.as_p }}
+                    <div class="d-flex ">
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                        <a href="{% url 'collector_dashboard' %}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </form>
 
 {% endblock %}

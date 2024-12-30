@@ -1,0 +1,45 @@
+{% extends 'school_app/base.html' %}
+
+{% block title %}Student Rankings{% endblock %}
+
+{% block content %}
+<h2 style="text-align: center; font-size: 40px;">Student Rankings</h2>
+<div>
+    <br>
+</div>
+<div class="table-responsive">
+    <table class="table table-striped table-bordered table-hover" id="rankingTable">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">Rank</th>
+                <th scope="col">Student</th>
+                <th scope="col">School</th>
+                <th scope="col">Marks</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in rankings %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ record.student.name }}</td>
+                <td>{{ record.student.school.name }}</td>
+                <td>{{ record.marks }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    $(document).ready(function() {
+        // Initialize DataTables with sorting enabled
+        $('#rankingTable').DataTable({
+            "paging": true,  // Enable pagination
+            "searching": true,  // Enable search box
+            "ordering": true,  // Enable sorting
+            "info": true  // Show table info (number of records, etc.)
+        });
+    });
+</script>
+
+{% endblock %}
