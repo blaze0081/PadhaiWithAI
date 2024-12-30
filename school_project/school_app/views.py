@@ -141,6 +141,14 @@ def activate_test(request, test_id):
     #     messages.error(request, 'You do not have permission to activate this test.')
 
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+@login_required
+def deactivate_test(request, test_id):
+    test = get_object_or_404(Test, test_number=test_id)
+    test.is_active = False
+    test.save()
+    messages.success(request, 'Test has been activated successfully!')
+    
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
 # @login_required
 # def dashboard(request):

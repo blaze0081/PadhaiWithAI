@@ -44,7 +44,7 @@ class SchoolAdminRegistrationForm(forms.ModelForm):
             school.save()
         return school
 
-class TestForm(forms.ModelForm):
+""" class TestForm(forms.ModelForm):
     test_date = forms.DateField(
         required=False,
         widget=forms.DateInput(attrs={
@@ -56,5 +56,24 @@ class TestForm(forms.ModelForm):
     class Meta:
         model = Test
         fields = ['test_name', 'subject_name', 'pdf_file', 'test_date']
-
+ """
     
+class TestForm(forms.ModelForm):
+    test_date = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={
+            'type': 'date',  # This enables the HTML5 date picker
+            'class': 'form-control',  # Bootstrap class for styling (optional)
+        }),
+    )
+    pdf_file = forms.FileField(
+        required=False,  # Optional field (doesn't need to be filled)
+        widget=forms.ClearableFileInput(attrs={
+            'class': 'form-control',  # Apply Bootstrap class for styling
+            'accept': '.pdf',  # Limit to PDF file selection (optional)
+        })
+    )
+
+    class Meta:
+        model = Test
+        fields = ['test_name', 'subject_name', 'pdf_file', 'test_date']
