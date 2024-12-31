@@ -6,6 +6,7 @@ from .solution_formatter import format_solution
 load_dotenv()
 api_key = os.getenv("GOOGLE_API_KEY")
 
+print (api_key)
 def init_gemini():
     """Initialize the Gemini API client"""
     genai.configure(api_key=api_key)
