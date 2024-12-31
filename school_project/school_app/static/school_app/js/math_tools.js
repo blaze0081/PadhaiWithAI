@@ -108,6 +108,12 @@ document.addEventListener('DOMContentLoaded', function() {
             handleBookSelection(this.value);
         });
     }
+
+    // Add click handler for "Back to Questions" link
+    const backLink = document.querySelector('a[href*="math_tools"]');
+    if (backLink) {
+        backLink.onclick = handleBackToQuestions;
+    }
 });
 
 // Handle book selection
@@ -236,4 +242,11 @@ function generateMore() {
         console.error('Error:', error);
         alert('Error submitting form. Please try again.');
     }
+}
+
+// Clear selected questions when returning from solutions page
+function handleBackToQuestions() {
+    clearSelectedQuestions();
+    window.location.href = document.querySelector('a[href*="math_tools"]').href;
+    return false;  // Prevent default link behavior
 }

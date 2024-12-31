@@ -569,23 +569,49 @@ def load_questions(request):
     
     return redirect('math_tools')
 
+def get_book_language(book_id):
+    """Determine the language of a book based on its content.json file"""
+    try:
+        content_file = os.path.join(
+            settings.BASE_DIR,
+            'school_app',
+            'content',
+            book_id,
+            'content.json'
+        )
+        
+        if os.path.exists(content_file):
+            with open(content_file, 'r', encoding='utf-8') as f:
+                book_info = json.load(f)
+                return book_info.get('language', 'English')  # Default to English if not specified
+        return 'English'  # Default to English if file doesn't exist
+        
+    except Exception as e:
+        print(f"Error determining book language for {book_id}: {e}")
+        return 'English'  # Default to English on error
+
 @login_required
 def solve_math(request):
     if request.method == 'POST':
         try:
-            # Get questions from POST data
+            # Get questions and book ID from POST data
             questions_json = request.POST.get('questions')
+            book_id = request.session.get('selected_book')
+            
             if not questions_json:
                 messages.error(request, 'No questions selected')
                 return redirect('math_tools')
 
+            # Get the book's language
+            language = get_book_language(book_id)
+
             # Parse the JSON string to get list of questions
             questions = json.loads(questions_json)
             
-            # Solve each question
+            # Solve each question in the appropriate language
             solutions = []
             for question in questions:
-                solution = solve_math_problem(question)
+                solution = solve_math_problem(question, language=language)
                 solutions.append({
                     'question': question,
                     'solution': solution
@@ -593,95 +619,93 @@ def solve_math(request):
 
             context = {
                 'solutions': solutions,
-                # Store original state in context
-                'original_book': request.session.get('selected_book'),
+                'language': language,  # Pass language to template
+                'original_book': book_id,
                 'original_chapter': request.session.get('selected_chapter')
             }
 
             return render(request, 'school_app/solutions.html', context)
             
         except json.JSONDecodeError:
-            messages.error(request, 'Invalid question data received')
+            error_msg = 'Invalid question data received' if language == 'English' else 'अमान्य प्रश्न डेटा प्राप्त हुआ'
+            messages.error(request, error_msg)
         except Exception as e:
-            messages.error(request, f'Error solving questions: {str(e)}')
+            error_msg = f'Error solving questions: {str(e)}' if language == 'English' else f'प्रश्नों को हल करने में त्रुटि: {str(e)}'
+            messages.error(request, error_msg)
     
     return redirect('math_tools')
 
 @login_required
 def generate_math(request):
     """
-    View function to handle enhanced math question generation.
-    Supports multiple languages, question types, and difficulty levels.
+    View function to handle math question generation with language support.
     """
-    # Get the current language from session or default to English
-    current_language = request.session.get('language', 'English')
-    
-    messages = {
-        'Hindi': {
-            'no_questions': 'कोई प्रश्न नहीं चुना गया है। कृपया मुख्य पृष्ठ से प्रश्न चुनें।',
-            'generating': 'प्रश्न उत्पन्न किए जा रहे हैं... कृपया प्रतीक्षा करें',
-            'error': 'प्रश्न उत्पन्न करने में त्रुटि:',
-            'invalid_data': 'अमान्य प्रश्न डेटा प्राप्त हुआ'
-        },
-        'English': {
-            'no_questions': 'No questions selected. Please select questions from the main page.',
-            'generating': 'Generating questions... please wait',
-            'error': 'Error generating questions:',
-            'invalid_data': 'Invalid question data received'
-        }
-    }
-
     try:
         # Get questions from POST data
         questions_json = request.POST.get('questions')
+        book_id = request.session.get('selected_book')
+        
         if not questions_json:
-            messages.error(request, messages[current_language]['no_questions'])
+            messages.error(request, 'No questions selected')
             return redirect('math_tools')
+
+        # Get the book's language
+        language = get_book_language(book_id)
+
+        # Error messages based on language
+        error_messages = {
+            'Hindi': {
+                'no_questions': 'कोई प्रश्न नहीं चुना गया है। कृपया मुख्य पृष्ठ से प्रश्न चुनें।',
+                'generating': 'प्रश्न उत्पन्न किए जा रहे हैं... कृपया प्रतीक्षा करें',
+                'error': 'प्रश्न उत्पन्न करने में त्रुटि:',
+                'invalid_data': 'अमान्य प्रश्न डेटा प्राप्त हुआ'
+            },
+            'English': {
+                'no_questions': 'No questions selected. Please select questions from the main page.',
+                'generating': 'Generating questions... please wait',
+                'error': 'Error generating questions:',
+                'invalid_data': 'Invalid question data received'
+            }
+        }
 
         # Parse the JSON string to get list of questions
         questions = json.loads(questions_json)
         
         if request.method == 'POST':
-            # Get form parameters
             difficulty = request.POST.get('difficulty', 'Same Level')
             num_questions = int(request.POST.get('num_questions', 5))
-            language = request.POST.get('language', 'English')
             question_type = request.POST.get('question_type', 'Same as Original')
 
-            # Calculate how many variations to generate for each selected question
+            # Calculate distribution of questions
             num_selected = len(questions)
             base_count = num_questions // num_selected
             remainder = num_questions % num_selected
-            
-            # Distribute questions evenly
             distribution = [base_count] * num_selected
             for i in range(remainder):
                 distribution[i] += 1
 
             all_generated_questions = []
-            total_progress = len(questions)
 
-            # Generate questions for each selected question
+            # Generate questions using the book's language
             for i, (question, count) in enumerate(zip(questions, distribution)):
                 try:
                     generated_content = generate_similar_questions(
                         question=question,
                         difficulty=difficulty,
                         num_questions=count,
-                        language=language,
+                        language=language,  # Use book's language
                         question_type=question_type
                     )
                     all_generated_questions.append(generated_content)
                     
                 except Exception as e:
-                    error_msg = f"{messages[current_language]['error']} {str(e)}"
+                    error_msg = f"{error_messages[language]['error']} {str(e)}"
                     messages.error(request, error_msg)
                     continue
 
             # Combine all generated questions
             combined_content = "\n\n".join(all_generated_questions)
 
-            # Store original selections in context
             context = {
                 'generated_questions': combined_content,
                 'original_questions': questions,
@@ -689,20 +713,18 @@ def generate_math(request):
                 'question_type': question_type,
                 'difficulty': difficulty,
                 'num_questions': num_questions,
-                # Store for form pre-filling
                 'questions_json': questions_json
             }
 
             return render(request, 'school_app/math_tools.html', context)
 
     except json.JSONDecodeError:
-        messages.error(request, messages[current_language]['invalid_data'])
+        messages.error(request, error_messages[language]['invalid_data'])
     except Exception as e:
-        error_msg = f"{messages[current_language]['error']} {str(e)}"
+        error_msg = f"{error_messages[language]['error']} {str(e)}"
         messages.error(request, error_msg)
 
     return redirect('math_tools')
-
 
 @login_required
 def get_chapters(request, book_id):
