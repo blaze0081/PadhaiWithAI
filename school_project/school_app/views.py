@@ -18,6 +18,8 @@ from django.db.models import Avg, Max, Min
 from django.http import JsonResponse
 from .models import Student, Marks
 from django.core.exceptions import PermissionDenied
+from .image_math_utils import solve_visual_math_problem, generate_similar_visual_questions
+
 
 
 
@@ -480,31 +482,49 @@ def load_questions(request):
     
     return redirect('math_tools')
 
-@login_required
 def solve_math(request):
     if request.method == 'POST':
         try:
-            # Get questions from POST data
             questions_json = request.POST.get('questions')
             if not questions_json:
                 messages.error(request, 'No questions selected')
                 return redirect('math_tools')
 
-            # Parse the JSON string to get list of questions
             questions = json.loads(questions_json)
-            
-            # Solve each question
             solutions = []
-            for question in questions:
-                solution = solve_math_problem(question)
-                solutions.append({
-                    'question': question,
-                    'solution': solution
-                })
+            
+            for question_data in questions:
+                # Check if question_data is a string or dict
+                if isinstance(question_data, str):
+                    # Handle regular text-based question
+                    solution = solve_math_problem(question_data)
+                    solutions.append({
+                        'question': question_data,
+                        'solution': solution,
+                        'has_image': False
+                    })
+                else:
+                    # Handle question with image
+                    question_text = question_data.get('question', '')
+                    image_ref = question_data.get('image')
+                    
+                    if image_ref:
+                        solution = solve_visual_math_problem(
+                            question=question_text,
+                            image_reference=image_ref
+                        )
+                    else:
+                        solution = solve_math_problem(question_text)
+                    
+                    solutions.append({
+                        'question': question_text,
+                        'solution': solution,
+                        'has_image': bool(image_ref),
+                        'image_reference': image_ref
+                    })
 
             context = {
                 'solutions': solutions,
-                # Store original state in context
                 'original_book': request.session.get('selected_book'),
                 'original_chapter': request.session.get('selected_chapter')
             }
@@ -518,16 +538,11 @@ def solve_math(request):
     
     return redirect('math_tools')
 
-@login_required
 def generate_math(request):
-    """
-    View function to handle enhanced math question generation.
-    Supports multiple languages, question types, and difficulty levels.
-    """
-    # Get the current language from session or default to English
+    """View function to handle math question generation with support for image-based questions."""
     current_language = request.session.get('language', 'English')
     
-    messages = {
+    messages_dict = {
         'Hindi': {
             'no_questions': 'कोई प्रश्न नहीं चुना गया है। कृपया मुख्य पृष्ठ से प्रश्न चुनें।',
             'generating': 'प्रश्न उत्पन्न किए जा रहे हैं... कृपया प्रतीक्षा करें',
@@ -543,56 +558,73 @@ def generate_math(request):
     }
 
     try:
-        # Get questions from POST data
         questions_json = request.POST.get('questions')
         if not questions_json:
-            messages.error(request, messages[current_language]['no_questions'])
+            messages.error(request, messages_dict[current_language]['no_questions'])
             return redirect('math_tools')
 
-        # Parse the JSON string to get list of questions
         questions = json.loads(questions_json)
         
         if request.method == 'POST':
-            # Get form parameters
             difficulty = request.POST.get('difficulty', 'Same Level')
             num_questions = int(request.POST.get('num_questions', 5))
             language = request.POST.get('language', 'English')
             question_type = request.POST.get('question_type', 'Same as Original')
 
-            # Calculate how many variations to generate for each selected question
+            # Calculate distribution of questions
             num_selected = len(questions)
             base_count = num_questions // num_selected
             remainder = num_questions % num_selected
-            
-            # Distribute questions evenly
             distribution = [base_count] * num_selected
             for i in range(remainder):
                 distribution[i] += 1
 
             all_generated_questions = []
-            total_progress = len(questions)
 
             # Generate questions for each selected question
-            for i, (question, count) in enumerate(zip(questions, distribution)):
+            for question_data, count in zip(questions, distribution):
                 try:
-                    generated_content = generate_similar_questions(
-                        question=question,
-                        difficulty=difficulty,
-                        num_questions=count,
-                        language=language,
-                        question_type=question_type
-                    )
+                    if isinstance(question_data, str):
+                        # Handle regular text-based question
+                        generated_content = generate_similar_questions(
+                            question=question_data,
+                            difficulty=difficulty,
+                            num_questions=count,
+                            language=language,
+                            question_type=question_type
+                        )
+                    else:
+                        # Handle question with image
+                        question_text = question_data.get('question', '')
+                        image_ref = question_data.get('image')
+                        
+                        if image_ref:
+                            generated_content = generate_similar_visual_questions(
+                                question=question_text,
+                                image_reference=image_ref,
+                                difficulty=difficulty,
+                                num_questions=count,
+                                language=language
+                            )
+                        else:
+                            generated_content = generate_similar_questions(
+                                question=question_text,
+                                difficulty=difficulty,
+                                num_questions=count,
+                                language=language,
+                                question_type=question_type
+                            )
+                    
                     all_generated_questions.append(generated_content)
                     
                 except Exception as e:
-                    error_msg = f"{messages[current_language]['error']} {str(e)}"
+                    error_msg = f"{messages_dict[current_language]['error']} {str(e)}"
                     messages.error(request, error_msg)
                     continue
 
             # Combine all generated questions
             combined_content = "\n\n".join(all_generated_questions)
 
-            # Store original selections in context
             context = {
                 'generated_questions': combined_content,
                 'original_questions': questions,
@@ -600,20 +632,18 @@ def generate_math(request):
                 'question_type': question_type,
                 'difficulty': difficulty,
                 'num_questions': num_questions,
-                # Store for form pre-filling
                 'questions_json': questions_json
             }
 
             return render(request, 'school_app/math_tools.html', context)
 
     except json.JSONDecodeError:
-        messages.error(request, messages[current_language]['invalid_data'])
+        messages.error(request, messages_dict[current_language]['invalid_data'])
     except Exception as e:
-        error_msg = f"{messages[current_language]['error']} {str(e)}"
+        error_msg = f"{messages_dict[current_language]['error']} {str(e)}"
         messages.error(request, error_msg)
 
     return redirect('math_tools')
-
 
 @login_required
 def get_chapters(request, book_id):
