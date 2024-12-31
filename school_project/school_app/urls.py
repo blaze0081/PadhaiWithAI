@@ -50,5 +50,10 @@ urlpatterns = [
     path('delete_student/<int:student_id>/', views.delete_student, name='delete_student'),
     path('delete_student_mark/<int:mark_id>/', views.delete_student_mark, name='delete_student_mark'),
     path('update-marks/<int:mark_id>/', views.update_marks, name='update_marks'),
+    #31/12/2024
+    path('active_test_list', views.active_test_list, name='active_test_list'),
+    path('test/<int:test_id>/marks/', views.test_marks_entry, name='test_marks_entry'),
+    path('test/<int:test_id>/marks/delete/<int:student_id>/', views.delete_marks, name='delete_marks'),
+    path('studentslist/', views.school_student_list, name='school_student_list'),
 ]
 

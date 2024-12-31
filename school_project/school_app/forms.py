@@ -9,10 +9,10 @@ class StudentForm(forms.ModelForm):
 class MarksForm(forms.ModelForm):
     class Meta:
         model = Marks
-        fields = ['student', 'test_number', 'marks']
-
+        #fields = ['student', 'test_number', 'marks']
+        fields = ['student','marks','test']
     # Optional: you can specify custom labels for better clarity if needed
-    student = forms.ModelChoiceField(queryset=Student.objects.all(), label="Select Student")
+    #student = forms.ModelChoiceField(queryset=Student.objects.all(), label="Select Student")
 
 
 class SchoolForm(forms.ModelForm):

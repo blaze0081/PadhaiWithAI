@@ -18,8 +18,7 @@ from django.db.models import Avg, Max, Min
 from django.http import JsonResponse
 from .models import Student, Marks
 from django.core.exceptions import PermissionDenied
-
-
+from django.db import IntegrityError
 
 
 def is_system_admin(user):
@@ -309,8 +308,9 @@ def marks_add(request):
 @login_required
 def marks_list(request):
     school = School.objects.get(admin=request.user)
-    marks = Marks.objects.filter(student__school=school)
+    marks = Marks.objects.filter(student__school=school).select_related('test', 'student')  # Use select_related to reduce queries
     return render(request, 'school_app/marks_list.html', {'marks': marks})
+
 
 @login_required
 def school_add(request):
@@ -354,11 +354,100 @@ def update_marks(request, mark_id):
             return JsonResponse({'success': False, 'message': 'Mark record not found'})
         except Exception as e:
             return JsonResponse({'success': False, 'message': str(e)})
+from decimal import Decimal, InvalidOperation
+@login_required
+# Display and Edit Marks for a Selected Test
+def test_marks_entry(request, test_id):
+    test = get_object_or_404(Test, test_number=test_id)
+    # Fetch the school associated with the logged-in user
+    school = School.objects.get(admin=request.user)
+    
+    # Get all students from the logged-in user's school
+    students = Student.objects.filter(school=school)
+    #students = Student.objects.all()
+    
+    if request.method == 'POST':
+        for student in students:
+            marks_value = request.POST.get(f'marks_{student.id}', '').strip()
+            if marks_value:  # Ensure marks are not empty
+                try:
+                    # Validate numeric marks
+                    marks_value = float(marks_value)
+                    mark, created = Marks.objects.get_or_create(student=student, test=test)
+                    mark.marks = marks_value
+                    mark.save()
+                except InvalidOperation:
+                    return render(request, 'test_marks_entry.html', {
+                        'test': test,
+                        'student_marks': [
+                            {'student': s, 'marks': Marks.objects.filter(student=s, test=test).first().marks if Marks.objects.filter(student=s, test=test).first() else ''}
+                            for s in students
+                        ],
+                        'error': f"Invalid marks entered for {student.name}. Please enter a valid number."
+                    })
+                except ValueError:
+                    return render(request, 'test_marks_entry.html', {
+                        'test': test,
+                        'student_marks': [
+                            {'student': s, 'marks': Marks.objects.filter(student=s, test=test).first().marks if Marks.objects.filter(student=s, test=test).first() else ''}
+                            for s in students
+                        ],
+                        'error': f"Invalid marks entered for {student.name}. Please enter a valid number."
+                    })
+                except IntegrityError:
+                    return render(request, 'test_marks_entry.html', {
+                        'test': test,
+                        'student_marks': [
+                            {'student': s, 'marks': Marks.objects.filter(student=s, test=test).first().marks if Marks.objects.filter(student=s, test=test).first() else ''}
+                            for s in students
+                        ],
+                        'error': f"Failed to save marks for {student.name}. Please try again."
+                    })
+        return redirect('test_marks_entry', test_id=test_id)
 
+    # Fetch marks for all students for this test
+    student_marks = [
+        {
+            'student': student,
+            'marks': Marks.objects.filter(student=student, test=test).first().marks if Marks.objects.filter(student=student, test=test).first() else ''
+        }
+        for student in students
+    ]
+
+    return render(request, 'test_marks_entry.html', {
+        'test': test,
+        'student_marks': student_marks,
+    })
+
+@login_required
+# Delete Marks Entry
+def delete_marks(request, student_id, test_id):
+    mark = get_object_or_404(Marks, student_id=student_id, test_id=test_id)
+    mark.delete()
+    return redirect('test_marks_entry', test_id=test_id)
+
+@login_required
+def active_test_list(request):
+    tests = Test.objects.all()
+    return render(request, 'active_test_list.html', {'tests': tests})
 
 def logout_view(request):
     logout(request)
     return redirect('login')
+
+#31/12/2024
+@login_required
+def school_student_list(request):
+    schools = School.objects.all()
+    school_students = {}
+
+    # Get students for each school
+    for school in schools:
+        school_students[school] = school.student_set.all()
+
+    return render(request, 'school_student_list.html', {'school_students': school_students})
+
+
 
 # Math Tools Functions
 def get_available_books():

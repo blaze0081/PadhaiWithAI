@@ -33,9 +33,10 @@ class StudentAdmin(admin.ModelAdmin):
     search_fields = ('name', 'roll_number')
 
 class MarksAdmin(admin.ModelAdmin):
-    list_display = ('student', 'test_number', 'marks', 'date')
-    list_filter = ('test_number', 'date')
-    search_fields = ('student__name', 'test_number')
+    list_display = ('id', 'student', 'test', 'marks', 'date')  # Removed 'test_number'
+    list_filter = ('test', 'student')  # Removed 'test_number'
+    search_fields = ('student__name', 'test__test_name')
+
 
 # Register models with updated admin
 admin.site.register(CustomUser, CustomUserAdmin)
@@ -46,3 +47,5 @@ admin.site.register(Marks, MarksAdmin)
 
 #collector_group, created = Group.objects.get_or_create(name='Collector')
 
+admin.site.site_header = 'PadhaiwithAI'
+admin.site.site_title = 'PadhaiwithAI'
