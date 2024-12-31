@@ -9,7 +9,8 @@
     <thead>
         <tr>
             <th>Student</th>
-            <th>Test Number</th>
+            <th>Test Name</th>
+            <th>Test Chapter</th>
             <th>Marks</th>
             <th>Date</th>
             <th>Actions</th>
@@ -19,7 +20,8 @@
         {% for mark in marks %}
         <tr id="row-{{ mark.id }}">
             <td>{{ mark.student.name }}</td>
-            <td>{{ mark.test_number }}</td>
+            <td>{{ mark.test.test_name   }}</td>
+            <td>{{ mark.test.subject_name   }}</td>
             <td>
                 <span id="marks-display-{{ mark.id }}">{{ mark.marks }}</span>
                 <input type="number" id="marks-input-{{ mark.id }}" value="{{ mark.marks }}" class="form-control d-none">

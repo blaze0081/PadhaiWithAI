@@ -8,9 +8,9 @@
     <div class="card shadow-sm">
         <div class="card-body">
             <h5 class="card-title">Total Students</h5>
-            <p class="card-text display-4">{{ total_students }}</p>
+            <p class="card-text display-2"><a href="{% url 'school_student_list' %}">   {{ total_students }} </a></p>
         </div>
     </div>
 </div>
-
+<a href="{% url 'collector_dashboard' %}" class="action-btn edit-btn" style="margin-left: 20px;">Back to Dashboard</a>
 {% endblock %}

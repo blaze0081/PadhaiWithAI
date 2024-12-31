@@ -9,5 +9,6 @@
         {{ form|crispy }}
         <button type="submit" class="btn btn-primary">Add Student</button>
     </form>
+    <a href="{% url 'dashboard' %}" class="action-btn edit-btn" style="margin-left: 20px;">Back to Dashboard</a>
 </div>
 {% endblock %}

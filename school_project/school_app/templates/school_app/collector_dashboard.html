@@ -44,7 +44,7 @@
 	
 </div>
 <div>
-	<h2 style="font-size: 36px;">Tests List</h2>
+	<h2 style="font-size: 36px;">Schedule Test List</h2>
 	<table class="table table-bordered table-striped">
 		<thead>
 			<tr>
@@ -75,7 +75,7 @@
 				</td>
 				<td>
 				{% if test.pdf_file_questions %}
-					<a href="{{ test.pdf_file_questions.url }}" class="btn btn-info btn-sm" download>Download PDF</a>
+					<a href="{{ test.pdf_file_questions.url }}" class="btn btn-danger btn-sm" download>Download PDF</a>
 				{% else %}
 					<p>No PDF available for download.</p>
 				{% endif %}
@@ -109,7 +109,7 @@
 
 
 <div class="mt-5">
-	<h2 style="font-size: 36px;">Schools List</h2>
+	<h2 style="font-size: 36px;">Registered Schools List</h2>
 	<table class="table table-striped">
 		<thead>
 			<tr>

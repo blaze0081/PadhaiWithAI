@@ -30,7 +30,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-md-4">
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Analysis</h5>
@@ -38,7 +38,16 @@
                 <a href="{% url 'analysis_dashboard' %}" class="btn btn-primary">View Analysis</a>
             </div>
         </div>
-</div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Test</h5>
+                <p class="card-text">Complete Test List</p>
+                <a href="{% url 'active_test_list' %}" class="btn btn-primary">View Test</a>
+            </div>
+        </div>
+    </div>
 
 <h2 class="mt-5">Active Tests</h2>
 <table class="table table-bordered mt-3">
@@ -61,7 +70,7 @@
             <td>{{ test.subject_name }}</td>
             <td>
                 {% if test.pdf_file_questions %}
-					<a href="{{ test.pdf_file_questions.url }}" class="btn btn btn-sm btn-outline-primary" download>Download PDF</a>
+					<a href="{{ test.pdf_file_questions.url }}" class="btn btn-danger btn-sm " download>Download PDF</a>
 				{% else %}
 					<p>No PDF available for download.</p>
 				{% endif %}
@@ -70,13 +79,15 @@
             <td>
                 
                 {% if test.pdf_file_answers %}
-					<a href="{{ test.pdf_file_answers.url }}" class="btn btn-info btn-sm" download>Download PDF</a>
+					<a href="{{ test.pdf_file_answers.url }}" class="btn btn-success info btn-sm" download>Download PDF</a>
 				{% else %}
 					<p>No PDF available for download.</p>
 				{% endif %}
                 </td>
             <td>{{ test.test_date }}</td>
-            <td><a href="{% url 'marks_list' %}" class="btn btn-primary">Update Marks</a></td>
+            <td>
+              <a href="{% url 'test_marks_entry' test.test_number   %}" class="btn btn-info ">Update Marks</a>
+            </td>
         </tr>
         {% empty %}
         <tr>

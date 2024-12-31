@@ -1,0 +1,60 @@
+{% extends 'school_app/base.html' %}
+
+{% block title %}Student Report{% endblock %}
+
+{% block content %}
+
+<h1 style="text-align: center; font-size: 2.5em; color: #333; margin-top: 30px;">School Wise Student List</h1>
+
+<div style="padding: 20px; background-color: #f4f7fa;">
+    <table style="width: 100%; border-collapse: collapse; margin-top: 20px; border: 1px solid #ddd;">
+        <thead>
+            <tr style="background-color: #007bff; color: white;">
+                <th style="padding: 15px; text-align: left;">School Name</th>
+               
+            </tr>
+        </thead>
+        <tbody>
+            {% for school, students in school_students.items %}
+                <tr style="background-color: #ffffff; border: 1px solid #ddd;">
+                    <td style="padding: 15px; font-size: 1.2em; color: #007bff; font-weight: bold;">
+                        {{ school.name }}
+                    </td>
+                </tr>
+                    <tr>
+                    <td>
+                        <!-- Nested Table for Students -->
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr>
+                                    <th style="padding: 10px; text-align: left; background-color: #f1f1f1; border: 1px solid #ddd; font-size: 1.1em;">Roll Number</th>
+                                    <th style="padding: 10px; text-align: left; background-color: #f1f1f1; border: 1px solid #ddd; font-size: 1.1em;">Student Name</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in students %}
+                                    <tr>
+                                        <td style="padding: 10px; border: 1px solid #ddd; font-size: 1.1em; background-color: #f8f9fa; text-align: left;">
+                                            <strong>{{ student.roll_number }}.</strong>
+                                        </td>
+                                        <td style="padding: 10px; border: 1px solid #ddd; font-size: 1.1em; background-color: #f8f9fa; text-align: left;">
+                                            {{ student.name }}
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="2" style="padding: 10px; color: #6c757d; font-style: italic; text-align: center;">
+                                            No students available.
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}
