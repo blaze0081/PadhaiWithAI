@@ -43,41 +43,51 @@ class SchoolAdminRegistrationForm(forms.ModelForm):
         if commit:
             school.save()
         return school
-
-""" class TestForm(forms.ModelForm):
-    test_date = forms.DateField(
-        required=False,
-        widget=forms.DateInput(attrs={
-            'type': 'date',  # This enables the HTML5 date picker
-            'class': 'form-control',  # Bootstrap class for styling (optional)
-        }),
-    )
-
-    class Meta:
-        model = Test
-        fields = ['test_name', 'subject_name', 'pdf_file', 'test_date']
- """
     
 class TestForm(forms.ModelForm):
+     # Test Name Field
+    test_name = forms.CharField(
+        required=True,
+        max_length=100,  # Set max_length or customize as needed
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',  # Bootstrap class for styling
+            'placeholder': 'Enter Test Name',  # Placeholder text for guidance
+            'style': 'font-size: 1.1em; padding: 10px; text-transform: capitalize;',  # Custom style
+        })
+    )
+
+    # Subject Name Field
+    subject_name = forms.CharField(
+        required=True,
+        max_length=100,  # Set max_length or customize as needed
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',  # Bootstrap class for styling
+            'placeholder': 'Enter Subject Name',  # Placeholder text for guidance
+            'style': 'font-size: 1.1em; padding: 10px; text-transform: capitalize;',  # Custom style
+        })
+    )
     test_date = forms.DateField(
-        required=False,
+        required=True,
         widget=forms.DateInput(attrs={
             'type': 'date',  # This enables the HTML5 date picker
             'class': 'form-control',  # Bootstrap class for styling (optional)
+            'placeholder': 'Select Test date',  # Placeholder text for guidance
         }),
     )
     pdf_file_questions = forms.FileField(
-        required=False,  # Optional field (doesn't need to be filled)
+        required=True,  # Optional field (doesn't need to be filled)
         widget=forms.ClearableFileInput(attrs={
             'class': 'form-control',  # Apply Bootstrap class for styling
             'accept': '.pdf',  # Limit to PDF file selection (optional)
+            'placeholder': 'Select Questions file',  # Placeholder text for guidance
         })
     )
     pdf_file_answers = forms.FileField(
-        required=False,  # Optional field (doesn't need to be filled)
+        required=True,  # Optional field (doesn't need to be filled)
         widget=forms.ClearableFileInput(attrs={
             'class': 'form-control',  # Apply Bootstrap class for styling
             'accept': '.pdf',  # Limit to PDF file selection (optional)
+            'placeholder': 'Select Answer file',  # Placeholder text for guidance
         })
     )
 
