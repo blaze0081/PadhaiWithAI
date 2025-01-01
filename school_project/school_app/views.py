@@ -19,6 +19,71 @@ from django.http import JsonResponse
 from .models import Student, Marks
 from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError
+from django.contrib.auth.forms import PasswordChangeForm
+from django import forms
+from django.views.decorators.csrf import csrf_exempt
+import pandas as pd
+from django.contrib.auth import update_session_auth_hash
+# 01/01/2025  For test Analsis
+# Forms
+class SchoolUploadForm(forms.Form):
+    file = forms.FileField()
+
+# Views
+@login_required
+def school_average_marks(request):
+    from django.db.models import Avg
+    data = School.objects.annotate(avg_marks=Avg('student__marks__marks'))
+    context = {'data': data}
+    return render(request, 'school_average.html', context)
+
+@login_required
+def top_students(request):
+    number_of_toppers = int(request.GET.get('toppers', 3))
+    from django.db.models import Avg
+    data = Marks.objects.values('student__name', 'student__school__name').annotate(avg_marks=Avg('marks')).order_by('-avg_marks')[:number_of_toppers]
+    context = {'data': data, 'number_of_toppers': number_of_toppers}
+    return render(request, 'top_students.html', context)
+
+@login_required
+def weakest_students(request):
+    number_of_weakest = int(request.GET.get('weakest', 3))
+    from django.db.models import Avg
+    data = Marks.objects.values('student__name', 'student__school__name').annotate(avg_marks=Avg('marks')).order_by('avg_marks')[:number_of_weakest]
+    context = {'data': data, 'number_of_weakest': number_of_weakest}
+    return render(request, 'weakest_students.html', context)
+
+@login_required
+@csrf_exempt
+def upload_school_logins(request):
+    context = {'form': SchoolUploadForm()}
+    if request.method == 'POST':
+        form = SchoolUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            excel_file = request.FILES['file']
+            df = pd.read_excel(excel_file)
+            for _, row in df.iterrows():
+                user = User.objects.create_user(
+                    username=row['username'],
+                    password=row['password'],
+                    first_name=row['school_name']
+                )
+            context['status'] = 'success'
+        else:
+            context['status'] = 'failed'
+    return render(request, 'upload_school_logins.html', context)
+
+@login_required
+def change_password(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)
+            return JsonResponse({'status': 'Password changed successfully'})
+    else:
+        form = PasswordChangeForm(request.user)
+    return render(request, 'change_password.html', {'form': form})
 
 
 def is_system_admin(user):
@@ -189,22 +254,6 @@ def delete_student_mark(request, mark_id):
     mark = get_object_or_404(Marks, id=mark_id)
     mark.delete()
     return redirect('add_marks')
-# @login_required
-# def dashboard(request):
-#     if request.user.is_system_admin:
-#         return redirect('system_admin_dashboard')
-    
-#     try:
-#         school = School.objects.get(admin=request.user)
-#         context = {
-#             'school': school,
-#             'student_count': Student.objects.filter(school=school).count(),
-#         }
-#     except School.DoesNotExist:
-#         messages.error(request, "No school found for the current user.")
-#         return redirect('login')
-
-#     return render(request, 'school_app/system_admin_dashboard.html', context)
 
 @login_required
 def dashboard(request):
