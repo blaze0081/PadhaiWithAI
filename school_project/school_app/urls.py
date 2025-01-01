@@ -63,6 +63,6 @@ urlpatterns = [
     path('students/top/', views.top_students, name='top_students'),
     path('students/weakest/', views.weakest_students, name='weakest_students'),
     path('school/upload-logins/', views.upload_school_logins, name='upload_school_logins'),
-    path('user/change-password/', views.change_password, name='change_password'),
+    path('user/change-password/', views.password_change, name='change_password'),
 ]
 

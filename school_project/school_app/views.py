@@ -74,13 +74,16 @@ def upload_school_logins(request):
     return render(request, 'upload_school_logins.html', context)
 
 @login_required
-def change_password(request):
+def password_change(request):
     if request.method == 'POST':
         form = PasswordChangeForm(request.user, request.POST)
         if form.is_valid():
-            user = form.save()
-            update_session_auth_hash(request, user)
-            return JsonResponse({'status': 'Password changed successfully'})
+            form.save()
+            update_session_auth_hash(request, form.user)  # Important: Keeps the user logged in after password change
+            messages.success(request, 'Your password was successfully updated!')
+            return redirect('password_change')
+        else:
+            messages.error(request, 'Please correct the errors below.')
     else:
         form = PasswordChangeForm(request.user)
     return render(request, 'change_password.html', {'form': form})
@@ -148,7 +151,7 @@ def collector_dashboard(request):
 @login_required
 def view_test_results(request, test_number):
     test = get_object_or_404(Test, test_number=test_number)
-    results = Marks.objects.filter(test_number=test_number).select_related('student')
+    results = Marks.objects.filter(test_id=test_number).select_related('student')
 
     # Get sorting parameters
     sort_by = request.GET.get('sort_by', 'student__name')  # Default sorting by student name
@@ -647,8 +650,6 @@ def solve_math(request):
             questions_json = request.POST.get('questions')
             book_id = request.session.get('selected_book')
             
-            print("Received questions_json:", questions_json)  # Debug print
-            
             if not questions_json:
                 messages.error(request, 'No questions selected')
                 return redirect('math_tools')
@@ -658,98 +659,33 @@ def solve_math(request):
 
             # Parse the JSON string to get list of questions
             questions = json.loads(questions_json)
-            print("Parsed questions:", questions)  # Debug print
             
-            # If questions is a string, try to parse it again
-            if isinstance(questions, str):
-                try:
-                    questions = json.loads(questions)
-                    print("Re-parsed questions:", questions)  # Debug print
-                except json.JSONDecodeError:
-                    pass
-
-            solutions = []
-
-            # Convert questions to list if it's not already
-            if not isinstance(questions, list):
-                questions = [questions]
-
             # Solve each question in the appropriate language
-            for question_data in questions:
-                print("Processing question_data:", question_data)  # Debug print
-                print("Type of question_data:", type(question_data))  # Debug print
-                
-                # If question_data is a string, try to parse it as JSON
-                if isinstance(question_data, str):
-                    try:
-                        question_data = json.loads(question_data)
-                        print("Parsed question_data:", question_data)  # Debug print
-                    except json.JSONDecodeError:
-                        pass
-
-                if isinstance(question_data, dict):
-                    print("Processing as dict")  # Debug print
-                    question = question_data.get('question', '')
-                    img_filename = question_data.get('img', '')
-                    
-                    # Construct absolute path to image
-                    if img_filename:
-                        img_path = os.path.join(
-                            settings.BASE_DIR,
-                            'school_app',
-                            'static',
-                            'school_app',
-                            'images',
-                            img_filename
-                        )
-                        print(f"Looking for image at: {img_path}")  # Debug print
-                        print(f"Does file exist? {os.path.exists(img_path)}")  # Debug print
-                        
-                        if os.path.exists(img_path):
-                            solution = solve_math_problem(
-                                question=question,
-                                image_path=img_path,
-                                language=language
-                            )
-                        else:
-                            print(f"Warning: Image not found at {img_path}")
-                            solution = solve_math_problem(question=question, language=language)
-                    else:
-                        solution = solve_math_problem(question=question, language=language)
-                else:
-                    print("Processing as string")  # Debug print
-                    question = question_data
-                    solution = solve_math_problem(question=question, language=language)
-                
-                # For template display, use the static URL path for images
-                static_img_url = img_filename if 'img_filename' in locals() else None
-                
+            solutions = []
+            for question in questions:
+                solution = solve_math_problem(question, language=language)
                 solutions.append({
-                    'question': question if 'question' in locals() else question_data,
-                    'img': static_img_url,
+                    'question': question,
                     'solution': solution
                 })
 
             context = {
                 'solutions': solutions,
-                'language': language,
+                'language': language,  # Pass language to template
                 'original_book': book_id,
                 'original_chapter': request.session.get('selected_chapter')
             }
 
             return render(request, 'school_app/solutions.html', context)
             
-        except json.JSONDecodeError as e:
-            print(f"JSON decode error: {e}")  # Debug print
+        except json.JSONDecodeError:
             error_msg = 'Invalid question data received' if language == 'English' else 'अमान्य प्रश्न डेटा प्राप्त हुआ'
             messages.error(request, error_msg)
         except Exception as e:
-            print(f"Error processing request: {e}")  # Debug print
             error_msg = f'Error solving questions: {str(e)}' if language == 'English' else f'प्रश्नों को हल करने में त्रुटि: {str(e)}'
             messages.error(request, error_msg)
     
     return redirect('math_tools')
-
 
 @login_required
 def generate_math(request):
@@ -901,8 +837,8 @@ def analysis_dashboard(request):
     if not hasattr(request.user, 'administered_school'):
         raise PermissionDenied
     
-    school = request.user.administered_school
-    
+    #school = request.user.administered_school
+    school = School.objects.get(admin=request.user)
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         # Handle AJAX requests for chart data
         class_name = request.GET.get('class_name')
