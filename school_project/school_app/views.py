@@ -63,7 +63,7 @@ def upload_school_logins(request):
             excel_file = request.FILES['file']
             df = pd.read_excel(excel_file)
             for _, row in df.iterrows():
-                user = User.objects.create_user(
+                user = user.objects.create_user(
                     username=row['username'],
                     password=row['password'],
                     first_name=row['school_name']
