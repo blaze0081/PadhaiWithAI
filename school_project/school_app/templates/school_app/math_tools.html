@@ -34,7 +34,7 @@
                                     {% for chapter in chapters %}
                                         <option value="{{ chapter.id }}"
                                                 {% if chapter.id == selected_chapter %}selected{% endif %}>
-                                            {{ chapter.name }}
+                                                {{ chapter.id }} - {{ chapter.name }}
                                         </option>
                                     {% endfor %}
                                 {% endif %}
