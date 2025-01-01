@@ -24,7 +24,13 @@ function updateQuestionQueue() {
     
     if (selectedQuestions.size > 0) {
         queueDisplay.innerHTML = Array.from(selectedQuestions)
-            .map(q => `<div class="selected-question p-2 border-bottom">${q}</div>`)
+            .map(q => {
+                const data = JSON.parse(q);
+                return `<div class="selected-question p-2 border-bottom">
+                    ${data.question}
+                    ${data.img ? `<img src="/static/school_app/images/${data.img}" class="img-fluid mt-2">` : ''}
+                </div>`;
+            })
             .join('');
         if (solveButton) solveButton.disabled = false;
         if (generateButton) generateButton.disabled = false;
@@ -37,22 +43,22 @@ function updateQuestionQueue() {
     sessionStorage.setItem('selectedQuestions', JSON.stringify(Array.from(selectedQuestions)));
 }
 
-// Handle question selection
 function toggleQuestion(checkbox) {
     const label = checkbox.nextElementSibling;
-    let questionText = label.textContent.trim();
+    const img = label.querySelector('img');
     
-    // If there's a main question context (in parentheses), include it
-    const mainQuestion = label.querySelector('.text-muted');
-    if (mainQuestion) {
-        const context = mainQuestion.textContent.replace(/[()]/g, '').trim();
-        questionText = `${questionText} - ${context}`;
+    let questionData = {
+        question: label.textContent.trim()
+    };
+    
+    if (img) {
+        questionData.img = img.getAttribute('src').split('/').pop();
     }
     
     if (checkbox.checked) {
-        selectedQuestions.add(questionText);
+        selectedQuestions.add(JSON.stringify(questionData));
     } else {
-        selectedQuestions.delete(questionText);
+        selectedQuestions.delete(JSON.stringify(questionData));
     }
     updateQuestionQueue();
 }

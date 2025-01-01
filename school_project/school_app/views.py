@@ -594,7 +594,6 @@ def get_book_language(book_id):
 def solve_math(request):
     if request.method == 'POST':
         try:
-            # Get questions and book ID from POST data
             questions_json = request.POST.get('questions')
             book_id = request.session.get('selected_book')
             
@@ -602,34 +601,66 @@ def solve_math(request):
                 messages.error(request, 'No questions selected')
                 return redirect('math_tools')
 
-            # Get the book's language
             language = get_book_language(book_id)
-
-            # Parse the JSON string to get list of questions
             questions = json.loads(questions_json)
-            
-            # Solve each question in the appropriate language
             solutions = []
-            for question in questions:
-                solution = solve_math_problem(question, language=language)
+
+            for question_data in questions:
+                if isinstance(question_data, dict):
+                    question = question_data.get('question', '')
+                    img_filename = question_data.get('img', '')
+                    
+                    if img_filename:
+                        # Construct absolute path to image
+                        img_path = os.path.join(
+                            settings.BASE_DIR,
+                            'school_app',
+                            'static',
+                            'school_app',
+                            'images',
+                            img_filename
+                        )
+                        print(f"Looking for image at: {img_path}")
+                        
+                        if os.path.exists(img_path):
+                            solution = solve_math_problem(
+                                question=question,
+                                image_path=img_path,
+                                language=language
+                            )
+                        else:
+                            print(f"Warning: Image not found at {img_path}")
+                            solution = solve_math_problem(question=question, language=language)
+                    else:
+                        solution = solve_math_problem(question=question, language=language)
+                else:
+                    question = question_data
+                    solution = solve_math_problem(question=question, language=language)
+                
+                # For template, use the correct static URL format
+                static_img_url = img_filename if isinstance(question_data, dict) and question_data.get('img') else None
+                
                 solutions.append({
                     'question': question,
+                    'img': static_img_url,
                     'solution': solution
                 })
 
             context = {
                 'solutions': solutions,
-                'language': language,  # Pass language to template
+                'language': language,
                 'original_book': book_id,
                 'original_chapter': request.session.get('selected_chapter')
             }
 
             return render(request, 'school_app/solutions.html', context)
             
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as e:
+            print(f"JSON decode error: {e}")
             error_msg = 'Invalid question data received' if language == 'English' else 'अमान्य प्रश्न डेटा प्राप्त हुआ'
             messages.error(request, error_msg)
         except Exception as e:
+            print(f"Error processing request: {e}")
             error_msg = f'Error solving questions: {str(e)}' if language == 'English' else f'प्रश्नों को हल करने में त्रुटि: {str(e)}'
             messages.error(request, error_msg)
     

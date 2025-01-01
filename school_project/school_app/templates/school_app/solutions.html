@@ -51,6 +51,14 @@
                                     <h6 class="text-muted">Question:</h6>
                                     <div class="p-3 bg-light rounded">
                                         {{ solution.question }}
+                                        {% if solution.img %}
+                                            <div class="question-image mt-3">
+                                                <img src="{% static solution.img %}" 
+                                                     alt="Question diagram" 
+                                                     class="img-fluid rounded shadow-sm" 
+                                                     style="max-width: 100%; height: auto;">
+                                            </div>
+                                        {% endif %}
                                     </div>
                                 </div>
                                 <div class="solution">
@@ -74,4 +82,26 @@
 
 <!-- Add MathJax for rendering mathematical expressions -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js"></script>
+
+<style>
+    .question-image {
+        background-color: white;
+        padding: 1rem;
+        border-radius: 0.25rem;
+        border: 1px solid rgba(0,0,0,0.1);
+    }
+    
+    .solution-content {
+        background-color: #f8f9fa;
+        border-radius: 0.25rem;
+        border: 1px solid rgba(0,0,0,0.1);
+    }
+    
+    /* Improve image responsiveness on different screen sizes */
+    @media (max-width: 768px) {
+        .question-image {
+            padding: 0.5rem;
+        }
+    }
+</style>
 {% endblock %}

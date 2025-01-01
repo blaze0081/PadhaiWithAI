@@ -1,6 +1,8 @@
 import os
 from openai import OpenAI
 from dotenv import load_dotenv
+from typing import Optional, Union
+import base64
 
 load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
@@ -150,30 +152,77 @@ def generate_similar_questions(question: str, difficulty: str, num_questions: in
     return generated_content
 
 
-def solve_math_problem(question: str, language: str = "English") -> str:
-    """Solve a given mathematics problem with detailed explanation."""
+def encode_image(image_path):
+    """Encode image to base64 string."""
+    with open(image_path, "rb") as image_file:
+        return base64.b64encode(image_file.read()).decode('utf-8')
+
+
+def solve_math_problem(question: str, image_path: Optional[str] = None, language: str = "English") -> str:
+    """
+    Solve a given mathematics problem with detailed explanation.
+    
+    Args:
+        question: The math question to solve
+        image_path: Optional path to an image associated with the question
+        language: Language for the solution (default: "English")
+    """
     client = init_openai()
     
-    system_messages = """You are an experienced mathematics teacher. Solve the questions given, following these guidelines:
-            1. Include step-by-step solutions
-            2. Use LaTeX formatting for mathematical expressions (use $ for inline math and $$ for display math)
-            3. Show complete solution with final answers written as Final Answer: <answer>
-            4. Ensure that the last step, with the final value of the variable, is displayed at the end of the solution. The value should be in numbers, do not write an unsolved equation as the final value
-            5. Whenever showing the solution, first explain the concept that is being tested by the question in simple terms 
-            6. While explaining a concept , besides giving an example, also give a counter-example at the beginning . That always makes things clear
-            7. Any time you write a solution,  explain the solution in a way that is extremely easy to understand by children struggling with complex technical terms 
-            8. Whenever trying to explain in simple terms : 1. use colloquial local language terms and try to avoid technical terms . When using technical terms , re explain those terms in local colloquial terms 
-            9. Recheck the solution for any mistakes
-            10. Start each question-solution pair with '**Question N:**' where N is the question number, and reproduce the question in bold letters before following it up with detailed solution"""
+    messages = [
+        {
+            "role": "system", 
+            "content": """You are an experienced mathematics teacher. Solve the questions given, following these guidelines:
+                1. Include step-by-step solutions
+                2. Use LaTeX formatting for mathematical expressions (use $ for inline math and $$ for display math)
+                3. Show complete solution with final answers written as Final Answer: <answer>
+                4. Ensure that the last step, with the final value of the variable, is displayed at the end of the solution. The value should be in numbers, do not write an unsolved equation as the final value
+                5. Whenever showing the solution, first explain the concept that is being tested by the question in simple terms 
+                6. While explaining a concept, besides giving an example, also give a counter-example at the beginning. That always makes things clear
+                7. Any time you write a solution, explain the solution in a way that is extremely easy to understand by children struggling with complex technical terms 
+                8. Whenever trying to explain in simple terms: 1. use colloquial local language terms and try to avoid technical terms. When using technical terms, re explain those terms in local colloquial terms 
+                9. Recheck the solution for any mistakes
+                10. If an image is provided, analyze it carefully as it may contain important visual information needed to solve the problem
+                11. Start each question-solution pair with '**Question:**' and reproduce the question in bold letters before following it up with detailed solution"""
+        }
+    ]
+
+    # Add the question content
+    user_content = f"Please solve this mathematics question step by step in {language}: {question}"
+    print(image_path)
+    if image_path:
+        try:
+            base64_image = encode_image(image_path)
+            messages.append({
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": user_content
+                    },
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": f"data:image/jpeg;base64,{base64_image}"
+                        }
+                    }
+                ]
+            })
+        except Exception as e:
+            print(f"Error processing image: {e}")
+            # Fall back to text-only if image processing fails
+            messages.append({"role": "user", "content": user_content})
+    else:
+        messages.append({"role": "user", "content": user_content})
     
-    
-    response = client.chat.completions.create(
-        model="gpt-4o",
-        messages=[
-            {"role": "system", "content": system_messages},
-            {"role": "user", "content": f"Please solve this mathematics question step by step: {question} in {language}"}
-        ],
-        temperature=0.7
-    )
-    
-    return response.choices[0].message.content
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",  # Use vision model when image is present
+            messages=messages,
+            temperature=0.7,
+            max_tokens=4096
+        )
+        return response.choices[0].message.content
+    except Exception as e:
+        print(f"Error calling OpenAI API: {e}")
+        return f"Error solving problem: {str(e)}"
