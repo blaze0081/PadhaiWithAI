@@ -189,7 +189,7 @@ def solve_math_problem(question: str, image_path: Optional[str] = None, language
 
     # Add the question content
     user_content = f"Please solve this mathematics question step by step in {language}: {question}"
-    print(image_path)
+    print(f"Looking for image at: {image_path}")
     if image_path:
         try:
             base64_image = encode_image(image_path)

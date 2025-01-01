@@ -52,17 +52,22 @@ function toggleQuestion(checkbox) {
     };
     
     if (img) {
-        questionData.img = img.getAttribute('src').split('/').pop();
+        questionData.img = img.src.split('/').pop();
+        console.log('Image filename:', questionData.img);  // Debug log
     }
     
+    const questionString = JSON.stringify(questionData);
+    console.log('Question data:', questionString);  // Debug log
+    
     if (checkbox.checked) {
-        selectedQuestions.add(JSON.stringify(questionData));
+        selectedQuestions.add(questionString);
     } else {
-        selectedQuestions.delete(JSON.stringify(questionData));
+        selectedQuestions.delete(questionString);
     }
+    
+    console.log('Selected questions:', selectedQuestions);  // Debug log
     updateQuestionQueue();
 }
-
 // Clear all selected questions
 function clearSelectedQuestions() {
     selectedQuestions.clear();
@@ -203,11 +208,21 @@ function solveSelected() {
         csrfInput.value = csrfToken;
         form.appendChild(csrfInput);
         
+        // Convert selected questions to array of objects
+        const questionsArray = Array.from(selectedQuestions).map(q => {
+            if (typeof q === 'string') {
+                return JSON.parse(q);
+            }
+            return q;
+        });
+        
+        console.log('Submitting questions:', questionsArray);  // Debug log
+        
         // Add questions as JSON
         const questionsInput = document.createElement('input');
         questionsInput.type = 'hidden';
         questionsInput.name = 'questions';
-        questionsInput.value = JSON.stringify(Array.from(selectedQuestions));
+        questionsInput.value = JSON.stringify(questionsArray);
         form.appendChild(questionsInput);
         
         // Submit the form

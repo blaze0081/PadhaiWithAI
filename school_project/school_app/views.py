@@ -594,24 +594,57 @@ def get_book_language(book_id):
 def solve_math(request):
     if request.method == 'POST':
         try:
+            # Get questions and book ID from POST data
             questions_json = request.POST.get('questions')
             book_id = request.session.get('selected_book')
+            
+            print("Received questions_json:", questions_json)  # Debug print
             
             if not questions_json:
                 messages.error(request, 'No questions selected')
                 return redirect('math_tools')
 
+            # Get the book's language
             language = get_book_language(book_id)
+
+            # Parse the JSON string to get list of questions
             questions = json.loads(questions_json)
+            print("Parsed questions:", questions)  # Debug print
+            
+            # If questions is a string, try to parse it again
+            if isinstance(questions, str):
+                try:
+                    questions = json.loads(questions)
+                    print("Re-parsed questions:", questions)  # Debug print
+                except json.JSONDecodeError:
+                    pass
+
             solutions = []
 
+            # Convert questions to list if it's not already
+            if not isinstance(questions, list):
+                questions = [questions]
+
+            # Solve each question in the appropriate language
             for question_data in questions:
+                print("Processing question_data:", question_data)  # Debug print
+                print("Type of question_data:", type(question_data))  # Debug print
+                
+                # If question_data is a string, try to parse it as JSON
+                if isinstance(question_data, str):
+                    try:
+                        question_data = json.loads(question_data)
+                        print("Parsed question_data:", question_data)  # Debug print
+                    except json.JSONDecodeError:
+                        pass
+
                 if isinstance(question_data, dict):
+                    print("Processing as dict")  # Debug print
                     question = question_data.get('question', '')
                     img_filename = question_data.get('img', '')
                     
+                    # Construct absolute path to image
                     if img_filename:
-                        # Construct absolute path to image
                         img_path = os.path.join(
                             settings.BASE_DIR,
                             'school_app',
@@ -620,7 +653,8 @@ def solve_math(request):
                             'images',
                             img_filename
                         )
-                        print(f"Looking for image at: {img_path}")
+                        print(f"Looking for image at: {img_path}")  # Debug print
+                        print(f"Does file exist? {os.path.exists(img_path)}")  # Debug print
                         
                         if os.path.exists(img_path):
                             solution = solve_math_problem(
@@ -634,14 +668,15 @@ def solve_math(request):
                     else:
                         solution = solve_math_problem(question=question, language=language)
                 else:
+                    print("Processing as string")  # Debug print
                     question = question_data
                     solution = solve_math_problem(question=question, language=language)
                 
-                # For template, use the correct static URL format
-                static_img_url = img_filename if isinstance(question_data, dict) and question_data.get('img') else None
+                # For template display, use the static URL path for images
+                static_img_url = img_filename if 'img_filename' in locals() else None
                 
                 solutions.append({
-                    'question': question,
+                    'question': question if 'question' in locals() else question_data,
                     'img': static_img_url,
                     'solution': solution
                 })
@@ -656,15 +691,16 @@ def solve_math(request):
             return render(request, 'school_app/solutions.html', context)
             
         except json.JSONDecodeError as e:
-            print(f"JSON decode error: {e}")
+            print(f"JSON decode error: {e}")  # Debug print
             error_msg = 'Invalid question data received' if language == 'English' else 'अमान्य प्रश्न डेटा प्राप्त हुआ'
             messages.error(request, error_msg)
         except Exception as e:
-            print(f"Error processing request: {e}")
+            print(f"Error processing request: {e}")  # Debug print
             error_msg = f'Error solving questions: {str(e)}' if language == 'English' else f'प्रश्नों को हल करने में त्रुटि: {str(e)}'
             messages.error(request, error_msg)
     
     return redirect('math_tools')
+
 
 @login_required
 def generate_math(request):
