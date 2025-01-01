@@ -11,6 +11,45 @@
             <p class="card-text display-2"><a href="{% url 'school_student_list' %}">   {{ total_students }} </a></p>
         </div>
     </div>
+    <div class="col-md-4">
+    <div class="card">
+        <div class="card-body" style="text-align: center;">
+         
+            <a href="{% url 'school_average_marks' %}">
+                <h3>School Average Marks</h3>
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body" style="text-align: center;">
+        <a href="{% url 'top_students' %}">
+            <h3>Top Students</h3>
+        </a>
+    </div> 
+</div>
+<div class="card">
+    <div class="card-body" style="text-align: center;">
+        <a href="{% url 'weakest_students' %}">
+            <h3>Weakest Students</h3>
+        </a>
+    </div>
+</div>
+<div class="card">
+    <div class="card-body" style="text-align: center;">
+        <a href="{% url 'upload_school_logins' %}">
+            <h3>Upload School Logins</h3>
+        </a>
+    </div>
+</div>
+<div class="card">
+    <div class="card-body" style="text-align: center;">
+        <a href="{% url 'change_password' %}">
+            <h3>Change Password</h3>
+        </a>
+    </div>
+    </div>
+</div>
 </div>
 <a href="{% url 'collector_dashboard' %}" class="action-btn edit-btn" style="margin-left: 20px;">Back to Dashboard</a>
 {% endblock %}
