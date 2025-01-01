@@ -55,5 +55,14 @@ urlpatterns = [
     path('test/<int:test_id>/marks/', views.test_marks_entry, name='test_marks_entry'),
     path('test/<int:test_id>/marks/delete/<int:student_id>/', views.delete_marks, name='delete_marks'),
     path('studentslist/', views.school_student_list, name='school_student_list'),
+
+
+    #01/01/2025
+
+    path('school/average/', views.school_average_marks, name='school_average_marks'),
+    path('students/top/', views.top_students, name='top_students'),
+    path('students/weakest/', views.weakest_students, name='weakest_students'),
+    path('school/upload-logins/', views.upload_school_logins, name='upload_school_logins'),
+    path('user/change-password/', views.change_password, name='change_password'),
 ]
 

@@ -1,0 +1,28 @@
+{% extends 'school_app/base.html' %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h2 class="text-center mb-4" style="color: #007bff; font-size: 2.5em;">Top Students</h2>
+        
+        <!-- Form to select number of toppers -->
+        <div class="card mb-4 p-4 shadow-sm">
+            <form method="get" class="d-flex justify-content-between align-items-center">
+                <div class="form-group">
+                    <label for="toppers">Number of Toppers:</label>
+                    <input type="number" id="toppers" name="toppers" value="3" class="form-control w-25">
+                </div>
+                <button type="submit" class="btn btn-primary">Show</button>
+            </form>
+        </div>
+
+        <!-- Top Students List -->
+        <ul class="list-group">
+            {% for student in data %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>{{ student.student__school__name }} - {{ student.student__name }}  </span>
+                    <span class="badge badge-success badge-pill">Topper</span>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}
