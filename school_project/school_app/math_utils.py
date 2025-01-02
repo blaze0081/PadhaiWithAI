@@ -182,8 +182,7 @@ def solve_math_problem(question: str, image_path: Optional[str] = None, language
                 7. Any time you write a solution, explain the solution in a way that is extremely easy to understand by children struggling with complex technical terms 
                 8. Whenever trying to explain in simple terms: 1. use colloquial local language terms and try to avoid technical terms. When using technical terms, re explain those terms in local colloquial terms 
                 9. Recheck the solution for any mistakes
-                10. If an image is provided, analyze it carefully as it may contain important visual information needed to solve the problem
-                11. Start each question-solution pair with '**Question:**' and reproduce the question in bold letters before following it up with detailed solution"""
+                10. If an image is provided, analyze it carefully as it may contain important visual information needed to solve the problem"""
         }
     ]
 
@@ -217,7 +216,7 @@ def solve_math_problem(question: str, image_path: Optional[str] = None, language
     
     try:
         response = client.chat.completions.create(
-            model="gpt-4o-mini",  # Use vision model when image is present
+            model="gpt-4o",
             messages=messages,
             temperature=0.7,
             max_tokens=4096
