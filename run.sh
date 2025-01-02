@@ -1,4 +1,4 @@
 #!/bin/bash
 set -e
 cd school_project
-gunicorn wsgi:application --log-file -
+gunicorn school_project.wsgi:application --log-file - --bind 0.0.0.0:8001
