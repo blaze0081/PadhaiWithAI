@@ -1,4 +1,4 @@
 #!/bin/bash
-cd school_project
 set -e
-gunicorn project.wsgi --log-file -
+cd school_project
+gunicorn wsgi:application --log-file -
