@@ -1,6 +1,28 @@
 {% extends 'school_app/base.html' %}
 {% load static %}
 
+{% block extra_head %}
+<script>
+    window.MathJax = {
+        tex: {
+            inlineMath: [['\\(', '\\)']],
+            displayMath: [['\\[', '\\]']],
+            processEscapes: true,
+            tags: 'ams'
+        },
+        svg: {
+            fontCache: 'global'
+        },
+        options: {
+            renderActions: {
+                addMenu: [0, '', '']
+            }
+        }
+    };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js"></script>
+{% endblock %}
+
 {% block content %}
 <div class="container-fluid">
     <div class="row">
@@ -104,4 +126,15 @@
         }
     }
 </style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Trigger MathJax to reprocess content when needed
+        if (typeof MathJax !== 'undefined') {
+            MathJax.typesetPromise();
+        }
+    });
+</script>
 {% endblock %}
