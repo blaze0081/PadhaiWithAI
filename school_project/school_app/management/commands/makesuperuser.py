@@ -8,7 +8,7 @@ User = get_user_model()
 class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         email = 'admin@padhaiwithai.com'
-        new_password = 'padhaiwithai@2025'
+        new_password = get_random_string(6)
         try:
             if not User.objects.filter(is_superuser=True).exists():
                 self.stdout.write("No superusers found, creating one")

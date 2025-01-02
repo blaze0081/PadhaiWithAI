@@ -1,0 +1,9 @@
+Django==5.0
+django-crispy-forms==2.1
+crispy-bootstrap4
+openai
+python-dotenv
+pandas
+markdown
+bs4
+environ
