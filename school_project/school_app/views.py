@@ -24,10 +24,75 @@ from django import forms
 from django.views.decorators.csrf import csrf_exempt
 import pandas as pd
 from django.contrib.auth import update_session_auth_hash
+from django.db import IntegrityError
+from django.shortcuts import render, redirect, get_object_or_404
+from django.core.exceptions import ValidationError
+from .models import Test, Marks, Student, School
+from decimal import InvalidOperation
+from .models import CustomUser, School
+from .forms import ExcelFileUploadForm
+
+#02/01/2025
+@login_required
+def upload_student_data(request):
+    if request.method == 'POST' and request.FILES['excel_file']:
+        excel_file = request.FILES['excel_file']        
+        try:
+            # Load the Excel file into a pandas DataFrame
+            df = pd.read_excel(excel_file, engine='openpyxl')
+            
+            successfully_created = 0  # Counter for successfully created students
+            roll_number_errors = []  # Store errors related to duplicate roll numbers
+            
+            for index, row in df.iterrows():
+                name = row['name']
+                roll_number = row['roll_number']
+                class_name = row['class_name']
+                #school_name = row['school_name']
+                school_name =""
+                # Check if roll_number is unique
+                if Student.objects.filter(roll_number=roll_number).exists():
+                    roll_number_errors.append(f"Roll number {roll_number} already exists. Skipping this student.")
+                    continue  # Skip to the next student if roll number is duplicate
+                
+                try:
+                    # Get the School instance (assuming school_name exists in the DataFrame)
+                    #school = School.objects.get(name=school_name)
+                    
+                    # Create the student object
+                    student = Student.objects.create(
+                        school_id=request.user.administered_school.id,
+                        name=name,
+                        roll_number=roll_number,
+                        class_name=class_name
+                    )
+                    successfully_created += 1
+                except Exception as e:    
+                    messages.error(request, f"Error processing the file: {str(e)}")
+                    continue
+                #except School.DoesNotExist:
+                #     messages.error(request, f"School '{school_name}' not found for student {name}.")
+                #     continue  # Skip this student if the school doesn't exist
+                
+            # Display success or error messages
+            if successfully_created > 0:
+                messages.success(request, f"{successfully_created} students uploaded successfully.")
+            if roll_number_errors:
+                for error in roll_number_errors:
+                    messages.warning(request, error)
+                
+            return redirect('student_list')  # Redirect to the page displaying student list or another view
+            
+        except Exception as e:
+            messages.error(request, f"Error processing the file: {str(e)}")
+            return redirect('upload_student_data')  # Redirect back to the upload form if any error occurs
+    
+    else:
+        form = ExcelFileUploadForm()
+    
+    return render(request, 'upload_student_data.html', {'form': form})
 # 01/01/2025  For test Analsis
 # Forms
-class SchoolUploadForm(forms.Form):
-    file = forms.FileField()
 
 # Views
 @login_required
@@ -54,33 +119,87 @@ def weakest_students(request):
     return render(request, 'weakest_students.html', context)
 
 @login_required
-@csrf_exempt
-def upload_school_logins(request):
-    context = {'form': SchoolUploadForm()}
-    if request.method == 'POST':
-        form = SchoolUploadForm(request.POST, request.FILES)
-        if form.is_valid():
-            excel_file = request.FILES['file']
-            df = pd.read_excel(excel_file)
-            for _, row in df.iterrows():
-                user = user.objects.create_user(
-                    username=row['username'],
-                    password=row['password'],
-                    first_name=row['school_name']
-                )
-            context['status'] = 'success'
+def upload_school_users(request):
+    if request.user.groups.filter(name='Collector').exists():      
+    
+        if request.method == 'POST' and request.FILES['excel_file']:
+            excel_file = request.FILES['excel_file']
+            successfully_created = 0  # Counter to track how many users are successfully created
+            try:
+                # Load Excel data into pandas DataFrame
+                df = pd.read_excel(excel_file, engine='openpyxl')
+                
+                # Iterate through each row and create users
+                for index, row in df.iterrows():
+                    email = row['email']
+                    username = row['username']
+                    password = row['password']
+                    is_admin = row.get('is_system_admin', False)  # Default to False if not specified
+
+                    try:
+                        if CustomUser.objects.filter(email=email).exists():
+                            user1 = CustomUser.objects.get(email=email)
+                        else:
+                            user1 = CustomUser.objects.create_user(
+                                email=email,
+                                username=username,
+                                password=password,
+                                is_system_admin=is_admin
+                            )
+                        user1.save()
+                        # You can also add school association logic here (if needed)
+                    #     school_name = row['school_name']
+                    #     school_admin_id= CustomUser.objects.get(email==email)
+                    #     school, created = School.objects.get_or_create(school_name=school_name,school_admin_id=school_admin_id)
+
+                    #    # school.admin = user  # If this user is an admin of this school
+                    #     school.save()
+                        admin_user = CustomUser.objects.get(email=email)
+                    # Create or update the School instance
+                        school = School.objects.create(
+                                name=row['school_name'],
+                                admin=admin_user,  # Assign the CustomUser instance to the admin field
+                                created_by = request.user.created_schools.id # Example if you want to set 'created_by' as the admin
+                            )
+
+                        school.save()
+                        # Increment the successful creation counter
+                        successfully_created += 1
+                    except IntegrityError as e:
+                        messages.error(request, f"Error creating user {email}: {e}")
+                        continue  # Skip to the next user if error occurs
+                    
+                # Show a success message with the number of successfully created users
+                if successfully_created > 0:
+                    messages.success(request, f"{successfully_created} users uploaded and created successfully.")
+                else:
+                    messages.warning(request, "No users were created. Please check the file and try again.")
+                return redirect('collector-dashboard')  # Replace with appropriate redirect path
+
+            except Exception as e:
+                messages.error(request, f"Error processing file: {str(e)}")
+                return redirect('upload_school_users')  # Redirect back to upload form if error occurs
+        
         else:
-            context['status'] = 'failed'
-    return render(request, 'upload_school_logins.html', context)
+            form = ExcelFileUploadForm()
+        
+        return render(request, 'upload_users.html', {'form': form})
+    else:
+        # If the user is not a collector, return an error message or redirect
+        return HttpResponseForbidden("You are not authorized to access this page.")
+
 
 @login_required
-def change_password(request):
+def password_change(request):
     if request.method == 'POST':
         form = PasswordChangeForm(request.user, request.POST)
         if form.is_valid():
-            user = form.save()
-            update_session_auth_hash(request, user)
-            return JsonResponse({'status': 'Password changed successfully'})
+            form.save()
+            update_session_auth_hash(request, form.user)  # Important: Keeps the user logged in after password change
+            messages.success(request, 'Your password was successfully updated!')
+            return redirect('password_change')
+        else:
+            messages.error(request, 'Please correct the errors below.')
     else:
         form = PasswordChangeForm(request.user)
     return render(request, 'change_password.html', {'form': form})
@@ -148,7 +267,7 @@ def collector_dashboard(request):
 @login_required
 def view_test_results(request, test_number):
     test = get_object_or_404(Test, test_number=test_number)
-    results = Marks.objects.filter(test_number=test_number).select_related('student')
+    results = Marks.objects.filter(test_id=test_number).select_related('student')
 
     # Get sorting parameters
     sort_by = request.GET.get('sort_by', 'student__name')  # Default sorting by student name
@@ -413,45 +532,62 @@ def test_marks_entry(request, test_id):
     
     # Get all students from the logged-in user's school
     students = Student.objects.filter(school=school)
-    #students = Student.objects.all()
-    
+
     if request.method == 'POST':
+        # To store error messages
+        error_messages = []
+        
         for student in students:
             marks_value = request.POST.get(f'marks_{student.id}', '').strip()
-            if marks_value:  # Ensure marks are not empty
+            
+            if marks_value:  # If marks are provided
                 try:
-                    # Validate numeric marks
+                    # Validate numeric marks and convert them
                     marks_value = float(marks_value)
-                    mark, created = Marks.objects.get_or_create(student=student, test=test)
-                    mark.marks = marks_value
-                    mark.save()
+                    
+                    # Try to get or create a Marks record for the student and test
+                    mark, created = Marks.objects.update_or_create(
+                        student=student,
+                        test=test,
+                        defaults={'marks': marks_value}
+                    )
+                    
+                    # Optionally, you can check if the record was updated
+                    if created:
+                        print(f"Created new marks record for {student.name}")
+                    else:
+                        print(f"Updated marks record for {student.name}")
+
                 except InvalidOperation:
-                    return render(request, 'test_marks_entry.html', {
-                        'test': test,
-                        'student_marks': [
-                            {'student': s, 'marks': Marks.objects.filter(student=s, test=test).first().marks if Marks.objects.filter(student=s, test=test).first() else ''}
-                            for s in students
-                        ],
-                        'error': f"Invalid marks entered for {student.name}. Please enter a valid number."
-                    })
+                    error_messages.append(f"Invalid marks entered for {student.name}. Please enter a valid number.")
                 except ValueError:
-                    return render(request, 'test_marks_entry.html', {
-                        'test': test,
-                        'student_marks': [
-                            {'student': s, 'marks': Marks.objects.filter(student=s, test=test).first().marks if Marks.objects.filter(student=s, test=test).first() else ''}
-                            for s in students
-                        ],
-                        'error': f"Invalid marks entered for {student.name}. Please enter a valid number."
-                    })
-                except IntegrityError:
-                    return render(request, 'test_marks_entry.html', {
-                        'test': test,
-                        'student_marks': [
-                            {'student': s, 'marks': Marks.objects.filter(student=s, test=test).first().marks if Marks.objects.filter(student=s, test=test).first() else ''}
-                            for s in students
-                        ],
-                        'error': f"Failed to save marks for {student.name}. Please try again."
-                    })
+                    error_messages.append(f"Invalid marks entered for {student.name}. Please enter a valid number.")
+                except IntegrityError as e:
+                    # Log the error message for debugging
+                    print(f"IntegrityError for {student.name}: {e}")
+                    error_messages.append(f"Failed to save marks for {student.name}. Please try again.")
+                except Exception as e:
+                    # Log any unexpected errors
+                    print(f"Unexpected error for {student.name}: {e}")
+                    error_messages.append(f"An unexpected error occurred while saving marks for {student.name}. Please try again.")
+        
+        # If there are errors, return to the form with those errors
+        if error_messages:
+            # Fetch the marks again, so it persists after form submission
+            student_marks = [
+                {
+                    'student': student,
+                    'marks': Marks.objects.filter(student=student, test=test).first().marks if Marks.objects.filter(student=student, test=test).first() else ''
+                }
+                for student in students
+            ]
+            return render(request, 'test_marks_entry.html', {
+                'test': test,
+                'student_marks': student_marks,
+                'error_messages': error_messages,
+            })
+
+        # After successfully saving marks, redirect back to the same page
         return redirect('test_marks_entry', test_id=test_id)
 
     # Fetch marks for all students for this test
@@ -467,7 +603,6 @@ def test_marks_entry(request, test_id):
         'test': test,
         'student_marks': student_marks,
     })
-
 @login_required
 # Delete Marks Entry
 def delete_marks(request, student_id, test_id):
@@ -658,11 +793,13 @@ def solve_math(request):
 
             # Parse the JSON string to get list of questions
             questions = json.loads(questions_json)
+            print("Parsed questions:", questions)  # Debug print
             
             # If questions is a string, try to parse it again
             if isinstance(questions, str):
                 try:
                     questions = json.loads(questions)
+                    print("Re-parsed questions:", questions)  # Debug print
                 except json.JSONDecodeError:
                     pass
 
@@ -672,19 +809,21 @@ def solve_math(request):
             if not isinstance(questions, list):
                 questions = [questions]
 
-            # Import the solution formatter
-            from .solution_formatter import SolutionFormatter
-
             # Solve each question in the appropriate language
             for question_data in questions:
+                print("Processing question_data:", question_data)  # Debug print
+                print("Type of question_data:", type(question_data))  # Debug print
+                
                 # If question_data is a string, try to parse it as JSON
                 if isinstance(question_data, str):
                     try:
                         question_data = json.loads(question_data)
+                        print("Parsed question_data:", question_data)  # Debug print
                     except json.JSONDecodeError:
                         pass
 
                 if isinstance(question_data, dict):
+                    print("Processing as dict")  # Debug print
                     question = question_data.get('question', '')
                     img_filename = question_data.get('img', '')
                     
@@ -698,56 +837,51 @@ def solve_math(request):
                             'images',
                             img_filename
                         )
+                        print(f"Looking for image at: {img_path}")  # Debug print
+                        print(f"Does file exist? {os.path.exists(img_path)}")  # Debug print
                         
                         if os.path.exists(img_path):
-                            raw_solution = solve_math_problem(
+                            solution = solve_math_problem(
                                 question=question,
                                 image_path=img_path,
                                 language=language
                             )
                         else:
-                            raw_solution = solve_math_problem(question=question, language=language)
+                            print(f"Warning: Image not found at {img_path}")
+                            solution = solve_math_problem(question=question, language=language)
                     else:
-                        raw_solution = solve_math_problem(question=question, language=language)
+                        solution = solve_math_problem(question=question, language=language)
                 else:
+                    print("Processing as string")  # Debug print
                     question = question_data
-                    raw_solution = solve_math_problem(question=question, language=language)
-                
-                # Format the solution using the SolutionFormatter
-                formatted_solution = SolutionFormatter.format_solution(raw_solution)
-                formatted_question = SolutionFormatter.format_question(
-                    question if 'question' in locals() else question_data
-                )
+                    solution = solve_math_problem(question=question, language=language)
                 
                 # For template display, use the static URL path for images
                 static_img_url = img_filename if 'img_filename' in locals() else None
                 
                 solutions.append({
-                    'question': formatted_question,
+                    'question': question if 'question' in locals() else question_data,
                     'img': static_img_url,
-                    'solution': formatted_solution
+                    'solution': solution
                 })
 
             context = {
                 'solutions': solutions,
-                'language': language,
+                'language': language,  # Pass language to template
                 'original_book': book_id,
                 'original_chapter': request.session.get('selected_chapter')
             }
 
             return render(request, 'school_app/solutions.html', context)
             
-        except json.JSONDecodeError as e:
-            print(f"JSON decode error: {e}")  # Debug print
+        except json.JSONDecodeError:
             error_msg = 'Invalid question data received' if language == 'English' else 'अमान्य प्रश्न डेटा प्राप्त हुआ'
             messages.error(request, error_msg)
         except Exception as e:
-            print(f"Error processing request: {e}")  # Debug print
             error_msg = f'Error solving questions: {str(e)}' if language == 'English' else f'प्रश्नों को हल करने में त्रुटि: {str(e)}'
             messages.error(request, error_msg)
     
     return redirect('math_tools')
-
 
 @login_required
 def generate_math(request):
@@ -899,8 +1033,8 @@ def analysis_dashboard(request):
     if not hasattr(request.user, 'administered_school'):
         raise PermissionDenied
     
-    school = request.user.administered_school
-    
+    #school = request.user.administered_school
+    school = School.objects.get(admin=request.user)
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         # Handle AJAX requests for chart data
         class_name = request.GET.get('class_name')

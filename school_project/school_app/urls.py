@@ -62,7 +62,8 @@ urlpatterns = [
     path('school/average/', views.school_average_marks, name='school_average_marks'),
     path('students/top/', views.top_students, name='top_students'),
     path('students/weakest/', views.weakest_students, name='weakest_students'),
-    path('school/upload-logins/', views.upload_school_logins, name='upload_school_logins'),
-    path('user/change-password/', views.change_password, name='change_password'),
+     path('upload-users/', views.upload_school_users, name='upload_school_users'),
+    path('user/change-password/', views.password_change, name='change_password'),
+    path('upload-student-data/', views.upload_student_data, name='upload_student_data'),
 ]
 

@@ -94,3 +94,7 @@ class TestForm(forms.ModelForm):
     class Meta:
         model = Test
         fields = ['test_name', 'subject_name', 'pdf_file_questions', 'pdf_file_answers',  'test_date']
+ 
+class ExcelFileUploadForm(forms.Form):
+       excel_file = forms.FileField()  # Ensure the field is named 'excel_file'
+    

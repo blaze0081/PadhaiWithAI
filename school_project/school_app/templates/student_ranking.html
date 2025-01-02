@@ -29,7 +29,12 @@
         </tbody>
     </table>
 </div>
-<a href="{% url 'collector_dashboard' %}" class="action-btn edit-btn" style="margin-left: 20px;">Back to Dashboard</a>
+ <!-- Back to Dashboard Button -->
+ <div class="text-center mt-4">
+    <a href="{% url 'collector_dashboard' %}" class="btn btn-secondary" style="font-size: 1.1em; padding: 10px 20px;">
+        Back to Dashboard
+    </a>
+</div>
 <script>
     $(document).ready(function() {
         // Initialize DataTables with sorting enabled

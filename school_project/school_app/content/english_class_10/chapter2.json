@@ -6,6 +6,7 @@
       "questions": [
         {
           "question": "Find the number of zeroes of the polynomial p(x) in each case based on its graph.",
+          "img": "2-1-1.jpg",
           "sub_questions": [
             "Graph of y = p(x) for given polynomials in the provided figures."
           ]
@@ -18,12 +19,12 @@
         {
           "question": "Find the zeroes of the following quadratic polynomials and verify the relationship between the zeroes and the coefficients.",
           "sub_questions": [
-            "x^2 - 2x - 8",
-            "4s^2 - 4s + 1",
-            "6x^2 - 3 - 7x",
-            "4u^2 + 8u",
-            "t^2 - 15",
-            "3x^2 - x - 4"
+            "x² - 2x - 8",
+            "4s² - 4s + 1",
+            "6x² - 3 - 7x",
+            "4u² + 8u",
+            "T² - 15",
+            "3x² - x - 4"
           ]
         },
         {
