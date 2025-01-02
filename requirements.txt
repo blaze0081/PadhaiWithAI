@@ -3,3 +3,6 @@ django-crispy-forms==2.1
 crispy-bootstrap4
 google-generativeai
 python-dotenv
+pandas
+markdown
+bs4

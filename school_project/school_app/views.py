@@ -639,6 +639,8 @@ def get_book_language(book_id):
         print(f"Error determining book language for {book_id}: {e}")
         return 'English'  # Default to English on error
 
+from .solution_formatter import SolutionFormatter
+
 @login_required
 def solve_math(request):
     if request.method == 'POST':
@@ -646,8 +648,6 @@ def solve_math(request):
             # Get questions and book ID from POST data
             questions_json = request.POST.get('questions')
             book_id = request.session.get('selected_book')
-            
-            print("Received questions_json:", questions_json)  # Debug print
             
             if not questions_json:
                 messages.error(request, 'No questions selected')
@@ -658,13 +658,11 @@ def solve_math(request):
 
             # Parse the JSON string to get list of questions
             questions = json.loads(questions_json)
-            print("Parsed questions:", questions)  # Debug print
             
             # If questions is a string, try to parse it again
             if isinstance(questions, str):
                 try:
                     questions = json.loads(questions)
-                    print("Re-parsed questions:", questions)  # Debug print
                 except json.JSONDecodeError:
                     pass
 
@@ -674,21 +672,19 @@ def solve_math(request):
             if not isinstance(questions, list):
                 questions = [questions]
 
+            # Import the solution formatter
+            from .solution_formatter import SolutionFormatter
+
             # Solve each question in the appropriate language
             for question_data in questions:
-                print("Processing question_data:", question_data)  # Debug print
-                print("Type of question_data:", type(question_data))  # Debug print
-                
                 # If question_data is a string, try to parse it as JSON
                 if isinstance(question_data, str):
                     try:
                         question_data = json.loads(question_data)
-                        print("Parsed question_data:", question_data)  # Debug print
                     except json.JSONDecodeError:
                         pass
 
                 if isinstance(question_data, dict):
-                    print("Processing as dict")  # Debug print
                     question = question_data.get('question', '')
                     img_filename = question_data.get('img', '')
                     
@@ -702,32 +698,34 @@ def solve_math(request):
                             'images',
                             img_filename
                         )
-                        print(f"Looking for image at: {img_path}")  # Debug print
-                        print(f"Does file exist? {os.path.exists(img_path)}")  # Debug print
                         
                         if os.path.exists(img_path):
-                            solution = solve_math_problem(
+                            raw_solution = solve_math_problem(
                                 question=question,
                                 image_path=img_path,
                                 language=language
                             )
                         else:
-                            print(f"Warning: Image not found at {img_path}")
-                            solution = solve_math_problem(question=question, language=language)
+                            raw_solution = solve_math_problem(question=question, language=language)
                     else:
-                        solution = solve_math_problem(question=question, language=language)
+                        raw_solution = solve_math_problem(question=question, language=language)
                 else:
-                    print("Processing as string")  # Debug print
                     question = question_data
-                    solution = solve_math_problem(question=question, language=language)
+                    raw_solution = solve_math_problem(question=question, language=language)
+                
+                # Format the solution using the SolutionFormatter
+                formatted_solution = SolutionFormatter.format_solution(raw_solution)
+                formatted_question = SolutionFormatter.format_question(
+                    question if 'question' in locals() else question_data
+                )
                 
                 # For template display, use the static URL path for images
                 static_img_url = img_filename if 'img_filename' in locals() else None
                 
                 solutions.append({
-                    'question': question if 'question' in locals() else question_data,
+                    'question': formatted_question,
                     'img': static_img_url,
-                    'solution': solution
+                    'solution': formatted_solution
                 })
 
             context = {
