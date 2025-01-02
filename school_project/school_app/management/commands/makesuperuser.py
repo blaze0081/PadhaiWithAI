@@ -10,16 +10,15 @@ class Command(BaseCommand):
         email = 'admin@padhaiwithai.com'
         new_password = get_random_string(6)
         try:
-            if not User.objects.filter(is_superuser=True).exists():
-                self.stdout.write("No superusers found, creating one")
-                User.objects.create_superuser(email=email, password=new_password)
-                self.stdout.write("=======================")
-                self.stdout.write("A superuser has been created")
-                self.stdout.write(f"Email: {email}")
-                self.stdout.write(f"Password: {new_password}")
-
-                self.stdout.write("=======================")
-            else:
-                self.stdout.write("A superuser exists in the database. Skipping.")
+            # Delete existing superuser if exists
+            User.objects.filter(is_superuser=True).delete()
+            
+            # Create new superuser
+            User.objects.create_superuser(email=email, password=new_password)
+            self.stdout.write("=======================")
+            self.stdout.write("Superuser created/updated")
+            self.stdout.write(f"Email: {email}")
+            self.stdout.write(f"Password: {new_password}")
+            self.stdout.write("=======================")
         except Exception as e:
-            self.stderr.write(f"There was an error {e}")
+            self.stderr.write(f"Error: {e}")
