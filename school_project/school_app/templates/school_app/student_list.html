@@ -1,10 +1,13 @@
 {% extends 'school_app/base.html' %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-right mb-4">
-    
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <!-- Button on the left -->
     <a href="{% url 'student_add' %}" class="btn btn-primary">Add Student</a>
+    
+    <!-- Button on the right -->
+    <a href="{% url 'upload_student_data' %}"  class="btn btn-primary">Upload Excel Student Data</a>
 </div>
-
+<div class="mb-4"></div>
 
 <!-- Student List Table -->
 <h3 class="mt-4">Student List</h3>

@@ -1,0 +1,44 @@
+{% extends 'school_app/base.html' %}
+
+{% block content %}
+    <div class="container mt-5">
+        <!-- Page Title -->
+        <h2 class="text-center mb-4">Upload Student Data</h2>
+        <div class="mb-4"></div>
+        <div class="container mt-6">
+            <h3 class="text-center">Sample Format for Excel Upload</h3>
+            <p style="color: red; font-weight: bold;">
+                Excel sheet should be structured, with columns for "name", "roll_number", "class_name".
+            </p>          .
+            </div>
+
+        <!-- Form Card -->
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <!-- Form Start -->
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="form-group mb-3">
+                        <label for="excel_file" class="form-label">Upload Excel File</label>
+                        {{ form.as_p }}
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg w-30">Upload Data</button>
+                </form>
+                <!-- Form End -->
+            </div>
+        </div>
+
+        <!-- Flash Messages -->
+        {% if messages %}
+            <div class="messages mt-4">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+    <a href="{% url 'student_list' %}" class="action-btn edit-btn" style="margin-left: 20px;">Back to Dashboard</a>
+{% endblock %}

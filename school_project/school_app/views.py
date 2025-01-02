@@ -29,11 +29,70 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.core.exceptions import ValidationError
 from .models import Test, Marks, Student, School
 from decimal import InvalidOperation
+from .models import CustomUser, School
+from .forms import ExcelFileUploadForm
 
+#02/01/2025
+@login_required
+def upload_student_data(request):
+    if request.method == 'POST' and request.FILES['excel_file']:
+        excel_file = request.FILES['excel_file']        
+        try:
+            # Load the Excel file into a pandas DataFrame
+            df = pd.read_excel(excel_file, engine='openpyxl')
+            
+            successfully_created = 0  # Counter for successfully created students
+            roll_number_errors = []  # Store errors related to duplicate roll numbers
+            
+            for index, row in df.iterrows():
+                name = row['name']
+                roll_number = row['roll_number']
+                class_name = row['class_name']
+                #school_name = row['school_name']
+                school_name =""
+                # Check if roll_number is unique
+                if Student.objects.filter(roll_number=roll_number).exists():
+                    roll_number_errors.append(f"Roll number {roll_number} already exists. Skipping this student.")
+                    continue  # Skip to the next student if roll number is duplicate
+                
+                try:
+                    # Get the School instance (assuming school_name exists in the DataFrame)
+                    #school = School.objects.get(name=school_name)
+                    
+                    # Create the student object
+                    student = Student.objects.create(
+                        school_id=request.user.administered_school.id,
+                        name=name,
+                        roll_number=roll_number,
+                        class_name=class_name
+                    )
+                    successfully_created += 1
+                except Exception as e:    
+                    messages.error(request, f"Error processing the file: {str(e)}")
+                    continue
+                #except School.DoesNotExist:
+                #     messages.error(request, f"School '{school_name}' not found for student {name}.")
+                #     continue  # Skip this student if the school doesn't exist
+                
+            # Display success or error messages
+            if successfully_created > 0:
+                messages.success(request, f"{successfully_created} students uploaded successfully.")
+            if roll_number_errors:
+                for error in roll_number_errors:
+                    messages.warning(request, error)
+                
+            return redirect('student_list')  # Redirect to the page displaying student list or another view
+            
+        except Exception as e:
+            messages.error(request, f"Error processing the file: {str(e)}")
+            return redirect('upload_student_data')  # Redirect back to the upload form if any error occurs
+    
+    else:
+        form = ExcelFileUploadForm()
+    
+    return render(request, 'upload_student_data.html', {'form': form})
 # 01/01/2025  For test Analsis
 # Forms
-class SchoolUploadForm(forms.Form):
-    file = forms.FileField()
 
 # Views
 @login_required
@@ -60,24 +119,75 @@ def weakest_students(request):
     return render(request, 'weakest_students.html', context)
 
 @login_required
-@csrf_exempt
-def upload_school_logins(request):
-    context = {'form': SchoolUploadForm()}
-    if request.method == 'POST':
-        form = SchoolUploadForm(request.POST, request.FILES)
-        if form.is_valid():
-            excel_file = request.FILES['file']
-            df = pd.read_excel(excel_file)
-            for _, row in df.iterrows():
-                user = user.objects.create_user(
-                    username=row['username'],
-                    password=row['password'],
-                    first_name=row['school_name']
-                )
-            context['status'] = 'success'
+def upload_school_users(request):
+    if request.user.groups.filter(name='Collector').exists():      
+    
+        if request.method == 'POST' and request.FILES['excel_file']:
+            excel_file = request.FILES['excel_file']
+            successfully_created = 0  # Counter to track how many users are successfully created
+            try:
+                # Load Excel data into pandas DataFrame
+                df = pd.read_excel(excel_file, engine='openpyxl')
+                
+                # Iterate through each row and create users
+                for index, row in df.iterrows():
+                    email = row['email']
+                    username = row['username']
+                    password = row['password']
+                    is_admin = row.get('is_system_admin', False)  # Default to False if not specified
+
+                    try:
+                        if CustomUser.objects.filter(email=email).exists():
+                            user1 = CustomUser.objects.get(email=email)
+                        else:
+                            user1 = CustomUser.objects.create_user(
+                                email=email,
+                                username=username,
+                                password=password,
+                                is_system_admin=is_admin
+                            )
+                        user1.save()
+                        # You can also add school association logic here (if needed)
+                    #     school_name = row['school_name']
+                    #     school_admin_id= CustomUser.objects.get(email==email)
+                    #     school, created = School.objects.get_or_create(school_name=school_name,school_admin_id=school_admin_id)
+
+                    #    # school.admin = user  # If this user is an admin of this school
+                    #     school.save()
+                        admin_user = CustomUser.objects.get(email=email)
+                    # Create or update the School instance
+                        school = School.objects.create(
+                                name=row['school_name'],
+                                admin=admin_user,  # Assign the CustomUser instance to the admin field
+                                created_by = request.user.created_schools.id # Example if you want to set 'created_by' as the admin
+                            )
+
+                        school.save()
+                        # Increment the successful creation counter
+                        successfully_created += 1
+                    except IntegrityError as e:
+                        messages.error(request, f"Error creating user {email}: {e}")
+                        continue  # Skip to the next user if error occurs
+                    
+                # Show a success message with the number of successfully created users
+                if successfully_created > 0:
+                    messages.success(request, f"{successfully_created} users uploaded and created successfully.")
+                else:
+                    messages.warning(request, "No users were created. Please check the file and try again.")
+                return redirect('collector-dashboard')  # Replace with appropriate redirect path
+
+            except Exception as e:
+                messages.error(request, f"Error processing file: {str(e)}")
+                return redirect('upload_school_users')  # Redirect back to upload form if error occurs
+        
         else:
-            context['status'] = 'failed'
-    return render(request, 'upload_school_logins.html', context)
+            form = ExcelFileUploadForm()
+        
+        return render(request, 'upload_users.html', {'form': form})
+    else:
+        # If the user is not a collector, return an error message or redirect
+        return HttpResponseForbidden("You are not authorized to access this page.")
+
 
 @login_required
 def password_change(request):
