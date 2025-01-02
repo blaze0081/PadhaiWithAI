@@ -7,3 +7,4 @@ pandas
 markdown
 bs4
 django-environ
+whitenoise
