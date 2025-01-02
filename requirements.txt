@@ -6,4 +6,4 @@ python-dotenv
 pandas
 markdown
 bs4
-environ
+django-environ
