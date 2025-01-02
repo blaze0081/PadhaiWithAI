@@ -24,6 +24,12 @@ from django import forms
 from django.views.decorators.csrf import csrf_exempt
 import pandas as pd
 from django.contrib.auth import update_session_auth_hash
+from django.db import IntegrityError
+from django.shortcuts import render, redirect, get_object_or_404
+from django.core.exceptions import ValidationError
+from .models import Test, Marks, Student, School
+from decimal import InvalidOperation
+
 # 01/01/2025  For test Analsis
 # Forms
 class SchoolUploadForm(forms.Form):
@@ -416,45 +422,62 @@ def test_marks_entry(request, test_id):
     
     # Get all students from the logged-in user's school
     students = Student.objects.filter(school=school)
-    #students = Student.objects.all()
-    
+
     if request.method == 'POST':
+        # To store error messages
+        error_messages = []
+        
         for student in students:
             marks_value = request.POST.get(f'marks_{student.id}', '').strip()
-            if marks_value:  # Ensure marks are not empty
+            
+            if marks_value:  # If marks are provided
                 try:
-                    # Validate numeric marks
+                    # Validate numeric marks and convert them
                     marks_value = float(marks_value)
-                    mark, created = Marks.objects.get_or_create(student=student, test=test)
-                    mark.marks = marks_value
-                    mark.save()
+                    
+                    # Try to get or create a Marks record for the student and test
+                    mark, created = Marks.objects.update_or_create(
+                        student=student,
+                        test=test,
+                        defaults={'marks': marks_value}
+                    )
+                    
+                    # Optionally, you can check if the record was updated
+                    if created:
+                        print(f"Created new marks record for {student.name}")
+                    else:
+                        print(f"Updated marks record for {student.name}")
+
                 except InvalidOperation:
-                    return render(request, 'test_marks_entry.html', {
-                        'test': test,
-                        'student_marks': [
-                            {'student': s, 'marks': Marks.objects.filter(student=s, test=test).first().marks if Marks.objects.filter(student=s, test=test).first() else ''}
-                            for s in students
-                        ],
-                        'error': f"Invalid marks entered for {student.name}. Please enter a valid number."
-                    })
+                    error_messages.append(f"Invalid marks entered for {student.name}. Please enter a valid number.")
                 except ValueError:
-                    return render(request, 'test_marks_entry.html', {
-                        'test': test,
-                        'student_marks': [
-                            {'student': s, 'marks': Marks.objects.filter(student=s, test=test).first().marks if Marks.objects.filter(student=s, test=test).first() else ''}
-                            for s in students
-                        ],
-                        'error': f"Invalid marks entered for {student.name}. Please enter a valid number."
-                    })
-                except IntegrityError:
-                    return render(request, 'test_marks_entry.html', {
-                        'test': test,
-                        'student_marks': [
-                            {'student': s, 'marks': Marks.objects.filter(student=s, test=test).first().marks if Marks.objects.filter(student=s, test=test).first() else ''}
-                            for s in students
-                        ],
-                        'error': f"Failed to save marks for {student.name}. Please try again."
-                    })
+                    error_messages.append(f"Invalid marks entered for {student.name}. Please enter a valid number.")
+                except IntegrityError as e:
+                    # Log the error message for debugging
+                    print(f"IntegrityError for {student.name}: {e}")
+                    error_messages.append(f"Failed to save marks for {student.name}. Please try again.")
+                except Exception as e:
+                    # Log any unexpected errors
+                    print(f"Unexpected error for {student.name}: {e}")
+                    error_messages.append(f"An unexpected error occurred while saving marks for {student.name}. Please try again.")
+        
+        # If there are errors, return to the form with those errors
+        if error_messages:
+            # Fetch the marks again, so it persists after form submission
+            student_marks = [
+                {
+                    'student': student,
+                    'marks': Marks.objects.filter(student=student, test=test).first().marks if Marks.objects.filter(student=student, test=test).first() else ''
+                }
+                for student in students
+            ]
+            return render(request, 'test_marks_entry.html', {
+                'test': test,
+                'student_marks': student_marks,
+                'error_messages': error_messages,
+            })
+
+        # After successfully saving marks, redirect back to the same page
         return redirect('test_marks_entry', test_id=test_id)
 
     # Fetch marks for all students for this test
@@ -470,7 +493,6 @@ def test_marks_entry(request, test_id):
         'test': test,
         'student_marks': student_marks,
     })
-
 @login_required
 # Delete Marks Entry
 def delete_marks(request, student_id, test_id):
