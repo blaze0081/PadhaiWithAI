@@ -1,5 +1,6 @@
 {% extends 'school_app/base.html' %}
 {% block content %}
+<div class="content container mt-4">
 <h1>Welcome to {{ school.name }}</h1>
 
 <div class="row mt-4">
@@ -48,7 +49,7 @@
             </div>
         </div>
     </div>
-
+</div>
 <h2 class="mt-5">Active Tests</h2>
 <table class="table table-bordered mt-3">
     <thead>
@@ -96,5 +97,5 @@
         {% endfor %}
     </tbody>
 </table>
-
+</div>
 {% endblock %}

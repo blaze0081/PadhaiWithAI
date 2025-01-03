@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PadhaiWithAI</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS for themes -->
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Fixing footer to the bottom */
+        .content {
+            flex: 1;
+        }
+
+        /* Theme styles */
+        .theme-dark {
+            background-color: #343a40;
+            color: white;
+        }
+
+        .theme-light {
+            background-color: white;
+            color: black;
+        }
+
+        .theme-blue {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: #343a40;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+        }
+    </style>
+</head>
+
+<body class="theme-light" id="theme-body">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#"><b>PadhaiWithAI</b></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+           
+        </div>
+    </nav>
+
+    <!-- Content Section -->
+    <div class="content container mt-4">
+        <h1 class="text-center">Welcome to the Login Page</h1>
+
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title mb-4">Login</h2>
+                        <form method="post" action="{% url 'login' %}">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Login</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <!-- Theme Change Button Group -->
+        <div class="text-center mt-4">
+            <button class="btn btn-primary" onclick="changeTheme('theme-light')">Light Theme</button>
+            <button class="btn btn-dark" onclick="changeTheme('theme-dark')">Dark Theme</button>
+            <button class="btn btn-info" onclick="changeTheme('theme-blue')">Blue Theme</button>
+        </div>
+        <p>&copy; 2024 PadhaiWithAI. All rights reserved.</p>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom JS for theme change -->
+    <script>
+        function changeTheme(theme) {
+            document.body.className = theme;
+        }
+    </script>
+</body>
+
+</html>
