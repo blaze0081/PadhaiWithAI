@@ -1,31 +1,30 @@
 {% extends 'school_app/base.html' %}
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-body">
-                <h2 class="card-title mb-4">Login</h2>
-                <form method="post" action="{% url 'login' %}">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="password" name="password" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Login</button>
-                </form>
+<div class="content container mt-4">
+    <h1 class="text-center">Welcome to the Login Page</h1>
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                
+                <div class="card-body">
+                    <h2 class="card-title mb-4">Login</h2>
+                    <form method="post" action="{% url 'login' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Login</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
+
 </div>
-<div class="container">
-    <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
-        <div class="col-md-4 d-flex align-items-center">
-                      <span class="mb-3 mb-md-0 text-body-secondary">&copy; 2024 PadhaiwithAI</span>
-        </div>
-    </footer>
-</div>
+
 {% endblock %}

@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h2 class="text-center mb-4" style="font-size: 2.5em; font-weight: bold; color: #007bff;">Student Report</h2>
+    <h2 class="text-center mb-4" style="font-size: 2.5em; font-weight: bold; color: #007bff;">Student Analysis Dashboard</h2>
 
     <!-- Total Students Card -->
     <div class="row">
@@ -13,7 +13,7 @@
                 <div class="card-body text-center">
                     <h5 class="card-title" style="font-size: 1.5em; font-weight: bold;">Total Students</h5>
                     <p class="card-text display-3">
-                        <a href="{% url 'school_student_list' %}" style="text-decoration: none; color: #007bff; font-weight: bold;">
+                        <a href="{% url 'school_student_list' %}" style="text-decoration: none; color: #007bff; font-weight: bold;" title="Click here to view school wise student List">
                             {{ total_students }}
                         </a>
                     </p>
@@ -22,6 +22,19 @@
         </div>
 <!-- New Line (Added as a simple space with a new div) -->
         <div class="mb-4"></div>
+      	
+
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-lg border-success">
+            <div class="card-body">
+                <h3 class="text-center" style="font-size: 1.75em; color: #28a745;">
+                    <a href="{% url 'student_ranking' %}" style="text-decoration: none; color: inherit;">
+                        Student Rankings
+                    </a>
+                </h3>
+            </div>
+        </div>
+    </div>
         <!-- School Average Marks Card -->
         <div class="col-md-4 mb-4">
             <div class="card shadow-lg border-success">
@@ -34,7 +47,7 @@
                 </div>
             </div>
         </div>
-        <div class="mb-4"></div>
+        
         <!-- Top Students Card -->
         <div class="col-md-4 mb-4">
             <div class="card shadow-lg border-warning">
@@ -62,32 +75,8 @@
             </div>
         </div>
     </div>
-       
-        <div class="col-md-4 mb-4">
-            <div class="card shadow-lg border-danger">
-                <div class="card-body">
-                    <h3 class="text-center" style="font-size: 1.75em; color: #dc3545;">
-                        <a href="{% url 'upload_school_users' %}" style="text-decoration: none; color: inherit;">
-                            Create School users
-                        </a>
-                    </h3>
-                </div>
-            </div>
-        </div>
-<!-- New Line (Added as a simple space with a new div) -->
-<div class="mb-4"></div>
         <!-- Change Password Card -->
-        <div class="col-md-4 mb-4">
-            <div class="card shadow-lg border-info">
-                <div class="card-body">
-                    <h3 class="text-center" style="font-size: 1.75em; color: #17a2b8;">
-                        <a href="{% url 'change_password' %}" style="text-decoration: none; color: inherit;">
-                            Change Password
-                        </a>
-                    </h3>
-                </div>
-            </div>
-        </div>
+    
     </div>
 
     <!-- Back to Dashboard Button -->

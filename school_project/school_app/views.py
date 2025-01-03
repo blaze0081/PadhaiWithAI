@@ -134,7 +134,7 @@ def upload_school_users(request):
                     email = row['email']
                     username = row['username']
                     password = row['password']
-                    is_admin = row.get('is_system_admin', False)  # Default to False if not specified
+                    is_admin =  0  # Default to False if not specified
 
                     try:
                         if CustomUser.objects.filter(email=email).exists():
@@ -147,13 +147,6 @@ def upload_school_users(request):
                                 is_system_admin=is_admin
                             )
                         user1.save()
-                        # You can also add school association logic here (if needed)
-                    #     school_name = row['school_name']
-                    #     school_admin_id= CustomUser.objects.get(email==email)
-                    #     school, created = School.objects.get_or_create(school_name=school_name,school_admin_id=school_admin_id)
-
-                    #    # school.admin = user  # If this user is an admin of this school
-                    #     school.save()
                         admin_user = CustomUser.objects.get(email=email)
                     # Create or update the School instance
                         school = School.objects.create(
@@ -174,7 +167,7 @@ def upload_school_users(request):
                     messages.success(request, f"{successfully_created} users uploaded and created successfully.")
                 else:
                     messages.warning(request, "No users were created. Please check the file and try again.")
-                return redirect('collector-dashboard')  # Replace with appropriate redirect path
+                return redirect('collector_dashboard')  # Replace with appropriate redirect path
 
             except Exception as e:
                 messages.error(request, f"Error processing file: {str(e)}")
@@ -231,22 +224,6 @@ def login_view(request):
         messages.error(request, 'Invalid credentials')
     return render(request, 'school_app/login.html')
 
-# def login_view(request):
-#     if request.method == 'POST':
-#         email = request.POST.get('email')
-#         password = request.POST.get('password')
-#         user = authenticate(request, email=email, password=password)
-#         if user is not None:
-#             login(request, user)
-#             if user.is_system_admin:
-#                 return redirect('system_admin_dashboard')
-#             elif School.objects.filter(admin=user).exists():
-#                 return redirect('dashboard')
-#             else:
-#                 return redirect('school_add')
-#         messages.error(request, 'Invalid credentials')
-#     return render(request, 'school_app/login.html')
-
 # Writtern by Sushil
 @login_required
 def collector_dashboard(request):
@@ -261,7 +238,10 @@ def collector_dashboard(request):
 
     return render(request, 'school_app/collector_dashboard.html', {
         'tests': tests,
-        'schools': schools
+        'schools': schools,
+        'total_schools': School.objects.count(),
+        'total_students': Student.objects.count(),
+        'total_tests': Test.objects.count()
     })
 
 @login_required
@@ -606,9 +586,14 @@ def test_marks_entry(request, test_id):
 @login_required
 # Delete Marks Entry
 def delete_marks(request, student_id, test_id):
-    mark = get_object_or_404(Marks, student_id=student_id, test_id=test_id)
-    mark.delete()
-    return redirect('test_marks_entry', test_id=test_id)
+    print(f"Attempting to delete marks for student_id={student_id}, test_id={test_id}")
+    try:
+        mark = get_object_or_404(Marks, student_id=student_id, test_id=test_id)
+        mark.delete()
+        return redirect('test_marks_entry', test_id=test_id)
+    except Marks.DoesNotExist:
+        print("No matching record found in Marks table.")
+        return redirect('test_marks_entry', test_id=test_id)
 
 @login_required
 def active_test_list(request):
