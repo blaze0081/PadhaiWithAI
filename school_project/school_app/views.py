@@ -159,7 +159,7 @@ def upload_school_users(request):
                         school = School.objects.create(
                                 name=row['school_name'],
                                 admin=admin_user,  # Assign the CustomUser instance to the admin field
-                                created_by = request.user.created_schools.id # Example if you want to set 'created_by' as the admin
+                                created_by = request.user # Example if you want to set 'created_by' as the admin
                             )
 
                         school.save()
