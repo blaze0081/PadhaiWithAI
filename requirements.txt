@@ -9,3 +9,6 @@ bs4
 django-environ
 whitenoise
 openpyxl
+django-dbbackup
+django-storages
+dropbox
