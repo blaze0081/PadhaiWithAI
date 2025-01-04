@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'crispy_bootstrap4',
     'school_app',
+    'dbbackup',  
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
@@ -154,3 +155,20 @@ MEDIA_URL = env("MEDIA_PATH", default="/media/")
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Backup settings
+DBBACKUP_STORAGE = 'storages.backends.dropbox.DropBoxStorage'
+DBBACKUP_STORAGE_OPTIONS = {
+    'oauth2_access_token': env("DROPBOX_ACCESS_TOKEN"),
+}
+
+# Optional: Configure backup filename template
+DBBACKUP_FILENAME_TEMPLATE = '{datetime}.{extension}'
+DBBACKUP_CLEANUP_KEEP = 10  # Keep last 10 backups
+
+# Optional: Backup Media Files too
+DBBACKUP_CONNECTORS = {
+    'default': {
+        'ENGINE': 'dbbackup.db.sqlite.SqliteConnector',
+    }
+}
