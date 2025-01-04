@@ -159,7 +159,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Backup settings
 DBBACKUP_STORAGE = 'storages.backends.dropbox.DropBoxStorage'
 DBBACKUP_STORAGE_OPTIONS = {
-    'oauth2_access_token': os.getenv('DROPBOX_ACCESS_TOKEN'),
+    'oauth2_access_token': env("DROPBOX_ACCESS_TOKEN"),
 }
 
 # Optional: Configure backup filename template
