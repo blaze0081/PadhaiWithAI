@@ -1016,53 +1016,108 @@ def marks_edit(request, marks_id):
 
 @login_required
 def analysis_dashboard(request):
-    # Only allow school admins to access this view
-    if not hasattr(request.user, 'administered_school'):
-        raise PermissionDenied
-    
-    #school = request.user.administered_school
-    school = School.objects.get(admin=request.user)
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        # Handle AJAX requests for chart data
-        class_name = request.GET.get('class_name')
-        student_id = request.GET.get('student_id')
+    """Render the analysis dashboard page"""
+    return render(request, 'school_app/analysis_dashboard.html')
+
+@login_required
+def analysis_dashboard(request):
+    """Render the analysis dashboard page"""
+    return render(request, 'school_app/analysis_dashboard.html')
+
+@login_required
+def get_students(request):
+    """API endpoint to get list of students"""
+    try:
+        # If user is a school admin, get only their school's students
+        if hasattr(request.user, 'administered_school'):
+            school = School.objects.get(admin=request.user)
+            students = Student.objects.filter(school=school)
+            print(f"Found {students.count()} students for school {school.name}")  # Debug print
+        else:
+            # For system admin or collector, get all students
+            students = Student.objects.all()
+            print(f"Found {students.count()} students total")  # Debug print
         
-        # Base query for students in this school
-        students = Student.objects.filter(school=school)
+        students_data = []
+        for student in students:
+            students_data.append({
+                'id': student.id,
+                'name': student.name,
+                'roll_number': student.roll_number,
+                'class_name': student.class_name
+            })
         
-        if class_name:
-            students = students.filter(class_name=class_name)
+        print("Students data:", students_data)  # Debug print
+        return JsonResponse({'students': students_data})
+    except Exception as e:
+        print(f"Error in get_students: {str(e)}")  # Debug print
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.db.models import Avg
+from .models import Student, Marks
+
+@login_required
+def get_student_analysis(request, student_id):
+    """API endpoint to get detailed analysis for a specific student"""
+    try:
+        # Get the student
+        if hasattr(request.user, 'administered_school'):
+            # School admin can only see their school's students
+            student = get_object_or_404(Student, id=student_id, school=request.user.administered_school)
+        else:
+            # System admin or collector can see all students
+            student = get_object_or_404(Student, id=student_id)
+        
+        # Get all marks for the student
+        marks = Marks.objects.filter(student=student).select_related('test')
+        
+        # Calculate class averages for each test
+        test_performance = []
+        for mark in marks:
+            # Get class average for this test
+            class_average = Marks.objects.filter(
+                test=mark.test,
+                student__class_name=student.class_name,
+                student__school=student.school  # Only compare with students from same school
+            ).aggregate(Avg('marks'))['marks__avg']
             
-        marks_data = Marks.objects.filter(student__in=students)
+            test_performance.append({
+                'test_id': mark.test.test_number,
+                'test_name': mark.test.test_name,
+                'subject': mark.test.subject_name,
+                'date': mark.test.test_date.strftime('%Y-%m-%d') if mark.test.test_date else None,
+                'marks': float(mark.marks),
+                'class_average': round(float(class_average), 2) if class_average else None
+            })
         
-        # If student_id is provided, get their specific marks
-        student_progress = []
-        if student_id:
-            student_progress = list(Marks.objects.filter(
-                student_id=student_id
-            ).values('test_number', 'marks', 'date').order_by('date'))
+        # Sort by test date
+        test_performance.sort(key=lambda x: x['date'] if x['date'] else '')
         
-        analysis_data = {
-            'student_progress': student_progress,
-            'class_performance': list(marks_data.filter(
-                student__class_name=class_name
-            ).values('test_number').annotate(
-                average=Avg('marks'),
-                max_mark=Max('marks'),
-                min_mark=Min('marks')
-            ).order_by('test_number')) if class_name else [],
-            
-            'students': list(students.values('id', 'name', 'roll_number'))
+        # Calculate overall statistics
+        all_marks = [mark.marks for mark in marks]
+        average_marks = sum(all_marks) / len(all_marks) if all_marks else 0
+        highest_mark = max(all_marks) if all_marks else 0
+        lowest_mark = min(all_marks) if all_marks else 0
+        
+        response_data = {
+            'name': student.name,
+            'roll_number': student.roll_number,
+            'class_name': student.class_name,
+            'test_performance': test_performance,
+            'statistics': {
+                'average_marks': round(average_marks, 2),
+                'highest_mark': round(highest_mark, 2),
+                'lowest_mark': round(lowest_mark, 2),
+                'total_tests': len(all_marks)
+            }
         }
         
-        return JsonResponse(analysis_data)
-    
-    # Convert CLASS_CHOICES tuple into list for the template
-    class_choices = list(Student.CLASS_CHOICES)
-    
-    # Initial page load context
-    context = {
-        'school': school,
-        'class_choices': class_choices
-    }
-    return render(request, 'school_app/analysis_dashboard.html', context)
+        return JsonResponse(response_data)
+        
+    except Exception as e:
+        print(f"Error in get_student_analysis: {str(e)}")  # Debug print
+        return JsonResponse({'error': str(e)}, status=500)

@@ -14,7 +14,9 @@ urlpatterns = [
     path('students/<int:student_id>/edit/', views.student_edit, name='student_edit'),
     path('marks/<int:marks_id>/edit/', views.marks_edit, name='marks_edit'),
     path('analysis-dashboard/', views.analysis_dashboard, name='analysis_dashboard'),
-    path('analysis-data/', views.analysis_dashboard, name='analysis_data'),
+    path('api/students/', views.get_students, name='get_students'),
+    path('api/student-analysis/<int:student_id>/', views.get_student_analysis, name='get_student_analysis'),
+
 
 
     
