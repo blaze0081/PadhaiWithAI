@@ -25,11 +25,42 @@
         </div>
     </div>
 </div>
+
+ <style>
+      
+        .timetable {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px auto;
+            border: 2px solid #000;
+        }
+        .timetable th, .timetable td {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: center;
+        }
+        .timetable th {
+            background-color: #f4f4f4;
+        }
+        .timetable tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        @media (max-width: 768px) {
+            .timetable {
+                display: block;
+                overflow-x: auto;
+            }
+            .timetable th, .timetable td {
+                font-size: 12px;
+                padding: 5px;
+            }
+        }
+    </style>
 <div>
     
 <h2 style="text-align: center;">कक्षा 
     10 स्तर वाले विद्यार्थियों के अध्यापन हेतु स मय सारणी</h2>
-<table class="timetable" border="1">
+<table class="timetable" >
     <thead>
         <tr>
             <th>क्र. स.</th>
