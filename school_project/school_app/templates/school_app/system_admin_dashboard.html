@@ -50,6 +50,234 @@
         </div>
     </div>
 </div>
+	<style>
+        /* ✅ General Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9fafc;
+        }
+
+        .calendar-container {
+            text-align: center;
+            margin: 20px auto;
+            max-width: 900px;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            color: #333;
+        }
+
+        /* ✅ Navigation Controls */
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .navigation button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .navigation button:hover {
+            background-color: #0056b3;
+        }
+
+        .current-month {
+            font-size: 1.4em;
+            font-weight: bold;
+        }
+
+        /* ✅ Calendar Table */
+        .calendar {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        .calendar th,
+        .calendar td {
+            border: 1px solid #ddd;
+            text-align: center;
+            padding: 5px;
+            vertical-align: top;
+            min-height: 50px;
+        }
+
+        .calendar th {
+            background-color: #007BFF;
+            color: white;
+            font-weight: bold;
+        }
+
+        .calendar td {
+            background-color: #ffffff;
+        }
+
+        .calendar .day {
+            font-weight: bold;
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .calendar .event {
+            font-size: 10px;
+            text-align: left;
+            margin-top: 5px;
+            background-color: #e3f2fd;
+           // border-left: 4px solid #2196f3;
+            padding: 1px;
+            border-radius: 4px;
+            //overflow: hidden;
+            text-overflow: ellipsis;
+            //white-space: nowrap;
+        }
+
+        /* ✅ Dynamic Height for Empty Cells */
+        .calendar td.no-event {
+            height: 40px; /* Minimal height for empty cells */
+        }
+
+        /* ✅ Responsive Design */
+        @media (max-width: 768px) {
+            .calendar th,
+            .calendar td {
+                padding: 5px;
+                font-size: 12px;
+            }
+
+            .navigation button {
+                padding: 5px 10px;
+                font-size: 12px;
+            }
+
+            .current-month {
+                font-size: 1.2em;
+            }
+
+            h2 {
+                font-size: 1.4em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .calendar th,
+            .calendar td {
+                font-size: 10px;
+                padding: 4px;
+            }
+
+            .event {
+                font-size: 10px;
+            }
+
+            .navigation button {
+                padding: 4px 8px;
+                font-size: 10px;
+            }
+
+            .current-month {
+                font-size: 1em;
+            }
+
+            h2 {
+                font-size: 1.2em;
+            }
+        }
+    </style>
+<div class="calendar-container">
+        <h2>📅 कक्षा 10 स्तर वाले विद्यार्थियों के अध्यापन हेतु समय सारणी</h2>
+        <div class="navigation">
+            <button onclick="prevMonth()">← Previous</button>
+            <span id="currentMonth" class="current-month"></span>
+            <button onclick="nextMonth()">Next →</button>
+        </div>
+        <table class="calendar">
+            <thead>
+                <tr>
+                    <th>रविवार</th>
+                    <th>सोमवार</th>
+                    <th>मंगलवार</th>
+                    <th>बुधवार</th>
+                    <th>गुरुवार</th>
+                    <th>शुक्रवार</th>
+                    <th>शनिवार</th>
+                </tr>
+            </thead>
+            <tbody id="calendar-body"></tbody>
+        </table>
+    </div>
+
+    <script>
+        const events = [
+            //{ start: '2025-01-07', end: '2025-01-07', title: 'Trainings' }, 
+            { start: '2025-01-08', end: '2025-01-10', title: '- अध्याय 01 एवं 03<br>01-स्तविक संख्याएँ <br>03–दो चर वाले रैखिक समीकरण ' }, 
+            { start: '2025-01-11', end: '2025-01-11', title: '<p style="color: red;">- अध्याय 01 एवं 03 का मूल्यांकन (प्रथम)<br>-अभिभावक-शिक्षक मीटिंग में लक्ष्य 2025 की जानकारी </p>' },
+            { start: '2025-01-13', end: '2025-01-13', title: '- अध्याय 02,05 <br>02 - बहुपद<br>05 – समान्तर श्रेणी' },
+           // { start: '2025-01-14', end: '2025-01-14', title: '- HoliDay' },
+            { start: '2025-01-15', end: '2025-01-16', title: 'अध्याय 02 एवं 05<br>02-बहुपद<br>05–समान्तर श्रेणी' },
+	    { start: '2025-01-20', end: '2025-01-20', title: '<p style="color: red;">- अध्याय 02 एवं 05 का मूल्यांकन (द्वितीय)</p>' },
+            { start: '2025-01-21', end: '2025-01-24', title: '- अध्याय 04, 07,14 <br>04- द्विघात समीकरण <br>07- निर्देशांक ज्यामिति<br>14-प्रायिकता' },
+	    { start: '2025-01-25', end: '2025-01-25', title: '<p style="color: red;">- अध्याय 04, 07, 14 का मूल्यांकन (तृतीय)</p>' },
+	    { start: '2025-01-27', end: '2025-01-31', title: '- अध्याय 10,11,13<br>10 - वृत <br>11 - वृतों से संबंधित क्षेत्रफल <br>13 - सांख्यिकी' },
+      	    { start: '2025-02-01', end: '2025-02-01', title: '<p style="color: red;">- अध्याय 10, 11, 13 का मूल्यांकन (चतुर्थ)</p>' },
+	    { start: '2025-02-07', end: '2025-02-08', title: '- अध्याय  06,08,09,12<br>06 - त्रिभुज <br>08 - त्रिकोणमिति का परिचय <br>09 - त्रिकोणमिति का अनुप्रयोग <br>12 - पृष्ठीय क्षेत्रफल एवं आयतन' },
+{ start: '2025-02-10', end: '2025-02-14', title: '- अध्याय  06,08,09,12<br>06 - त्रिभुज <br>08 - त्रिकोणमिति का परिचय <br>09 - त्रिकोणमिति का अनुप्रयोग <br>12 - पृष्ठीय क्षेत्रफल एवं आयतन' },	    
+{ start: '2025-02-15', end: '2025-02-15', title: '<p style="color: red;">- अध्याय 06,08,09 एवं 12 का मूल्यांकन (पंचम)</p>' },
+        ];
+
+        let currentDate = new Date();
+
+        function renderCalendar(date) {
+            const calendarBody = document.getElementById('calendar-body');
+            const currentMonth = document.getElementById('currentMonth');
+            calendarBody.innerHTML = '';
+
+            const year = date.getFullYear();
+            const month = date.getMonth();
+
+            currentMonth.innerText = `${date.toLocaleString('default', { month: 'long' })} ${year}`;
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            let row = '<tr>';
+            for (let i = 0; i < firstDay; i++) row += '<td></td>';
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                let fullDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                let eventHTML = events.filter(e => fullDate >= e.start && fullDate <= e.end)
+                                      .map(e => `<div class="event">${e.title}</div>`).join('');
+                let cellClass = eventHTML ? '' : 'no-event';
+                row += `<td class="${cellClass}"><div class="day">${day}</div>${eventHTML}</td>`;
+                if ((day + firstDay) % 7 === 0) row += '</tr><tr>';
+            }
+
+            row += '</tr>';
+            calendarBody.innerHTML = row;
+        }
+
+        function prevMonth() { currentDate.setMonth(currentDate.getMonth() - 1); renderCalendar(currentDate); }
+        function nextMonth() { currentDate.setMonth(currentDate.getMonth() + 1); renderCalendar(currentDate); }
+
+        renderCalendar(currentDate);
+    </script>
+	
 <h2 class="mt-5">Active Tests</h2>
 <table class="table table-bordered mt-3">
     <thead>
