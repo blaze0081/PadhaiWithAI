@@ -1,0 +1,28 @@
+
+{% extends 'school_app/base.html' %}
+
+{% block content %}
+
+<h2>Schools Not Logged In/Inactive Schools</h2>
+<a href="{% url 'report_dashboard' %}" align="right">Back to Report Dashboard</a>
+<table class="table table-bordered table-striped">
+  <tr>
+    <th>S.No</th>
+    <th>School Name</th>
+    <th>Admin Email</th>
+  </tr>
+  {% for school in schools %}
+    <tr>
+      <td>{{ forloop.counter }}</td> <!-- Display Serial Number -->
+      <td>{{ school.name }}</td>
+      <td>{{ school.admin__email }}</td>
+    </tr>
+  {% empty %}
+    <tr>
+      <td colspan="2">No inactive schools found.</td>
+    </tr>
+  {% endfor %}
+</table>
+<a href="{% url 'report_dashboard' %}">Back to Report Dashboard</a>
+
+{% endblock %}

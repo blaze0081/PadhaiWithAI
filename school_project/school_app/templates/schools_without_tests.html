@@ -1,0 +1,29 @@
+{% extends 'school_app/base.html' %}
+
+{% block content %}
+
+<h2>Schools Without Tests</h2>
+
+<!-- Table to display school names -->
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>S.No.</th>
+      <th>School Name</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for school in schools %}
+      <tr>
+        <td>{{ forloop.counter }}</td> <!-- Display Serial Number -->
+        <td>{{ school.name }}</td>
+      </tr>
+    {% empty %}
+      <tr>
+        <td colspan="1">No schools without tests found.</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<a href="{% url 'report_dashboard' %}">Back to Report Dashboard</a>
+{% endblock %}

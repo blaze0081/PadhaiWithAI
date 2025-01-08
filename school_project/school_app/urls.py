@@ -67,5 +67,15 @@ urlpatterns = [
      path('upload-users/', views.upload_school_users, name='upload_school_users'),
     path('user/change-password/', views.password_change, name='change_password'),
     path('upload-student-data/', views.upload_student_data, name='upload_student_data'),
+    #08/01/2025 Sushil Agrawal NIC TONK
+    path('school/report/', views.school_report, name='school_report'),
+
+
+    path('report/schools-without-students/', views.schools_without_students, name='schools_without_students'),
+    path('report/inactive-schools/', views.inactive_schools, name='inactive_schools'),
+    path('report/schools-with-test-counts/', views.schools_with_test_counts, name='schools_with_test_counts'),
+    path('report/schools-without-tests/', views.schools_without_tests, name='schools_without_tests'),
+    path('report/schools-with-student-counts/', views.schools_with_student_counts, name='schools_with_student_counts'),
+    path('report/school/', views.report_dashboard, name='report_dashboard')
 ]
 

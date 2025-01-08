@@ -4,7 +4,7 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from .models import School, Student, Marks
 from .forms import StudentForm, MarksForm, SchoolForm, SchoolAdminRegistrationForm, TestForm, Test
-from django.db.models import Count
+from django.db.models import Count 
 from .math_utils import solve_math_problem, generate_similar_questions
 import json
 import os
@@ -30,8 +30,80 @@ from django.core.exceptions import ValidationError
 from .models import Test, Marks, Student, School
 from decimal import InvalidOperation
 from .models import CustomUser, School
-from .forms import ExcelFileUploadForm
+from .forms import ExcelFileUploadForm 
 
+#08/01/2025
+#1
+@login_required
+def schools_without_students(request):
+    schools = School.objects.annotate(student_count=Count('student')).filter(student_count=0)
+    context = {'schools': schools}
+    return render(request, 'schools_without_students.html', context)
+#2
+@login_required
+def inactive_schools(request):
+    schools = School.objects.filter(
+        admin__last_login__isnull=True
+    ).values('id','name', 'admin__email')
+    context = {'schools': schools}
+    return render(request, 'inactive_schools.html', context)
+
+#3
+@login_required
+def schools_with_test_counts(request):
+    schools = School.objects.annotate(test_count=Count('student__marks__test')).order_by('-test_count')
+    context = {'schools': schools}
+    return render(request, 'schools_with_test_counts.html', context)
+#4
+@login_required
+def schools_without_tests(request):
+    schools = School.objects.annotate(test_count=Count('student__marks__test')).filter(test_count=0)
+    context = {'schools': schools}
+    return render(request, 'schools_without_tests.html', context)
+#5
+@login_required
+def schools_with_student_counts(request):
+    schools = School.objects.annotate(student_count=Count('student')).order_by('-student_count')
+    context = {'schools': schools}
+    return render(request, 'schools_with_student_counts.html', context)
+
+@login_required
+def report_dashboard(request):
+    return render(request,'report_dashboard.html')
+
+@login_required
+def school_report(request):
+    # 1. Schools without student entries
+    schools_without_students = School.objects.annotate(student_count=Count('student')).filter(student_count=0)
+    
+    # 2. Schools that haven’t logged in (Assuming each school has a User associated)
+    
+    #inactive_schools = CustomUser.objects.filter(last_login__isnull=True, groups__name='School')
+    inactive_schools = CustomUser.objects.filter(
+          # Users linked to a School
+        last_login__isnull=True
+    )
+    inactive_schools = School.objects.filter(
+        admin__last_login__isnull=True
+    ).values('name', 'admin__email')
+    
+    # 3. Count of test entries per school
+    schools_with_test_counts = School.objects.annotate(test_count=Count('student__marks__test')).order_by('-test_count')
+    
+    # 4. Schools without test entries
+    schools_without_tests = School.objects.annotate(test_count=Count('student__marks__test')).filter(test_count=0)
+    
+    # 5. Schools with student count
+    schools_with_student_counts = School.objects.annotate(student_count=Count('student')).order_by('-student_count')
+    
+    context = {
+        'schools_without_students': schools_without_students,
+        'inactive_schools': inactive_schools,
+        'schools_with_test_counts': schools_with_test_counts,
+        'schools_without_tests': schools_without_tests,
+        'schools_with_student_counts': schools_with_student_counts,
+    }
+    return render(request, 'school_report.html', context)
 #02/01/2025
 @login_required
 def upload_student_data(request):

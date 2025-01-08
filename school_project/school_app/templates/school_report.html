@@ -1,0 +1,123 @@
+{% extends 'school_app/base.html' %}
+
+{% block content %}
+    <h2 class="mt-4">School Report</h2>
+
+
+     <!-- Schools that haven’t logged in -->
+     <section>
+        <h3>1. Schools Not Logged In</h3>
+        <table class="table table-bordered table-striped">
+            
+         
+              <tr>
+                <th>School Name</th>
+                <th>Admin Email</th>
+              </tr>
+              {% for school in inactive_schools %}
+                <tr>
+                  <td>{{ school.name }}</td>
+                  <td>{{ school.admin__email }}</td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="2">No inactive schools found.</td>
+                </tr>
+              {% endfor %}
+            </table>
+    </section>
+    <!-- Schools without students -->
+    <section>
+        <h3>2. Schools without Student Entries</h3>
+        <table class="table table-bordered table-striped">
+            <thead class="table-light">
+                <tr>
+                    <th>School Name</th>
+                    <th>Address</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for school in schools_without_students %}
+                    <tr>
+                        <td>{{ school.name }}</td>
+                        <td>{{ school.address }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="2">All schools have student entries.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
+   
+
+    <!-- Test Entry Count per School -->
+    <section>
+        <h3>3. School Test Entry Count</h3>
+        <table class="table table-bordered table-striped">
+            <thead class="table-light">
+                <tr>
+                    <th>School Name</th>
+                    <th>Test Entry Count</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for school in schools_with_test_counts %}
+                    <tr>
+                        <td>{{ school.name }}</td>
+                        <td>{{ school.test_count }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="2">No test entries available.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
+    <!-- Schools without test entries -->
+    <section>
+        <h3>4. Schools without Test Entries</h3>
+        <table class="table table-bordered table-striped">
+            <thead class="table-light">
+                <tr>
+                    <th>School Name</th>
+                    <th>Address</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for school in schools_without_tests %}
+                    <tr>
+                        <td>{{ school.name }}</td>
+                        <td>{{ school.address }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="2">All schools have test entries.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
+    <h3>5. Schools with Student Count</h3>
+<table class="table table-bordered table-striped">
+  <tr>
+    <th>School Name</th>
+    <th>Number of Students</th>
+  </tr>
+  {% for school in schools_with_student_counts %}
+    <tr>
+      <td>{{ school.name }}</td>
+      <td>{{ school.student_count }}</td>
+    </tr>
+  {% empty %}
+    <tr>
+      <td colspan="2">No schools with students found.</td>
+    </tr>
+  {% endfor %}
+</table>
+{% endblock %}

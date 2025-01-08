@@ -1,0 +1,26 @@
+{% extends 'school_app/base.html' %}
+
+{% block content %}
+
+
+<h2>Schools with Student Count</h2>
+<table class="table table-bordered table-striped">
+  <tr>
+    <th>S.No</th>
+    <th>School Name</th>
+    <th>Number of Students</th>
+  </tr>
+  {% for school in schools %}
+    <tr>
+      <td>{{ forloop.counter }}</td> <!-- Display Serial Number -->
+      <td>{{ school.name }}</td>
+      <td>{{ school.student_count }}</td>
+    </tr>
+  {% empty %}
+    <tr>
+      <td colspan="2">No schools with students found.</td>
+    </tr>
+  {% endfor %}
+</table>
+<a href="{% url 'report_dashboard' %}">Back to Report Dashboard</a>
+{% endblock %}
