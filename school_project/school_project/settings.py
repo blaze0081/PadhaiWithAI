@@ -95,7 +95,18 @@ WHITENOISE_AUTOREFRESH = DEBUG
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-    "default": env.db(default="sqlite:///db.sqlite3"),
+    "default": {
+        **env.db(default="sqlite:///db.sqlite3"),
+        "OPTIONS": {
+            "timeout": 20,
+            "pragmas": {
+                "journal_mode": "wal",
+                "synchronous": "normal",
+                "cache_size": -64 * 1000,  # 64MB cache
+                "foreign_keys": 1
+            }
+        }
+    }
 }
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
