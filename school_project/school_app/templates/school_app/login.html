@@ -1,7 +1,6 @@
 {% extends 'school_app/base.html' %}
 {% load static %} 
 {% block content %}
-<<<<<<< HEAD
 <div class="content container mt-5">
     <div class="row align-items-center">
     <div class="col-md-5">
@@ -20,24 +19,6 @@
                         </div>
                         <div class="mb-1 text-left">
                             <label for="password" class="form-label" style="font-size: 20px;">Password</label>
-=======
-<div class="content container mt-4">
-    <h1 class="text-center">Welcome to the Login Page</h1>
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card">
-                
-                <div class="card-body">
-                    <h2 class="card-title mb-4">Login</h2>
-                    <form method="post" action="{% url 'login' %}">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
->>>>>>> 7008922258437ad93111c3ffd7c2e56094accd98
                             <input type="password" class="form-control" id="password" name="password" required>
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Login</button>
@@ -48,9 +29,4 @@
     </div>
   </div>
 </div>
-<<<<<<< HEAD
-=======
-
-
->>>>>>> 7008922258437ad93111c3ffd7c2e56094accd98
 {% endblock %}

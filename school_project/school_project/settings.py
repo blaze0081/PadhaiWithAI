@@ -33,17 +33,11 @@ ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["*"])
 
 AUTH_USER_MODEL = 'school_app.CustomUser'
 
-<<<<<<< HEAD
+
 # Expire sessions after 30 minutes of inactivity
 SESSION_COOKIE_AGE = 60 * 30  # 30 minutes
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # End session when browser is closed
-=======
-# Expire sessions after 30 minutes of #inactivity
-SESSION_COOKIE_AGE = 60 * 30  # 30 minutes
-SESSION_EXPIRE_AT_BROWSER_CLOSE = True  
-# End session when browser is closed
->>>>>>> 7008922258437ad93111c3ffd7c2e56094accd98
-
+LOGIN_URL = '/login/'
 # Application definition
 
 INSTALLED_APPS = [
