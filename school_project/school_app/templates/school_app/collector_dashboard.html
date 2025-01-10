@@ -1,26 +1,23 @@
 {% extends 'school_app/base.html' %}
 {% block content %}
-<div>
-	<h1 style="text-align: center; font-size: 40px;">Collector Dashboard</h1>
-	<br>
-</div>
-
+	
+	<div class="dashboard-header">
+        <h1>Dashboard</h1>
+        <p>Welcome to the Admin Dashboard</p>
+    </div>
 
 <!-- Action Buttons -->
  <div class="row mt-4">
-<div class="col-md-4">
-        <div class="card">
-            <div class="card-body" style="text-align: center;">
-             
-                 <a href="{% url 'add_test' %}" class="btn btn-primary w-50">Schedule New Test </a>
-            </div>
-        </div>
-    </div>
 	<div class="col-md-4">
         <div class="card">
             <div class="card-body" style="text-align: center;">
-               
-                <a href="{% url 'student_ranking' %}" class="btn btn-success">Student Rankings</a>
+				{% if total_schools == 0 %}
+    				<p>No Schools available.</p>
+				{% else %}
+					<p class="card-text">Total Schools: <b> {{ total_schools }} </b></p>
+				{% endif %}		
+				
+	            <a href="{% url 'school_student_list' %}" class="btn btn-info ">School Report</a>
             </div>
         </div>
     </div>
@@ -28,12 +25,60 @@
         <div class="card">
             <div class="card-body" style="text-align: center;">
 				
-				
-              
-               <a href="{% url 'student_report' %}" class="btn btn-info ">Student Report</a>
+					{% if total_tests == 0 %}
+    					<p>No tests available.</p>
+					{% else %}
+					    <p class="card-text">Total Test: <b>{{ total_tests }} </b> </p>
+					{% endif %}
+					
+					
+                 <a href="{% url 'add_test' %}" class="btn btn-primary w-50">Schedule Exam</a>
             </div>
         </div>
     </div>
+	<div class="col-md-4">
+        <div class="card">
+            <div class="card-body" style="text-align: center;">
+				{% if total_students == 0 %}
+    				<p>No Schools available.</p>
+				{% else %}
+				<p class="card-text">Total Students: <b> {{ total_students }}</b></p>
+				{% endif %}	
+				
+	            <a href="{% url 'student_report' %}" class="btn btn-info ">Student Analysis</a>
+            </div>
+        </div>
+    </div>
+
+	
+	<div class="col-md-4">
+        <div class="card">
+            <div class="card-body" style="text-align: center;">  
+                <a href="{% url 'upload_school_users' %}" class="btn btn-success">Create School users</a>
+            </div>
+        </div>
+    </div>
+	<div class="col-md-4">
+        <div class="card">
+            <div class="card-body" style="text-align: center;">  
+				<a href="{% url 'report_dashboard' %}" class="btn btn-info">
+					Report Dashboard
+				</a>
+            </div>
+        </div>
+    </div>
+	<div class="col-md-4">
+        <div class="card">
+            <div class="card-body" style="text-align: center;">  
+				<a href="{% url 'change_password' %}" class="btn btn-secondary">
+					Change Password
+				</a>
+            </div>
+        </div>
+    </div>
+	
+	
+
 </div>
  <div class="d-flex flex-column align-items-center gap-3 mb-4">
   
@@ -43,9 +88,9 @@
 	<!-- Button to create a new test -->
 	
 </div>
-<div>
-	<h2 style="font-size: 36px;">Tests List</h2>
-	<table class="table table-bordered table-striped">
+<div class="table-responsive">
+	<h2 style="font-size: 36px;">Scheduled Exams</h2>
+	<table class="table table-striped table-bordered table-hover">
 		<thead>
 			<tr>
 				<th>#</th>
@@ -75,14 +120,14 @@
 				</td>
 				<td>
 				{% if test.pdf_file_questions %}
-					<a href="{{ test.pdf_file_questions.url }}" class="btn btn-info btn-sm" download>Download PDF</a>
+					<a href="{{ test.pdf_file_questions.url }}" class="btn btn-danger btn-sm" download>Download Question</a>
 				{% else %}
 					<p>No PDF available for download.</p>
 				{% endif %}
 			</td>
 			<td>
 				{% if test.pdf_file_answers %}
-					<a href="{{ test.pdf_file_answers.url }}" class="btn btn-info btn-sm" download>Download PDF</a>
+					<a href="{{ test.pdf_file_answers.url }}" class="btn btn-info btn-sm" download>Download Answer</a>
 				{% else %}
 					<p>No PDF available for download.</p>
 				{% endif %}
@@ -106,33 +151,68 @@
 		</tbody>
 	</table>
 </div>
+<style>
+	/* Custom table style */
+	table {
+		width: 100%;             /* Set table width to 100% */
+		border-collapse: collapse;  /* Collapse table borders */
+	}
 
+	table th, table td {
+		border: 1px solid #ddd;   /* Add border to table cells */
+		padding: 12px;             /* Add padding inside cells */
+		text-align: left;          /* Left-align text */
+	}
 
-<div class="mt-5">
-	<h2 style="font-size: 36px;">Schools List</h2>
-	<table class="table table-striped">
+	table th {
+		background-color: #f2f2f2;  /* Light gray background for header */
+		font-weight: bold;          /* Bold text in header */
+	}
+
+	/* Add some space at the bottom */
+	.container {
+		margin-bottom: 30px;
+	}
+</style>
+
+<div class="container mt-5">
+	<h2 style="font-size: 36px;">Registered Schools List</h2>
+	<!-- Table -->
+	<table id="schoolsTable" class="table table-striped">
 		<thead>
 			<tr>
 				<th>#</th>
 				<th>School Name</th>
-				<th>Admin</th>
+				<th>Email</th>
 				<th>Created At</th>
 			</tr>
 		</thead>
 		<tbody>
 			{% for school in schools %}
-				<tr>
-					<td>{{ forloop.counter }}</td>
-					<td>{{ school.name }}</td>
-					<td>{{ school.admin }}</td>
-					<td>{{ school.created_at|date:"d M Y, H:i" }}</td>
-				</tr>
+			<tr>
+				<td>{{ forloop.counter }}</td>
+				<td>{{ school.name }}</td>
+				<td>{{ school.admin }}</td>
+				<td>{{ school.created_at|date:"d M Y, H:i" }}</td>
+			</tr>
 			{% empty %}
-				<tr>
-					<td colspan="4">No schools available.</td>
-				</tr>
+			<tr>
+				<td colspan="4">No schools available.</td>
+			</tr>
 			{% endfor %}
 		</tbody>
 	</table>
 </div>
-{% endblock %}
+
+<!-- Initialize DataTables -->
+<script>
+	$(document).ready(function() {
+		$('#schoolsTable').DataTable({
+			"paging": true,          // Enable pagination
+			"searching": true,       // Enable searching
+			"ordering": true,        // Enable sorting
+			"info": true,            // Display information about the table
+			"lengthChange": true    // Disable changing number of rows per page
+		});
+	});
+</script>{% endblock %}

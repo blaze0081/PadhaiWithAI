@@ -1,6 +1,28 @@
 {% extends 'school_app/base.html' %}
 {% load static %}
 
+{% block extra_head %}
+<script>
+    window.MathJax = {
+        tex: {
+            inlineMath: [['\\(', '\\)']],
+            displayMath: [['\\[', '\\]']],
+            processEscapes: true,
+            tags: 'ams'
+        },
+        svg: {
+            fontCache: 'global'
+        },
+        options: {
+            renderActions: {
+                addMenu: [0, '', '']
+            }
+        }
+    };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js"></script>
+{% endblock %}
+
 {% block content %}
 <div class="container-fluid">
     <div class="row">
@@ -9,7 +31,7 @@
             <div class="position-sticky pt-3">
                 <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'math_tools' %}">
+                        <a class="nav-link" href="{% url 'math_tools' %}" onclick="return clearSelectedQuestions()">
                             <i class="bi bi-arrow-left-circle"></i>
                             Back to Questions
                         </a>
@@ -51,6 +73,14 @@
                                     <h6 class="text-muted">Question:</h6>
                                     <div class="p-3 bg-light rounded">
                                         {{ solution.question }}
+                                        {% if solution.img %}
+                                            <div class="question-image mt-3">
+                                                <img src="/static/school_app/images/{{ solution.img }}" 
+                                                     alt="Question diagram" 
+                                                     class="img-fluid rounded shadow-sm" 
+                                                     style="max-width: 100%; height: auto;">
+                                            </div>
+                                        {% endif %}
                                     </div>
                                 </div>
                                 <div class="solution">
@@ -74,4 +104,37 @@
 
 <!-- Add MathJax for rendering mathematical expressions -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js"></script>
+
+<style>
+    .question-image {
+        background-color: white;
+        padding: 1rem;
+        border-radius: 0.25rem;
+        border: 1px solid rgba(0,0,0,0.1);
+    }
+    
+    .solution-content {
+        background-color: #f8f9fa;
+        border-radius: 0.25rem;
+        border: 1px solid rgba(0,0,0,0.1);
+    }
+    
+    /* Improve image responsiveness on different screen sizes */
+    @media (max-width: 768px) {
+        .question-image {
+            padding: 0.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Trigger MathJax to reprocess content when needed
+        if (typeof MathJax !== 'undefined') {
+            MathJax.typesetPromise();
+        }
+    });
+</script>
 {% endblock %}

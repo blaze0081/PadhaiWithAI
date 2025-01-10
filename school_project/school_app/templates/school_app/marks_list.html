@@ -9,7 +9,8 @@
     <thead>
         <tr>
             <th>Student</th>
-            <th>Test Number</th>
+            <th>Test Name</th>
+            <th>Test Chapter</th>
             <th>Marks</th>
             <th>Date</th>
             <th>Actions</th>
@@ -19,7 +20,8 @@
         {% for mark in marks %}
         <tr id="row-{{ mark.id }}">
             <td>{{ mark.student.name }}</td>
-            <td>{{ mark.test_number }}</td>
+            <td>{{ mark.test.test_name   }}</td>
+            <td>{{ mark.test.subject_name   }}</td>
             <td>
                 <span id="marks-display-{{ mark.id }}">{{ mark.marks }}</span>
                 <input type="number" id="marks-input-{{ mark.id }}" value="{{ mark.marks }}" class="form-control d-none">
@@ -28,13 +30,13 @@
             <td>
                 <button class="btn btn-sm btn-warning" onclick="editMark({{ mark.id }})">Edit</button>
                 <button class="btn btn-sm btn-success d-none" onclick="saveMark({{ mark.id }})" id="save-btn-{{ mark.id }}">Save</button>
-                <a href="{% url 'delete_student_mark' mark.id %}" class="btn btn-sm btn-danger">Delete</a>
+                {% comment %} <a href="{% url 'delete_student_mark' mark.id %}" class="btn btn-sm btn-danger">Delete</a> {% endcomment %}
             </td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
-
+<a href="{% url 'dashboard' %}" class="action-btn edit-btn" style="margin-left: 20px;">Back to Dashboard</a>
 <script>
     function editMark(id) {
         // Toggle display and input fields

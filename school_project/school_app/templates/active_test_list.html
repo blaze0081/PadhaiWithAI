@@ -1,0 +1,36 @@
+{% extends 'school_app/base.html' %}
+    {% block content %}
+    <div class="container">
+        <h1>Test Dashboard</h1>
+        {% if tests %}
+            <table class="table table-bordered mt-3">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Test Name</th>
+                        <th>Subject</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for test in tests %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ test.test_name }}</td>
+                        <td>{{ test.subject_name }}</td>
+                        <td>{{ test.test_date }}</td>
+                        <td>
+                            <a href="{% url 'test_marks_entry' test.test_number %}" class="btn btn-dark">Enter/Edit Marks</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No tests available. Please add some tests in the admin panel.</p>
+        {% endif %}
+    </div>
+    <a href="{% url 'dashboard' %}" class="action-btn edit-btn" style="margin-left: 20px;">Back to Dashboard</a>
+    {% endblock %}
+

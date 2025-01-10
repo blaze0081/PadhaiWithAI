@@ -4,13 +4,86 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h2 class="text-center mb-4">Student Report</h2>
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <h5 class="card-title">Total Students</h5>
-            <p class="card-text display-4">{{ total_students }}</p>
+    <h2 class="text-center mb-4" style="font-size: 2.5em; font-weight: bold; color: #007bff;">Student Analysis Dashboard</h2>
+
+    <!-- Total Students Card -->
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-lg border-primary">
+                <div class="card-body text-center">
+                    <h5 class="card-title" style="font-size: 1.5em; font-weight: bold;">Total Students</h5>
+                    <p class="card-text display-3">
+                        <a href="{% url 'school_student_list' %}" style="text-decoration: none; color: #007bff; font-weight: bold;" title="Click here to view school wise student List">
+                            {{ total_students }}
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+<!-- New Line (Added as a simple space with a new div) -->
+        <div class="mb-4"></div>
+      	
+
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-lg border-success">
+            <div class="card-body">
+                <h3 class="text-center" style="font-size: 1.75em; color: #28a745;">
+                    <a href="{% url 'student_ranking' %}" style="text-decoration: none; color: inherit;">
+                        Student Rankings
+                    </a>
+                </h3>
+            </div>
         </div>
     </div>
-</div>
+        <!-- School Average Marks Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-lg border-success">
+                <div class="card-body">
+                    <h3 class="text-center" style="font-size: 1.75em; color: #28a745;">
+                        <a href="{% url 'school_average_marks' %}" style="text-decoration: none; color: inherit;">
+                            School Average Marks
+                        </a>
+                    </h3>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Top Students Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-lg border-warning">
+                <div class="card-body">
+                    <h3 class="text-center" style="font-size: 1.75em; color: #ffc107;">
+                        <a href="{% url 'top_students' %}" style="text-decoration: none; color: inherit;">
+                            Top Students
+                        </a>
+                    </h3>
+                </div>
+            </div>
+        </div>
+  
+    <!-- Weakest Students Card -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-lg border-danger">
+                <div class="card-body">
+                    <h3 class="text-center" style="font-size: 1.75em; color: #dc3545;">
+                        <a href="{% url 'weakest_students' %}" style="text-decoration: none; color: inherit;">
+                            Weakest Students
+                        </a>
+                    </h3>
+                </div>
+            </div>
+        </div>
+    </div>
+        <!-- Change Password Card -->
+    
+    </div>
 
+    <!-- Back to Dashboard Button -->
+    <div class="text-center mt-4">
+        <a href="{% url 'collector_dashboard' %}" class="btn btn-secondary" style="font-size: 1.1em; padding: 10px 20px;">
+            Back to Dashboard
+        </a>
+    </div>
+</div>
 {% endblock %}

@@ -14,7 +14,9 @@ urlpatterns = [
     path('students/<int:student_id>/edit/', views.student_edit, name='student_edit'),
     path('marks/<int:marks_id>/edit/', views.marks_edit, name='marks_edit'),
     path('analysis-dashboard/', views.analysis_dashboard, name='analysis_dashboard'),
-    path('analysis-data/', views.analysis_dashboard, name='analysis_data'),
+    path('api/students/', views.get_students, name='get_students'),
+    path('api/student-analysis/<int:student_id>/', views.get_student_analysis, name='get_student_analysis'),
+
 
 
     
@@ -50,5 +52,30 @@ urlpatterns = [
     path('delete_student/<int:student_id>/', views.delete_student, name='delete_student'),
     path('delete_student_mark/<int:mark_id>/', views.delete_student_mark, name='delete_student_mark'),
     path('update-marks/<int:mark_id>/', views.update_marks, name='update_marks'),
+    #31/12/2024
+    path('active_test_list', views.active_test_list, name='active_test_list'),
+    path('test/<int:test_id>/marks/', views.test_marks_entry, name='test_marks_entry'),
+    path('test/<int:test_id>/marks/delete/<int:student_id>/', views.delete_marks, name='delete_marks'),
+    path('studentslist/', views.school_student_list, name='school_student_list'),
+
+
+    #01/01/2025
+
+    path('school/average/', views.school_average_marks, name='school_average_marks'),
+    path('students/top/', views.top_students, name='top_students'),
+    path('students/weakest/', views.weakest_students, name='weakest_students'),
+     path('upload-users/', views.upload_school_users, name='upload_school_users'),
+    path('user/change-password/', views.password_change, name='change_password'),
+    path('upload-student-data/', views.upload_student_data, name='upload_student_data'),
+    #08/01/2025 Sushil Agrawal NIC TONK
+    path('school/report/', views.school_report, name='school_report'),
+
+
+    path('report/schools-without-students/', views.schools_without_students, name='schools_without_students'),
+    path('report/inactive-schools/', views.inactive_schools, name='inactive_schools'),
+    path('report/schools-with-test-counts/', views.schools_with_test_counts, name='schools_with_test_counts'),
+    path('report/schools-without-tests/', views.schools_without_tests, name='schools_without_tests'),
+    path('report/schools-with-student-counts/', views.schools_with_student_counts, name='schools_with_student_counts'),
+    path('report/school/', views.report_dashboard, name='report_dashboard')
 ]
 

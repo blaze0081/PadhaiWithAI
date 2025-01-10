@@ -1,0 +1,108 @@
+{% extends 'school_app/base.html' %}
+
+{% block content %}
+
+    <style>
+        /* Basic Styles for Dashboard */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9fafc;
+        }
+        .header {
+            background: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 1rem 0;
+        }
+        .container {
+            margin: 2rem auto;
+            max-width: 1200px;
+            padding: 1rem;
+            text-align: center;
+        }
+        .card {
+            display: inline-block;
+            width: 300px;
+            margin: 1rem;
+            padding: 1.5rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .card a {
+            text-decoration: none;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        .card a:hover {
+            text-decoration: underline;
+        }
+        .footer {
+            margin-top: 2rem;
+            text-align: center;
+            padding: 1rem;
+            background: #4CAF50;
+            color: white;
+        }
+    </style>
+
+    <div class="header">
+        <h1>Report Dashboard</h1>
+        <p>Access various school and student-related reports</p>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h4>Schools with Student Counts</h4>
+            <p>Check the number of students per school.</p>
+            <a href="{% url 'schools_with_student_counts' %}">View Report</a>
+        </div>
+        <div class="card">
+            <h3>Schools Without Students</h3>
+            <p>View schools that have not added any students.</p>
+            <a href="{% url 'schools_without_students' %}">View Report</a>
+        </div>
+        <div class="card">
+            <h3>Schools with Test Counts</h3>
+            <p>Check how many tests have been recorded per school.</p>
+            <a href="{% url 'schools_with_test_counts' %}">View Report</a>
+        </div>
+        <div class="card">
+            <h3>Inactive Schools</h3>
+            <p>View schools whose admins haven't logged in.</p>
+            <a href="{% url 'inactive_schools' %}">View Report</a>
+        </div>
+
+        
+
+        <div class="card">
+            <h3>Schools Without Tests</h3>
+            <p>See schools with no test entries.</p>
+            <a href="{% url 'schools_without_tests' %}">View Report</a>
+        </div>
+
+       
+        {% comment %} <div class="card">
+            <h3>A</h3>
+            <p></p>
+            <a href="{% url 'school_report' %}">Single View Report</a>
+        </div> {% endcomment %}
+    </div>
+ <!-- Back to Dashboard Button -->
+ <div class="text-center mt-4">
+    <a href="{% url 'collector_dashboard' %}" class="btn btn-secondary" style="font-size: 1.1em; padding: 5px 10px;">
+        Back to Dashboard
+    </a>
+</div>
+    
+</div>
+
+{% endblock %}

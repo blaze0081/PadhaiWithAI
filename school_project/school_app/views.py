@@ -4,7 +4,7 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from .models import School, Student, Marks
 from .forms import StudentForm, MarksForm, SchoolForm, SchoolAdminRegistrationForm, TestForm, Test
-from django.db.models import Count
+from django.db.models import Count 
 from .math_utils import solve_math_problem, generate_similar_questions
 import json
 import os
@@ -18,8 +18,256 @@ from django.db.models import Avg, Max, Min
 from django.http import JsonResponse
 from .models import Student, Marks
 from django.core.exceptions import PermissionDenied
+from django.db import IntegrityError
+from django.contrib.auth.forms import PasswordChangeForm
+from django import forms
+from django.views.decorators.csrf import csrf_exempt
+import pandas as pd
+from django.contrib.auth import update_session_auth_hash
+from django.db import IntegrityError
+from django.shortcuts import render, redirect, get_object_or_404
+from django.core.exceptions import ValidationError
+from .models import Test, Marks, Student, School
+from decimal import InvalidOperation
+from .models import CustomUser, School
+from .forms import ExcelFileUploadForm 
+
+#08/01/2025
+#1
+@login_required
+def schools_without_students(request):
+    schools = School.objects.annotate(student_count=Count('student')).filter(student_count=0)
+    context = {'schools': schools}
+    return render(request, 'schools_without_students.html', context)
+#2
+@login_required
+def inactive_schools(request):
+    schools = School.objects.filter(
+        admin__last_login__isnull=True
+    ).values('id','name', 'admin__email')
+    context = {'schools': schools}
+    return render(request, 'inactive_schools.html', context)
+
+#3
+@login_required
+def schools_with_test_counts(request):
+    schools = School.objects.annotate(test_count=Count('student__marks__test')).order_by('-test_count')
+    context = {'schools': schools}
+    return render(request, 'schools_with_test_counts.html', context)
+#4
+@login_required
+def schools_without_tests(request):
+    schools = School.objects.annotate(test_count=Count('student__marks__test')).filter(test_count=0)
+    context = {'schools': schools}
+    return render(request, 'schools_without_tests.html', context)
+#5
+@login_required
+def schools_with_student_counts(request):
+    schools = School.objects.annotate(student_count=Count('student')).order_by('-student_count')
+    context = {'schools': schools}
+    return render(request, 'schools_with_student_counts.html', context)
+
+@login_required
+def report_dashboard(request):
+    return render(request,'report_dashboard.html')
+
+@login_required
+def school_report(request):
+    # 1. Schools without student entries
+    schools_without_students = School.objects.annotate(student_count=Count('student')).filter(student_count=0)
+    
+    # 2. Schools that haven’t logged in (Assuming each school has a User associated)
+    
+    #inactive_schools = CustomUser.objects.filter(last_login__isnull=True, groups__name='School')
+    inactive_schools = CustomUser.objects.filter(
+          # Users linked to a School
+        last_login__isnull=True
+    )
+    inactive_schools = School.objects.filter(
+        admin__last_login__isnull=True
+    ).values('name', 'admin__email')
+    
+    # 3. Count of test entries per school
+    schools_with_test_counts = School.objects.annotate(test_count=Count('student__marks__test')).order_by('-test_count')
+    
+    # 4. Schools without test entries
+    schools_without_tests = School.objects.annotate(test_count=Count('student__marks__test')).filter(test_count=0)
+    
+    # 5. Schools with student count
+    schools_with_student_counts = School.objects.annotate(student_count=Count('student')).order_by('-student_count')
+    
+    context = {
+        'schools_without_students': schools_without_students,
+        'inactive_schools': inactive_schools,
+        'schools_with_test_counts': schools_with_test_counts,
+        'schools_without_tests': schools_without_tests,
+        'schools_with_student_counts': schools_with_student_counts,
+    }
+    return render(request, 'school_report.html', context)
+#02/01/2025
+@login_required
+def upload_student_data(request):
+    if request.method == 'POST' and request.FILES['excel_file']:
+        excel_file = request.FILES['excel_file']        
+        try:
+            # Load the Excel file into a pandas DataFrame
+            df = pd.read_excel(excel_file, engine='openpyxl')
+            
+            successfully_created = 0  # Counter for successfully created students
+            roll_number_errors = []  # Store errors related to duplicate roll numbers
+            
+            for index, row in df.iterrows():
+                name = row['name']
+                roll_number = row['roll_number']
+                class_name = row['class_name']
+                #school_name = row['school_name']
+                school_name =""
+                # Check if roll_number is unique
+                if Student.objects.filter(roll_number=roll_number).exists():
+                    roll_number_errors.append(f"Roll number {roll_number} already exists. Skipping this student.")
+                    continue  # Skip to the next student if roll number is duplicate
+                
+                try:
+                    # Get the School instance (assuming school_name exists in the DataFrame)
+                    #school = School.objects.get(name=school_name)
+                    
+                    # Create the student object
+                    student = Student.objects.create(
+                        school_id=request.user.administered_school.id,
+                        name=name,
+                        roll_number=roll_number,
+                        class_name=class_name
+                    )
+                    successfully_created += 1
+                except Exception as e:    
+                    messages.error(request, f"Error processing the file: {str(e)}")
+                    continue
+                #except School.DoesNotExist:
+                #     messages.error(request, f"School '{school_name}' not found for student {name}.")
+                #     continue  # Skip this student if the school doesn't exist
+                
+            # Display success or error messages
+            if successfully_created > 0:
+                messages.success(request, f"{successfully_created} students uploaded successfully.")
+            if roll_number_errors:
+                for error in roll_number_errors:
+                    messages.warning(request, error)
+                
+            return redirect('student_list')  # Redirect to the page displaying student list or another view
+            
+        except Exception as e:
+            messages.error(request, f"Error processing the file: {str(e)}")
+            return redirect('upload_student_data')  # Redirect back to the upload form if any error occurs
+    
+    else:
+        form = ExcelFileUploadForm()
+    
+    return render(request, 'upload_student_data.html', {'form': form})
+# 01/01/2025  For test Analsis
+# Forms
+
+# Views
+@login_required
+def school_average_marks(request):
+    from django.db.models import Avg
+    data = School.objects.annotate(avg_marks=Avg('student__marks__marks'))
+    context = {'data': data}
+    return render(request, 'school_average.html', context)
+
+@login_required
+def top_students(request):
+    number_of_toppers = int(request.GET.get('toppers', 3))
+    from django.db.models import Avg
+    data = Marks.objects.values('student__name', 'student__school__name').annotate(avg_marks=Avg('marks')).order_by('-avg_marks')[:number_of_toppers]
+    context = {'data': data, 'number_of_toppers': number_of_toppers}
+    return render(request, 'top_students.html', context)
+
+@login_required
+def weakest_students(request):
+    number_of_weakest = int(request.GET.get('weakest', 3))
+    from django.db.models import Avg
+    data = Marks.objects.values('student__name', 'student__school__name').annotate(avg_marks=Avg('marks')).order_by('avg_marks')[:number_of_weakest]
+    context = {'data': data, 'number_of_weakest': number_of_weakest}
+    return render(request, 'weakest_students.html', context)
+
+@login_required
+def upload_school_users(request):
+    if request.user.groups.filter(name='Collector').exists():      
+    
+        if request.method == 'POST' and request.FILES['excel_file']:
+            excel_file = request.FILES['excel_file']
+            successfully_created = 0  # Counter to track how many users are successfully created
+            try:
+                # Load Excel data into pandas DataFrame
+                df = pd.read_excel(excel_file, engine='openpyxl')
+                
+                # Iterate through each row and create users
+                for index, row in df.iterrows():
+                    email = row['email']
+                    username = row['username']
+                    password = row['password']
+                    is_admin =  0  # Default to False if not specified
+
+                    try:
+                        if CustomUser.objects.filter(email=email).exists():
+                            user1 = CustomUser.objects.get(email=email)
+                        else:
+                            user1 = CustomUser.objects.create_user(
+                                email=email,
+                                username=username,
+                                password=password,
+                                is_system_admin=is_admin
+                            )
+                        user1.save()
+                        admin_user = CustomUser.objects.get(email=email)
+                    # Create or update the School instance
+                        school = School.objects.create(
+                                name=row['school_name'],
+                                admin=admin_user,  # Assign the CustomUser instance to the admin field
+                                created_by = request.user # Example if you want to set 'created_by' as the admin
+                            )
+
+                        school.save()
+                        # Increment the successful creation counter
+                        successfully_created += 1
+                    except IntegrityError as e:
+                        messages.error(request, f"Error creating user {email}: {e}")
+                        continue  # Skip to the next user if error occurs
+                    
+                # Show a success message with the number of successfully created users
+                if successfully_created > 0:
+                    messages.success(request, f"{successfully_created} users uploaded and created successfully.")
+                else:
+                    messages.warning(request, "No users were created. Please check the file and try again.")
+                return redirect('collector_dashboard')  # Replace with appropriate redirect path
+
+            except Exception as e:
+                messages.error(request, f"Error processing file: {str(e)}")
+                return redirect('upload_school_users')  # Redirect back to upload form if error occurs
+        
+        else:
+            form = ExcelFileUploadForm()
+        
+        return render(request, 'upload_users.html', {'form': form})
+    else:
+        # If the user is not a collector, return an error message or redirect
+        return HttpResponseForbidden("You are not authorized to access this page.")
 
 
+@login_required
+def password_change(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            form.save()
+            update_session_auth_hash(request, form.user)  # Important: Keeps the user logged in after password change
+            messages.success(request, 'Your password was successfully updated!')
+            return redirect('password_change')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = PasswordChangeForm(request.user)
+    return render(request, 'change_password.html', {'form': form})
 
 
 def is_system_admin(user):
@@ -48,22 +296,6 @@ def login_view(request):
         messages.error(request, 'Invalid credentials')
     return render(request, 'school_app/login.html')
 
-# def login_view(request):
-#     if request.method == 'POST':
-#         email = request.POST.get('email')
-#         password = request.POST.get('password')
-#         user = authenticate(request, email=email, password=password)
-#         if user is not None:
-#             login(request, user)
-#             if user.is_system_admin:
-#                 return redirect('system_admin_dashboard')
-#             elif School.objects.filter(admin=user).exists():
-#                 return redirect('dashboard')
-#             else:
-#                 return redirect('school_add')
-#         messages.error(request, 'Invalid credentials')
-#     return render(request, 'school_app/login.html')
-
 # Writtern by Sushil
 @login_required
 def collector_dashboard(request):
@@ -78,13 +310,16 @@ def collector_dashboard(request):
 
     return render(request, 'school_app/collector_dashboard.html', {
         'tests': tests,
-        'schools': schools
+        'schools': schools,
+        'total_schools': School.objects.count(),
+        'total_students': Student.objects.count(),
+        'total_tests': Test.objects.count()
     })
 
 @login_required
 def view_test_results(request, test_number):
     test = get_object_or_404(Test, test_number=test_number)
-    results = Marks.objects.filter(test_number=test_number).select_related('student')
+    results = Marks.objects.filter(test_id=test_number).select_related('student')
 
     # Get sorting parameters
     sort_by = request.GET.get('sort_by', 'student__name')  # Default sorting by student name
@@ -190,22 +425,6 @@ def delete_student_mark(request, mark_id):
     mark = get_object_or_404(Marks, id=mark_id)
     mark.delete()
     return redirect('add_marks')
-# @login_required
-# def dashboard(request):
-#     if request.user.is_system_admin:
-#         return redirect('system_admin_dashboard')
-    
-#     try:
-#         school = School.objects.get(admin=request.user)
-#         context = {
-#             'school': school,
-#             'student_count': Student.objects.filter(school=school).count(),
-#         }
-#     except School.DoesNotExist:
-#         messages.error(request, "No school found for the current user.")
-#         return redirect('login')
-
-#     return render(request, 'school_app/system_admin_dashboard.html', context)
 
 @login_required
 def dashboard(request):
@@ -309,8 +528,9 @@ def marks_add(request):
 @login_required
 def marks_list(request):
     school = School.objects.get(admin=request.user)
-    marks = Marks.objects.filter(student__school=school)
+    marks = Marks.objects.filter(student__school=school).select_related('test', 'student')  # Use select_related to reduce queries
     return render(request, 'school_app/marks_list.html', {'marks': marks})
+
 
 @login_required
 def school_add(request):
@@ -354,11 +574,121 @@ def update_marks(request, mark_id):
             return JsonResponse({'success': False, 'message': 'Mark record not found'})
         except Exception as e:
             return JsonResponse({'success': False, 'message': str(e)})
+from decimal import Decimal, InvalidOperation
+@login_required
+# Display and Edit Marks for a Selected Test
+def test_marks_entry(request, test_id):
+    test = get_object_or_404(Test, test_number=test_id)
+    # Fetch the school associated with the logged-in user
+    school = School.objects.get(admin=request.user)
+    
+    # Get all students from the logged-in user's school
+    students = Student.objects.filter(school=school)
 
+    if request.method == 'POST':
+        # To store error messages
+        error_messages = []
+        
+        for student in students:
+            marks_value = request.POST.get(f'marks_{student.id}', '').strip()
+            
+            if marks_value:  # If marks are provided
+                try:
+                    # Validate numeric marks and convert them
+                    marks_value = float(marks_value)
+                    
+                    # Try to get or create a Marks record for the student and test
+                    mark, created = Marks.objects.update_or_create(
+                        student=student,
+                        test=test,
+                        defaults={'marks': marks_value}
+                    )
+                    
+                    # Optionally, you can check if the record was updated
+                    if created:
+                        print(f"Created new marks record for {student.name}")
+                    else:
+                        print(f"Updated marks record for {student.name}")
+
+                except InvalidOperation:
+                    error_messages.append(f"Invalid marks entered for {student.name}. Please enter a valid number.")
+                except ValueError:
+                    error_messages.append(f"Invalid marks entered for {student.name}. Please enter a valid number.")
+                except IntegrityError as e:
+                    # Log the error message for debugging
+                    print(f"IntegrityError for {student.name}: {e}")
+                    error_messages.append(f"Failed to save marks for {student.name}. Please try again.")
+                except Exception as e:
+                    # Log any unexpected errors
+                    print(f"Unexpected error for {student.name}: {e}")
+                    error_messages.append(f"An unexpected error occurred while saving marks for {student.name}. Please try again.")
+        
+        # If there are errors, return to the form with those errors
+        if error_messages:
+            # Fetch the marks again, so it persists after form submission
+            student_marks = [
+                {
+                    'student': student,
+                    'marks': Marks.objects.filter(student=student, test=test).first().marks if Marks.objects.filter(student=student, test=test).first() else ''
+                }
+                for student in students
+            ]
+            return render(request, 'test_marks_entry.html', {
+                'test': test,
+                'student_marks': student_marks,
+                'error_messages': error_messages,
+            })
+
+        # After successfully saving marks, redirect back to the same page
+        return redirect('test_marks_entry', test_id=test_id)
+
+    # Fetch marks for all students for this test
+    student_marks = [
+        {
+            'student': student,
+            'marks': Marks.objects.filter(student=student, test=test).first().marks if Marks.objects.filter(student=student, test=test).first() else ''
+        }
+        for student in students
+    ]
+
+    return render(request, 'test_marks_entry.html', {
+        'test': test,
+        'student_marks': student_marks,
+    })
+@login_required
+# Delete Marks Entry
+def delete_marks(request, student_id, test_id):
+    print(f"Attempting to delete marks for student_id={student_id}, test_id={test_id}")
+    try:
+        mark = get_object_or_404(Marks, student_id=student_id, test_id=test_id)
+        mark.delete()
+        return redirect('test_marks_entry', test_id=test_id)
+    except Marks.DoesNotExist:
+        print("No matching record found in Marks table.")
+        return redirect('test_marks_entry', test_id=test_id)
+
+@login_required
+def active_test_list(request):
+    tests = Test.objects.all()
+    return render(request, 'active_test_list.html', {'tests': tests})
 
 def logout_view(request):
     logout(request)
     return redirect('login')
+
+#31/12/2024
+@login_required
+def school_student_list(request):
+    schools = School.objects.all()
+    school_students = {}
+
+    # Get students for each school
+    for school in schools:
+        school_students[school] = school.student_set.all()
+
+    return render(request, 'school_student_list.html', {'school_students': school_students})
+
+
 
 # Math Tools Functions
 def get_available_books():
@@ -480,140 +810,228 @@ def load_questions(request):
     
     return redirect('math_tools')
 
+def get_book_language(book_id):
+    """Determine the language of a book based on its content.json file"""
+    try:
+        content_file = os.path.join(
+            settings.BASE_DIR,
+            'school_app',
+            'content',
+            book_id,
+            'content.json'
+        )
+        
+        if os.path.exists(content_file):
+            with open(content_file, 'r', encoding='utf-8') as f:
+                book_info = json.load(f)
+                return book_info.get('language', 'English')  # Default to English if not specified
+        return 'English'  # Default to English if file doesn't exist
+        
+    except Exception as e:
+        print(f"Error determining book language for {book_id}: {e}")
+        return 'English'  # Default to English on error
+
+from .solution_formatter import SolutionFormatter
+
 @login_required
 def solve_math(request):
     if request.method == 'POST':
         try:
-            # Get questions from POST data
+            # Get questions and book ID from POST data
             questions_json = request.POST.get('questions')
+            book_id = request.session.get('selected_book')
+            
             if not questions_json:
                 messages.error(request, 'No questions selected')
                 return redirect('math_tools')
 
+            # Get the book's language
+            language = get_book_language(book_id)
+
             # Parse the JSON string to get list of questions
             questions = json.loads(questions_json)
             
-            # Solve each question
+            # If questions is a string, try to parse it again
+            if isinstance(questions, str):
+                try:
+                    questions = json.loads(questions)
+                except json.JSONDecodeError:
+                    pass
+
             solutions = []
-            for question in questions:
-                solution = solve_math_problem(question)
+
+            # Convert questions to list if it's not already
+            if not isinstance(questions, list):
+                questions = [questions]
+
+            # Import the solution formatter
+            from .solution_formatter import SolutionFormatter
+
+            # Solve each question in the appropriate language
+            for question_data in questions:
+                # If question_data is a string, try to parse it as JSON
+                if isinstance(question_data, str):
+                    try:
+                        question_data = json.loads(question_data)
+                    except json.JSONDecodeError:
+                        pass
+
+                if isinstance(question_data, dict):
+                    question = question_data.get('question', '')
+                    img_filename = question_data.get('img', '')
+                    
+                    # Construct absolute path to image
+                    if img_filename:
+                        img_path = os.path.join(
+                            settings.BASE_DIR,
+                            'school_app',
+                            'static',
+                            'school_app',
+                            'images',
+                            img_filename
+                        )
+                        
+                        if os.path.exists(img_path):
+                            raw_solution = solve_math_problem(
+                                question=question,
+                                image_path=img_path,
+                                language=language
+                            )
+                        else:
+                            raw_solution = solve_math_problem(question=question, language=language)
+                    else:
+                        raw_solution = solve_math_problem(question=question, language=language)
+                else:
+                    question = question_data
+                    raw_solution = solve_math_problem(question=question, language=language)
+                
+                # Format the solution using the SolutionFormatter
+                formatted_solution = SolutionFormatter.format_solution(raw_solution)
+                # formatted_question = SolutionFormatter.format_question(
+                #     question if 'question' in locals() else question_data
+                # )
+                
+                # For template display, use the static URL path for images
+                static_img_url = img_filename if 'img_filename' in locals() else None
+                
                 solutions.append({
                     'question': question,
-                    'solution': solution
+                    'img': static_img_url,
+                    'solution': formatted_solution
                 })
 
             context = {
                 'solutions': solutions,
-                # Store original state in context
-                'original_book': request.session.get('selected_book'),
+                'language': language,
+                'original_book': book_id,
                 'original_chapter': request.session.get('selected_chapter')
             }
 
             return render(request, 'school_app/solutions.html', context)
             
-        except json.JSONDecodeError:
-            messages.error(request, 'Invalid question data received')
+        except json.JSONDecodeError as e:
+            print(f"JSON decode error: {e}")  # Debug print
+            error_msg = 'Invalid question data received' if language == 'English' else 'अमान्य प्रश्न डेटा प्राप्त हुआ'
+            messages.error(request, error_msg)
         except Exception as e:
-            messages.error(request, f'Error solving questions: {str(e)}')
+            print(f"Error processing request: {e}")  # Debug print
+            error_msg = f'Error solving questions: {str(e)}' if language == 'English' else f'प्रश्नों को हल करने में त्रुटि: {str(e)}'
+            messages.error(request, error_msg)
     
     return redirect('math_tools')
+
 
 @login_required
 def generate_math(request):
     """
-    View function to handle enhanced math question generation.
-    Supports multiple languages, question types, and difficulty levels.
+    View function to handle math question generation with language support.
     """
-    # Get the current language from session or default to English
-    current_language = request.session.get('language', 'English')
-    
-    messages = {
-        'Hindi': {
-            'no_questions': 'कोई प्रश्न नहीं चुना गया है। कृपया मुख्य पृष्ठ से प्रश्न चुनें।',
-            'generating': 'प्रश्न उत्पन्न किए जा रहे हैं... कृपया प्रतीक्षा करें',
-            'error': 'प्रश्न उत्पन्न करने में त्रुटि:',
-            'invalid_data': 'अमान्य प्रश्न डेटा प्राप्त हुआ'
-        },
-        'English': {
-            'no_questions': 'No questions selected. Please select questions from the main page.',
-            'generating': 'Generating questions... please wait',
-            'error': 'Error generating questions:',
-            'invalid_data': 'Invalid question data received'
-        }
-    }
-
     try:
         # Get questions from POST data
         questions_json = request.POST.get('questions')
+        book_id = request.session.get('selected_book')
+        
         if not questions_json:
-            messages.error(request, messages[current_language]['no_questions'])
+            messages.error(request, 'No questions selected')
             return redirect('math_tools')
+
+        # Get the book's language
+        language = get_book_language(book_id)
+
+        # Error messages based on language
+        error_messages = {
+            'Hindi': {
+                'no_questions': 'कोई प्रश्न नहीं चुना गया है। कृपया मुख्य पृष्ठ से प्रश्न चुनें।',
+                'generating': 'प्रश्न उत्पन्न किए जा रहे हैं... कृपया प्रतीक्षा करें',
+                'error': 'प्रश्न उत्पन्न करने में त्रुटि:',
+                'invalid_data': 'अमान्य प्रश्न डेटा प्राप्त हुआ'
+            },
+            'English': {
+                'no_questions': 'No questions selected. Please select questions from the main page.',
+                'generating': 'Generating questions... please wait',
+                'error': 'Error generating questions:',
+                'invalid_data': 'Invalid question data received'
+            }
+        }
 
         # Parse the JSON string to get list of questions
         questions = json.loads(questions_json)
         
         if request.method == 'POST':
-            # Get form parameters
             difficulty = request.POST.get('difficulty', 'Same Level')
             num_questions = int(request.POST.get('num_questions', 5))
-            language = request.POST.get('language', 'English')
             question_type = request.POST.get('question_type', 'Same as Original')
 
-            # Calculate how many variations to generate for each selected question
+            # Calculate distribution of questions
             num_selected = len(questions)
             base_count = num_questions // num_selected
             remainder = num_questions % num_selected
-            
-            # Distribute questions evenly
             distribution = [base_count] * num_selected
             for i in range(remainder):
                 distribution[i] += 1
 
             all_generated_questions = []
-            total_progress = len(questions)
 
-            # Generate questions for each selected question
+            # Generate questions using the book's language
             for i, (question, count) in enumerate(zip(questions, distribution)):
                 try:
                     generated_content = generate_similar_questions(
                         question=question,
                         difficulty=difficulty,
                         num_questions=count,
-                        language=language,
+                        language=language,  # Use book's language
                         question_type=question_type
                     )
                     all_generated_questions.append(generated_content)
                     
                 except Exception as e:
-                    error_msg = f"{messages[current_language]['error']} {str(e)}"
+                    error_msg = f"{error_messages[language]['error']} {str(e)}"
                     messages.error(request, error_msg)
                     continue
 
             # Combine all generated questions
             combined_content = "\n\n".join(all_generated_questions)
+            formatted_content = SolutionFormatter.format_solution(combined_content)
 
-            # Store original selections in context
             context = {
-                'generated_questions': combined_content,
+                'generated_questions': formatted_content,
                 'original_questions': questions,
                 'language': language,
                 'question_type': question_type,
                 'difficulty': difficulty,
                 'num_questions': num_questions,
-                # Store for form pre-filling
                 'questions_json': questions_json
             }
 
             return render(request, 'school_app/math_tools.html', context)
 
     except json.JSONDecodeError:
-        messages.error(request, messages[current_language]['invalid_data'])
+        messages.error(request, error_messages[language]['invalid_data'])
     except Exception as e:
-        error_msg = f"{messages[current_language]['error']} {str(e)}"
+        error_msg = f"{error_messages[language]['error']} {str(e)}"
         messages.error(request, error_msg)
 
     return redirect('math_tools')
-
 
 @login_required
 def get_chapters(request, book_id):
@@ -670,53 +1088,108 @@ def marks_edit(request, marks_id):
 
 @login_required
 def analysis_dashboard(request):
-    # Only allow school admins to access this view
-    if not hasattr(request.user, 'administered_school'):
-        raise PermissionDenied
-    
-    school = request.user.administered_school
-    
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        # Handle AJAX requests for chart data
-        class_name = request.GET.get('class_name')
-        student_id = request.GET.get('student_id')
+    """Render the analysis dashboard page"""
+    return render(request, 'school_app/analysis_dashboard.html')
+
+@login_required
+def analysis_dashboard(request):
+    """Render the analysis dashboard page"""
+    return render(request, 'school_app/analysis_dashboard.html')
+
+@login_required
+def get_students(request):
+    """API endpoint to get list of students"""
+    try:
+        # If user is a school admin, get only their school's students
+        if hasattr(request.user, 'administered_school'):
+            school = School.objects.get(admin=request.user)
+            students = Student.objects.filter(school=school)
+            print(f"Found {students.count()} students for school {school.name}")  # Debug print
+        else:
+            # For system admin or collector, get all students
+            students = Student.objects.all()
+            print(f"Found {students.count()} students total")  # Debug print
         
-        # Base query for students in this school
-        students = Student.objects.filter(school=school)
+        students_data = []
+        for student in students:
+            students_data.append({
+                'id': student.id,
+                'name': student.name,
+                'roll_number': student.roll_number,
+                'class_name': student.class_name
+            })
         
-        if class_name:
-            students = students.filter(class_name=class_name)
+        print("Students data:", students_data)  # Debug print
+        return JsonResponse({'students': students_data})
+    except Exception as e:
+        print(f"Error in get_students: {str(e)}")  # Debug print
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.db.models import Avg
+from .models import Student, Marks
+
+@login_required
+def get_student_analysis(request, student_id):
+    """API endpoint to get detailed analysis for a specific student"""
+    try:
+        # Get the student
+        if hasattr(request.user, 'administered_school'):
+            # School admin can only see their school's students
+            student = get_object_or_404(Student, id=student_id, school=request.user.administered_school)
+        else:
+            # System admin or collector can see all students
+            student = get_object_or_404(Student, id=student_id)
+        
+        # Get all marks for the student
+        marks = Marks.objects.filter(student=student).select_related('test')
+        
+        # Calculate class averages for each test
+        test_performance = []
+        for mark in marks:
+            # Get class average for this test
+            class_average = Marks.objects.filter(
+                test=mark.test,
+                student__class_name=student.class_name,
+                student__school=student.school  # Only compare with students from same school
+            ).aggregate(Avg('marks'))['marks__avg']
             
-        marks_data = Marks.objects.filter(student__in=students)
+            test_performance.append({
+                'test_id': mark.test.test_number,
+                'test_name': mark.test.test_name,
+                'subject': mark.test.subject_name,
+                'date': mark.test.test_date.strftime('%Y-%m-%d') if mark.test.test_date else None,
+                'marks': float(mark.marks),
+                'class_average': round(float(class_average), 2) if class_average else None
+            })
         
-        # If student_id is provided, get their specific marks
-        student_progress = []
-        if student_id:
-            student_progress = list(Marks.objects.filter(
-                student_id=student_id
-            ).values('test_number', 'marks', 'date').order_by('date'))
+        # Sort by test date
+        test_performance.sort(key=lambda x: x['date'] if x['date'] else '')
         
-        analysis_data = {
-            'student_progress': student_progress,
-            'class_performance': list(marks_data.filter(
-                student__class_name=class_name
-            ).values('test_number').annotate(
-                average=Avg('marks'),
-                max_mark=Max('marks'),
-                min_mark=Min('marks')
-            ).order_by('test_number')) if class_name else [],
-            
-            'students': list(students.values('id', 'name', 'roll_number'))
+        # Calculate overall statistics
+        all_marks = [mark.marks for mark in marks]
+        average_marks = sum(all_marks) / len(all_marks) if all_marks else 0
+        highest_mark = max(all_marks) if all_marks else 0
+        lowest_mark = min(all_marks) if all_marks else 0
+        
+        response_data = {
+            'name': student.name,
+            'roll_number': student.roll_number,
+            'class_name': student.class_name,
+            'test_performance': test_performance,
+            'statistics': {
+                'average_marks': round(average_marks, 2),
+                'highest_mark': round(highest_mark, 2),
+                'lowest_mark': round(lowest_mark, 2),
+                'total_tests': len(all_marks)
+            }
         }
         
-        return JsonResponse(analysis_data)
-    
-    # Convert CLASS_CHOICES tuple into list for the template
-    class_choices = list(Student.CLASS_CHOICES)
-    
-    # Initial page load context
-    context = {
-        'school': school,
-        'class_choices': class_choices
-    }
-    return render(request, 'school_app/analysis_dashboard.html', context)
+        return JsonResponse(response_data)
+        
+    except Exception as e:
+        print(f"Error in get_student_analysis: {str(e)}")  # Debug print
+        return JsonResponse({'error': str(e)}, status=500)

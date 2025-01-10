@@ -3,137 +3,24 @@
 
 {% block content %}
 <div class="container mt-4">
-    <div class="row">
-        <div class="col-12">
-            <h1>Student Analysis Dashboard</h1>
-            <div class="card">
-                <div class="card-body">
-                    <!-- Class Selection -->
-                    <div class="mb-3">
-                        <label for="classSelect" class="form-label">Select Class</label>
-                        <select class="form-select" id="classSelect">
-                            <option value="">Choose a class...</option>
-                            {% for value, label in class_choices %}
-                                <option value="{{ value }}">{{ label }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <!-- Student Selection (will be populated based on class) -->
-                    <div class="mb-3" id="studentSelectContainer" style="display: none;">
-                        <label for="studentSelect" class="form-label">Select Student</label>
-                        <select class="form-select" id="studentSelect">
-                            <option value="">Choose a student...</option>
-                        </select>
-                    </div>
-
-                    <!-- Analysis Content -->
-                    <div id="analysisContent">
-                        <p class="text-muted">Select a class and student to view analysis</p>
-                    </div>
-
-                    <!-- Marks Table -->
-                    <div id="marksTableContainer" style="display: none;" class="mt-4">
-                        <h3>Student Marks</h3>
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Test Number</th>
-                                    <th>Marks</th>
-                                    <th>Date</th>
-                                </tr>
-                            </thead>
-                            <tbody id="marksTableBody">
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+    <h1 class="mb-4">Student Analysis Dashboard</h1>
+    
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="form-group">
+                <label for="studentSelect">Select Student</label>
+                <select class="form-select" id="studentSelect">
+                    <option value="">Choose a student...</option>
+                </select>
             </div>
         </div>
     </div>
+
+    <!-- This div will be populated with student analysis -->
+    <div id="analysisContent"></div>
 </div>
+{% endblock %}
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const classSelect = document.getElementById('classSelect');
-    const studentSelect = document.getElementById('studentSelect');
-    const studentSelectContainer = document.getElementById('studentSelectContainer');
-    const analysisContent = document.getElementById('analysisContent');
-    const marksTableContainer = document.getElementById('marksTableContainer');
-    const marksTableBody = document.getElementById('marksTableBody');
-
-    // When class is selected, load students
-    classSelect.addEventListener('change', async function() {
-        const selectedClass = this.value;
-        if (!selectedClass) {
-            studentSelectContainer.style.display = 'none';
-            marksTableContainer.style.display = 'none';
-            return;
-        }
-
-        try {
-            const response = await fetch(`/analysis-data/?class_name=${selectedClass}`, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-            const data = await response.json();
-            
-            // Populate student dropdown
-            studentSelect.innerHTML = '<option value="">Choose a student...</option>';
-            data.students.forEach(student => {
-                const option = document.createElement('option');
-                option.value = student.id;
-                option.textContent = `${student.roll_number} - ${student.name}`;
-                studentSelect.appendChild(option);
-            });
-            
-            studentSelectContainer.style.display = 'block';
-            
-            // Show class summary
-            analysisContent.innerHTML = `
-                <h3>Class ${selectedClass} Analysis</h3>
-                <p>Number of students: ${data.students.length}</p>
-                <p>Performance data available: ${data.class_performance.length} tests</p>
-            `;
-        } catch (error) {
-            console.error('Error fetching analysis data:', error);
-        }
-    });
-
-    // When student is selected, load their marks
-    studentSelect.addEventListener('change', async function() {
-        const selectedStudent = this.value;
-        if (!selectedStudent) {
-            marksTableContainer.style.display = 'none';
-            return;
-        }
-
-        try {
-            const response = await fetch(`/analysis-data/?class_name=${classSelect.value}&student_id=${selectedStudent}`, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-            const data = await response.json();
-            
-            // Display marks in table
-            marksTableBody.innerHTML = '';
-            data.student_progress.forEach(mark => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${mark.test_number}</td>
-                    <td>${mark.marks}</td>
-                    <td>${new Date(mark.date).toLocaleDateString()}</td>
-                `;
-                marksTableBody.appendChild(row);
-            });
-            
-            marksTableContainer.style.display = 'block';
-        } catch (error) {
-            console.error('Error fetching student marks:', error);
-        }
-    });
-});
-</script>
+{% block extra_js %}
+<script src="{% static 'school_app/js/StudentAnalysisDashboard.js' %}"></script>
 {% endblock %}

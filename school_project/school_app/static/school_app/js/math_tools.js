@@ -24,7 +24,13 @@ function updateQuestionQueue() {
     
     if (selectedQuestions.size > 0) {
         queueDisplay.innerHTML = Array.from(selectedQuestions)
-            .map(q => `<div class="selected-question p-2 border-bottom">${q}</div>`)
+            .map(q => {
+                const data = JSON.parse(q);
+                return `<div class="selected-question p-2 border-bottom">
+                    ${data.question}
+                    ${data.img ? `<img src="/static/school_app/images/${data.img}" class="img-fluid mt-2">` : ''}
+                </div>`;
+            })
             .join('');
         if (solveButton) solveButton.disabled = false;
         if (generateButton) generateButton.disabled = false;
@@ -37,26 +43,31 @@ function updateQuestionQueue() {
     sessionStorage.setItem('selectedQuestions', JSON.stringify(Array.from(selectedQuestions)));
 }
 
-// Handle question selection
 function toggleQuestion(checkbox) {
     const label = checkbox.nextElementSibling;
-    let questionText = label.textContent.trim();
+    const img = label.querySelector('img');
     
-    // If there's a main question context (in parentheses), include it
-    const mainQuestion = label.querySelector('.text-muted');
-    if (mainQuestion) {
-        const context = mainQuestion.textContent.replace(/[()]/g, '').trim();
-        questionText = `${questionText} - ${context}`;
+    let questionData = {
+        question: label.textContent.trim()
+    };
+    
+    if (img) {
+        questionData.img = img.src.split('/').pop();
+        console.log('Image filename:', questionData.img);  // Debug log
     }
+    
+    const questionString = JSON.stringify(questionData);
+    console.log('Question data:', questionString);  // Debug log
     
     if (checkbox.checked) {
-        selectedQuestions.add(questionText);
+        selectedQuestions.add(questionString);
     } else {
-        selectedQuestions.delete(questionText);
+        selectedQuestions.delete(questionString);
     }
+    
+    console.log('Selected questions:', selectedQuestions);  // Debug log
     updateQuestionQueue();
 }
-
 // Clear all selected questions
 function clearSelectedQuestions() {
     selectedQuestions.clear();
@@ -107,6 +118,12 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Book selected:', this.value);
             handleBookSelection(this.value);
         });
+    }
+
+    // Add click handler for "Back to Questions" link
+    const backLink = document.querySelector('a[href*="math_tools"]');
+    if (backLink) {
+        backLink.onclick = handleBackToQuestions;
     }
 });
 
@@ -191,11 +208,21 @@ function solveSelected() {
         csrfInput.value = csrfToken;
         form.appendChild(csrfInput);
         
+        // Convert selected questions to array of objects
+        const questionsArray = Array.from(selectedQuestions).map(q => {
+            if (typeof q === 'string') {
+                return JSON.parse(q);
+            }
+            return q;
+        });
+        
+        console.log('Submitting questions:', questionsArray);  // Debug log
+        
         // Add questions as JSON
         const questionsInput = document.createElement('input');
         questionsInput.type = 'hidden';
         questionsInput.name = 'questions';
-        questionsInput.value = JSON.stringify(Array.from(selectedQuestions));
+        questionsInput.value = JSON.stringify(questionsArray);
         form.appendChild(questionsInput);
         
         // Submit the form
@@ -236,4 +263,11 @@ function generateMore() {
         console.error('Error:', error);
         alert('Error submitting form. Please try again.');
     }
+}
+
+// Clear selected questions when returning from solutions page
+function handleBackToQuestions() {
+    clearSelectedQuestions();
+    window.location.href = document.querySelector('a[href*="math_tools"]').href;
+    return false;  // Prevent default link behavior
 }

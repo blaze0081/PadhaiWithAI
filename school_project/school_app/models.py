@@ -108,13 +108,26 @@ class Test(models.Model):
     def __str__(self):
         return self.test_name
     
+# class Marks(models.Model):
+#     student = models.ForeignKey(Student, on_delete=models.CASCADE)
+#     test = models.ForeignKey(Test, on_delete=models.CASCADE)
+#     test_number = models.CharField(max_length=50)
+#     marks = models.DecimalField(max_digits=5, decimal_places=2)
+#     date = models.DateField(auto_now_add=True)
+    
+#     class Meta:
+#         unique_together = ('student', 'test')  # Prevent duplicate marks for a student in the same test
+#     def __str__(self):
+#        # return f"{self.student.name} - {self.test_number}: {self.marks}"
+#         return f"{self.student.name} - {self.test.test_name}: {self.marks}"
 class Marks(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    # test = models.ForeignKey(Test, on_delete=models.CASCADE)
-    test_number = models.CharField(max_length=50)
-    marks = models.DecimalField(max_digits=5, decimal_places=2)
+    test = models.ForeignKey(Test, on_delete=models.CASCADE)
+    marks = models.DecimalField(max_digits=5, decimal_places=2)  # Example: 100.00
     date = models.DateField(auto_now_add=True)
-    
-    def __str__(self):
-        return f"{self.student.name} - {self.test_number}: {self.marks}"
 
+    class Meta:
+        unique_together = ('student', 'test')  # Prevent duplicate marks for a student in the same test
+
+    def __str__(self):
+        return f"{self.student.name} - {self.test.test_name}: {self.marks}"

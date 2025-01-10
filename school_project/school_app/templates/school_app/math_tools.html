@@ -34,7 +34,7 @@
                                     {% for chapter in chapters %}
                                         <option value="{{ chapter.id }}"
                                                 {% if chapter.id == selected_chapter %}selected{% endif %}>
-                                            {{ chapter.name }}
+                                                 {{ chapter.name }}
                                         </option>
                                     {% endfor %}
                                 {% endif %}
@@ -109,7 +109,14 @@
                                     {% for question in exercise.questions %}
                                         <div class="question-item p-2 border-bottom">
                                             {% if question.sub_questions %}
-                                                <div class="main-question mb-2">{{ question.question }}</div>
+                                                <div class="main-question mb-2">
+                                                    {{ question.question }}
+                                                    {% if question.img %}
+                                                        <img src="{% static 'school_app/images/'|add:question.img %}" 
+                                                             alt="Question Image" 
+                                                             class="img-fluid mt-2">
+                                                    {% endif %}
+                                                </div>
                                                 <div class="sub-questions ms-4">
                                                     {% for sub_q in question.sub_questions %}
                                                         <div class="form-check">
@@ -124,7 +131,7 @@
                                                         </div>
                                                     {% endfor %}
                                                 </div>
-                                            {% else %}
+                                                {% else %}
                                                 <div class="form-check">
                                                     <input type="checkbox" 
                                                            class="form-check-input question-checkbox" 
@@ -132,6 +139,11 @@
                                                     <label class="form-check-label" 
                                                            for="question_{{ forloop.parentloop.counter }}_{{ forloop.counter }}">
                                                         {{ question.question }}
+                                                        {% if question.img %}
+                                                            <img src="{% static 'school_app/images/'|add:question.img %}" 
+                                                                 alt="Question Image" 
+                                                                 class="img-fluid mt-2">
+                                                        {% endif %}
                                                     </label>
                                                 </div>
                                             {% endif %}
