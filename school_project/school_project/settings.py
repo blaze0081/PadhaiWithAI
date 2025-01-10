@@ -99,15 +99,22 @@ DATABASES = {
         **env.db(default="sqlite:///db.sqlite3"),
         "OPTIONS": {
             "timeout": 20,
-            "pragmas": {
-                "journal_mode": "wal",
-                "synchronous": "normal",
-                "cache_size": -64 * 1000,  # 64MB cache
-                "foreign_keys": 1
-            }
         }
     }
 }
+
+# Enable WAL mode for SQLite
+from django.db.backends.signals import connection_created
+from django.dispatch import receiver
+
+@receiver(connection_created)
+def enable_wal_mode(sender, connection, **kwargs):
+    if connection.vendor == 'sqlite':
+        cursor = connection.cursor()
+        cursor.execute('PRAGMA journal_mode=WAL;')
+        cursor.execute('PRAGMA synchronous=NORMAL;')
+        cursor.execute('PRAGMA cache_size=-64000;')  # 64MB
+        cursor.execute('PRAGMA foreign_keys=ON;')
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
