@@ -31,6 +31,7 @@ from .models import Test, Marks, Student, School
 from decimal import InvalidOperation
 from .models import CustomUser, School
 from .forms import ExcelFileUploadForm 
+<<<<<<< HEAD
 from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -52,6 +53,9 @@ def get_active_users_count():
                 continue
 
     return active_users_count
+=======
+
+>>>>>>> 7008922258437ad93111c3ffd7c2e56094accd98
 #08/01/2025
 #1
 @login_required
@@ -333,8 +337,12 @@ def collector_dashboard(request):
         'schools': schools,
         'total_schools': School.objects.count(),
         'total_students': Student.objects.count(),
+<<<<<<< HEAD
         'total_tests': Test.objects.count(),
         'get_active_users': live_sessions.count()
+=======
+        'total_tests': Test.objects.count()
+>>>>>>> 7008922258437ad93111c3ffd7c2e56094accd98
     })
 
 @login_required
