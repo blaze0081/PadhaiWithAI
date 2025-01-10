@@ -5,7 +5,7 @@ from django.contrib import messages
 from .models import School, Student, Marks
 from .forms import StudentForm, MarksForm, SchoolForm, SchoolAdminRegistrationForm, TestForm, Test
 from django.db.models import Count 
-from .math_utils import solve_math_problem, generate_similar_questions
+from .math_utils import async_solve_math_problem, async_generate_similar_questions
 import json
 import os
 from django.conf import settings
@@ -854,8 +854,15 @@ def get_book_language(book_id):
         return 'English'  # Default to English on error
 
 from .solution_formatter import SolutionFormatter
+from django.views.decorators.http import require_http_methods
+from django.http import HttpResponse, JsonResponse
+from asgiref.sync import async_to_sync
+
+
 
 @login_required
+@require_http_methods(["POST"])
+
 def solve_math(request):
     if request.method == 'POST':
         try:
@@ -886,9 +893,6 @@ def solve_math(request):
             if not isinstance(questions, list):
                 questions = [questions]
 
-            # Import the solution formatter
-            from .solution_formatter import SolutionFormatter
-
             # Solve each question in the appropriate language
             for question_data in questions:
                 # If question_data is a string, try to parse it as JSON
@@ -914,18 +918,18 @@ def solve_math(request):
                         )
                         
                         if os.path.exists(img_path):
-                            raw_solution = solve_math_problem(
+                            raw_solution = async_to_sync(async_solve_math_problem)(
                                 question=question,
                                 image_path=img_path,
                                 language=language
                             )
                         else:
-                            raw_solution = solve_math_problem(question=question, language=language)
+                            raw_solution = async_to_sync(async_solve_math_problem)(question=question, language=language)
                     else:
-                        raw_solution = solve_math_problem(question=question, language=language)
+                        raw_solution = async_to_sync(async_solve_math_problem)(question=question, language=language)
                 else:
                     question = question_data
-                    raw_solution = solve_math_problem(question=question, language=language)
+                    raw_solution = async_to_sync(async_solve_math_problem)(question=question, language=language)
                 
                 # Format the solution using the SolutionFormatter
                 formatted_solution = SolutionFormatter.format_solution(raw_solution)
@@ -1017,7 +1021,7 @@ def generate_math(request):
             # Generate questions using the book's language
             for i, (question, count) in enumerate(zip(questions, distribution)):
                 try:
-                    generated_content = generate_similar_questions(
+                    generated_content = async_to_sync(async_generate_similar_questions)(
                         question=question,
                         difficulty=difficulty,
                         num_questions=count,

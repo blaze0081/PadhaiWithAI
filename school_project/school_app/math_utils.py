@@ -1,11 +1,16 @@
 import os
-from openai import OpenAI
+import asyncio
+from openai import OpenAI, AsyncOpenAI
 from dotenv import load_dotenv
 from typing import Optional, Union
 import base64
+from asgiref.sync import sync_to_async
 
 load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
+
+async_client = AsyncOpenAI(api_key=api_key)
+
 
 def init_openai():
     return OpenAI(api_key=api_key)
@@ -89,7 +94,7 @@ def get_system_message_generate(language: str, difficulty: str, question_type: s
     
     return system_messages.get(language, system_messages["English"])
 
-def generate_similar_questions(question: str, difficulty: str, num_questions: int, 
+async def async_generate_similar_questions(question: str, difficulty: str, num_questions: int, 
                             language: str, question_type: str) -> str:
     """
     Generate similar mathematics questions with specified parameters.
@@ -104,7 +109,7 @@ def generate_similar_questions(question: str, difficulty: str, num_questions: in
     Returns:
         Formatted string containing generated questions and solutions
     """
-    client = init_openai()
+    # client = init_openai()
     
     system_message = get_system_message_generate(language, difficulty, question_type)
     
@@ -139,7 +144,7 @@ def generate_similar_questions(question: str, difficulty: str, num_questions: in
     
     prompt = prompts.get(language, prompts["English"])
     
-    response = client.chat.completions.create(
+    response = await async_client.chat.completions.create(
         model="gpt-4o",
         messages=[
             {"role": "system", "content": system_message},
@@ -158,7 +163,7 @@ def encode_image(image_path):
         return base64.b64encode(image_file.read()).decode('utf-8')
 
 
-def solve_math_problem(question: str, image_path: Optional[str] = None, language: str = "English") -> str:
+async def async_solve_math_problem(question: str, image_path: Optional[str] = None, language: str = "English") -> str:
     """
     Solve a given mathematics problem with detailed explanation.
     
@@ -167,7 +172,7 @@ def solve_math_problem(question: str, image_path: Optional[str] = None, language
         image_path: Optional path to an image associated with the question
         language: Language for the solution (default: "English")
     """
-    client = init_openai()
+    # client = init_openai()
     
     messages = [
         {
@@ -191,7 +196,7 @@ def solve_math_problem(question: str, image_path: Optional[str] = None, language
     print(f"Looking for image at: {image_path}")
     if image_path:
         try:
-            base64_image = encode_image(image_path)
+            base64_image = await sync_to_async(encode_image)(image_path)
             messages.append({
                 "role": "user",
                 "content": [
@@ -215,7 +220,7 @@ def solve_math_problem(question: str, image_path: Optional[str] = None, language
         messages.append({"role": "user", "content": user_content})
     
     try:
-        response = client.chat.completions.create(
+        response = await async_client.chat.completions.create(
             model="gpt-4o",
             messages=messages,
             temperature=0.7,
