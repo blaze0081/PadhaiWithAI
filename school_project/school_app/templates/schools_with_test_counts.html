@@ -1,0 +1,34 @@
+{% extends 'school_app/base.html' %}
+
+{% block content %}
+
+<h2>Test Entry Count by School</h2>
+
+<!-- Table to display school names and their test counts -->
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>S.No.</th>
+      <th>School Name</th>
+      <th>Test Count</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for school in schools %}
+      <tr>
+        <td>{{ forloop.counter }}</td> <!-- Display Serial Number -->
+        <td>{{ school.name }}</td>
+        <td>{{ school.test_count }}</td>
+      </tr>
+    {% empty %}
+      <tr>
+        <td colspan="2">No schools with test entries found.</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<!-- Link to return to the report dashboard -->
+<a href="{% url 'report_dashboard' %}">Back to Report Dashboard</a>
+
+{% endblock %}

@@ -1,21 +1,24 @@
 {% extends 'school_app/base.html' %}
+{% load static %} 
 {% block content %}
-<div class="content container mt-4">
-    <h1 class="text-center">Welcome to the Login Page</h1>
-    <div class="row justify-content-center">
+<div class="content container mt-5">
+    <div class="row align-items-center">
+    <div class="col-md-5">
+        <img src="{% static 'school_app/images/pai.jpg' %}" class="img-fluid rounded" alt="PadhaiWithAI Image" style="max-height: 100%; object-fit: cover;">
+    </div>
         <div class="col-md-6">
-            <div class="card">
-                
+            <h1 class="text-center">Welcome to the Login Page</h>
+            <div class="card shadow-lg border-light rounded">                
                 <div class="card-body">
-                    <h2 class="card-title mb-4">Login</h2>
+                    <h2 class="card-title text-left mb-4">Login</h2>
                     <form method="post" action="{% url 'login' %}">
                         {% csrf_token %}
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Email</label>
+                        <div class="mb-3 text-left">
+                            <label for="email" class="form-label" style="font-size: 20px;">Email</label>
                             <input type="email" class="form-control" id="email" name="email" required>
                         </div>
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
+                        <div class="mb-1 text-left">
+                            <label for="password" class="form-label" style="font-size: 20px;">Password</label>
                             <input type="password" class="form-control" id="password" name="password" required>
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Login</button>
@@ -24,7 +27,6 @@
             </div>
         </div>
     </div>
+  </div>
 </div>
-
-
 {% endblock %}

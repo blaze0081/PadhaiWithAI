@@ -149,6 +149,7 @@
           "question":"In a potato race, a bucket is placed at the starting point, which is 5 m from the first potato, and the other potatoes are placed 3 m apart in a straight line. There are ten potatoes in the line (see Fig. 5.6) A competitor starts from the bucket, picks up the nearest potato, runs back with it, drops it in the bucket, runs back to pick up the next potato, runs to the bucket to drop it in, and she continues in the same way until all the potatoes are in the bucket. What is the total distance the competitor has to run?",
           "img": "5-3-20.jpg"
         }
+
       ]
     },
     {
@@ -159,6 +160,18 @@
         },
         {
           "question": "The sum of the third and the seventh terms of an AP is 6 and their product is 8. Find the sum of the first sixteen terms of the AP."
+        },
+        {
+
+          "question": "A ladder has rungs 25 cm apart. (see Fig. 5.7). The rungs decrease uniformly in length from 45 cm at the bottom to 25 cm at the top. If the top and the bottom rungs are 2.5 m apart, what is 2 the length of the wood required for the rungs? [Hint : Number of rungs = 250  1 ]",
+          "img": "5-4-3.jpg"
+        },
+        {
+          "question": "The houses of a row are numbered consecutively from 1 to 49. Show that there is a value of x such that the sum of the numbers of the houses preceding the house numbered x is equal to the sum of the numbers of the houses following it. Find this value of x.[Hint : Sx - 1 = S49 - Sx]"
+        },
+        {
+          "question": "A small terrace at a football ground comprises of 15 steps each of which is 50 m long and built of solid concrete. Each step has a rise of 4 m and a tread of 2 m. (see Fig. 5.8). Calculate the total volume of concrete required to build the terrace. Hint : Volume of concrete required to build the first step = 1/4 * 1/4 * 50 m3",
+          "img": "5-4-5.jpg"
         }
       ]
     }
