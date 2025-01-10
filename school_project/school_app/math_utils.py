@@ -140,7 +140,7 @@ def generate_similar_questions(question: str, difficulty: str, num_questions: in
     prompt = prompts.get(language, prompts["English"])
     
     response = client.chat.completions.create(
-        model="gpt-4o",
+        model="gpt-4o-mini",
         messages=[
             {"role": "system", "content": system_message},
             {"role": "user", "content": prompt}
@@ -216,7 +216,7 @@ def solve_math_problem(question: str, image_path: Optional[str] = None, language
     
     try:
         response = client.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-4o-mini",
             messages=messages,
             temperature=0.7,
             max_tokens=4096
