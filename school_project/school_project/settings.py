@@ -115,6 +115,7 @@ def enable_wal_mode(sender, connection, **kwargs):
         cursor.execute('PRAGMA synchronous=NORMAL;')
         cursor.execute('PRAGMA cache_size=-64000;')  # 64MB
         cursor.execute('PRAGMA foreign_keys=ON;')
+        cursor.execute('PRAGMA journal_mode;')
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
