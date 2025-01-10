@@ -31,7 +31,27 @@ from .models import Test, Marks, Student, School
 from decimal import InvalidOperation
 from .models import CustomUser, School
 from .forms import ExcelFileUploadForm 
+from django.contrib.sessions.models import Session
+from django.contrib.auth.models import User
+from django.utils import timezone
+#10012025
+def get_active_users_count():
+    sessions = Session.objects.filter(expire_date__gte=timezone.now())
 
+    active_users_count = 0
+
+    for session in sessions:
+        session_data = session.get_decoded()
+
+        if 'user_id' in session_data:
+            user_id = session_data['user_id']           
+            try:
+                User.objects.get(id=user_id)
+                active_users_count += 1
+            except User.DoesNotExist:
+                continue
+
+    return active_users_count
 #08/01/2025
 #1
 @login_required
@@ -307,13 +327,14 @@ def collector_dashboard(request):
 
     # Fetch all schools (You can add filters here if necessary)
     schools = School.objects.all()
-
+    live_sessions = Session.objects.filter(expire_date__gte=timezone.now())
     return render(request, 'school_app/collector_dashboard.html', {
         'tests': tests,
         'schools': schools,
         'total_schools': School.objects.count(),
         'total_students': Student.objects.count(),
-        'total_tests': Test.objects.count()
+        'total_tests': Test.objects.count(),
+        'get_active_users': live_sessions.count()
     })
 
 @login_required
