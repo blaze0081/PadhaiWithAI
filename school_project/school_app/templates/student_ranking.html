@@ -12,18 +12,23 @@
         <thead class="thead-dark">
             <tr>
                 <th scope="col">Rank</th>
-                <th scope="col">Student</th>
+               
                 <th scope="col">School</th>
+                <th scope="col">Student</th>
                 <th scope="col">Marks</th>
+                <th scope="col">Percentage</th>
             </tr>
         </thead>
         <tbody>
             {% for record in rankings %}
             <tr>
                 <td>{{ forloop.counter }}</td>
-                <td>{{ record.student.name }}</td>
                 <td>{{ record.student.school.name }}</td>
+                <td>{{ record.student.name }}</td>
+               
                 <td>{{ record.marks }}</td>
+                <td>{{ record.percentage|floatformat:2 }}</td> 
+               
             </tr>
             {% endfor %}
         </tbody>
@@ -31,7 +36,7 @@
 </div>
  <!-- Back to Dashboard Button -->
  <div class="text-center mt-4">
-    <a href="{% url 'collector_dashboard' %}" class="btn btn-secondary" style="font-size: 1.1em; padding: 10px 20px;">
+    <a href="{% url 'student_report' %}" class="btn btn-secondary" style="font-size: 1.1em; padding: 10px 20px;">
         Back to Dashboard
     </a>
 </div>

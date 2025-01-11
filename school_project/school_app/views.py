@@ -29,11 +29,106 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.core.exceptions import ValidationError
 from .models import Test, Marks, Student, School
 from decimal import InvalidOperation
-from .models import CustomUser, School
+from .models import CustomUser, School,Attendance
 from .forms import ExcelFileUploadForm 
 from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User
 from django.utils import timezone
+
+@login_required
+def test_wise_average_marks(request):
+    from django.db.models import Avg, F, ExpressionWrapper, FloatField
+
+    # Assuming max_marks is a field in the Test model for maximum marks of the test
+     #F('avg_marks') * 100 / F('max_marks'),
+    data = (
+        Test.objects.annotate(
+            avg_marks=Avg('marks__marks'),
+            percentage=ExpressionWrapper(
+                F('avg_marks') * 100 / 45,               
+                output_field=FloatField()
+            )
+        )
+        .values('test_name', 'avg_marks', 'percentage')
+        .order_by('-percentage')
+    )
+
+    context = {'data': data}
+    return render(request, 'test_wise_average.html', context)
+
+@login_required
+def submit_attendance(request):
+    if request.user.is_school_admin:
+        students = request.user.school.students.all()
+        if request.method == 'POST':
+            selected_students = request.POST.getlist('absent_students')
+            for student in students:
+                is_present = str(student.id) not in selected_students
+                Attendance.objects.update_or_create(
+                    student=student,
+                    date=timezone.now().date(),
+                    defaults={'is_present': is_present}
+                )
+            return redirect('attendance_summary')
+
+        context = {'students': students}
+        return render(request, 'attendance/submit.html', context)
+    return redirect('home')
+@login_required
+def attendance_summary(request):
+    if request.user.is_system_admin:
+        total_schools = School.objects.count()
+        schools_logged_in = CustomUser.objects.filter(
+            last_login__date=timezone.now().date(),
+            is_school_admin=True
+        ).count()
+
+        attendance_data = Attendance.objects.filter(
+            date=timezone.now()
+        ).values('student__school__name').annotate(
+            present_count=Count('id', filter=Q(is_present=True)),
+            total_students=Count('id'),
+        )
+
+        context = {
+            'attendance_data': attendance_data,
+            'schools_logged_in': schools_logged_in,
+            'total_schools': total_schools,
+        }
+        return render(request, 'attendance/summary.html', context)
+    return redirect('home')
+#11/01/2025
+@login_required
+def update_block_name_from_excel(request):
+    if request.method == 'POST' and request.FILES['excel_file']:
+        excel_file = request.FILES['excel_file']
+        
+        try:
+            # Read the Excel file using pandas
+            df = pd.read_excel(excel_file)
+
+            updates = []
+            # Iterate over rows in the DataFrame
+            for _, row in df.iterrows():
+                school_name = row['School Name']
+                block_name = row['Block Name']
+
+                try:
+                    # Find the school by name
+                    school = School.objects.get(name=school_name)
+                    school.Block_Name = block_name  # Update Block Name
+                    school.save()  # Save the updated School object
+                    updates.append(f'Updated {school_name}')
+                except School.DoesNotExist:
+                    updates.append(f'{school_name} not found')
+            
+            return JsonResponse({'updates': updates})
+
+        except Exception as e:
+            return JsonResponse({'error': f'Error processing file: {str(e)}'}, status=400)
+
+    return render(request, 'update_block_name_form.html')
+
 #10012025
 @login_required
 def get_active_users_count():
@@ -191,21 +286,34 @@ def upload_student_data(request):
 @login_required
 def school_average_marks(request):
     from django.db.models import Avg
-    data = School.objects.annotate(avg_marks=Avg('student__marks__marks'))
+    data = School.objects.annotate(avg_marks=Avg('student__marks__marks')).order_by('-avg_marks')
     context = {'data': data}
     return render(request, 'school_average.html', context)
 
 @login_required
 def top_students(request):
-    number_of_toppers = int(request.GET.get('toppers', 3))
-    from django.db.models import Avg
-    data = Marks.objects.values('student__name', 'student__school__name').annotate(avg_marks=Avg('marks')).order_by('-avg_marks')[:number_of_toppers]
+    from django.db.models import F, ExpressionWrapper, FloatField
+    number_of_toppers = int(request.GET.get('toppers', 5))
+
+    # Calculate average marks and percentage
+    data = (
+        Marks.objects.values('student__name', 'student__school__name')
+        .annotate(
+            avg_marks=Avg('marks'),
+            percentage= ExpressionWrapper(
+                    Avg('marks') * 100 / 45.00,
+                    output_field=FloatField()
+                )
+        )
+        .order_by('-avg_marks')[:number_of_toppers]
+    )
+
     context = {'data': data, 'number_of_toppers': number_of_toppers}
     return render(request, 'top_students.html', context)
 
 @login_required
 def weakest_students(request):
-    number_of_weakest = int(request.GET.get('weakest', 3))
+    number_of_weakest = int(request.GET.get('weakest', 5))
     from django.db.models import Avg
     data = Marks.objects.values('student__name', 'student__school__name').annotate(avg_marks=Avg('marks')).order_by('avg_marks')[:number_of_weakest]
     context = {'data': data, 'number_of_weakest': number_of_weakest}
@@ -407,13 +515,32 @@ def deactivate_test(request, test_id):
     
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 @login_required
+# def student_ranking(request):
+#     # Student ranking
+#      if not request.user.groups.filter(name='Collector').exists():
+#         return HttpResponseForbidden("You are not authorized to access this page.")
+#      rankings = Marks.objects.select_related('student', 'student__school').order_by('-marks')
+#      return render(request, 'student_ranking.html', {'rankings': rankings})
 def student_ranking(request):
-    # Student ranking
-     if not request.user.groups.filter(name='Collector').exists():
+    from django.db.models import F, ExpressionWrapper, FloatField
+
+    # Check if the user has the 'Collector' group
+    if not request.user.groups.filter(name='Collector').exists():
         return HttpResponseForbidden("You are not authorized to access this page.")
-     rankings = Marks.objects.select_related('student', 'student__school').order_by('-marks')
-     return render(request, 'student_ranking.html', {'rankings': rankings})
-    
+    #F('test__max_marks')
+    # Retrieve rankings with percentage calculation
+    rankings = (
+        Marks.objects.select_related('student', 'student__school')
+        .annotate(
+            percentage=ExpressionWrapper(
+                F('marks') * 100 / 45.00 ,
+                output_field=FloatField()
+            )
+        )
+        .order_by('-marks')
+    )
+
+    return render(request, 'student_ranking.html', {'rankings': rankings})
 @login_required
 def student_report(request):
    

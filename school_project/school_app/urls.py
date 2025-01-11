@@ -76,6 +76,8 @@ urlpatterns = [
     path('report/schools-with-test-counts/', views.schools_with_test_counts, name='schools_with_test_counts'),
     path('report/schools-without-tests/', views.schools_without_tests, name='schools_without_tests'),
     path('report/schools-with-student-counts/', views.schools_with_student_counts, name='schools_with_student_counts'),
-    path('report/school/', views.report_dashboard, name='report_dashboard')
+    path('report/school/', views.report_dashboard, name='report_dashboard'),
+    path('update-block-name/', views.update_block_name_from_excel, name='update_block_name'),
+     path('test-average/', views.test_wise_average_marks, name='test_wise_average'),
 ]
 
