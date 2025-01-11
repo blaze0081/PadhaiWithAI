@@ -95,8 +95,43 @@ WHITENOISE_AUTOREFRESH = DEBUG
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-    "default": env.db(default="sqlite:///db.sqlite3"),
+    "default": {
+        **env.db(default="sqlite:///db.sqlite3"),
+        "OPTIONS": {
+            "timeout": 20,
+        }
+    }
 }
+
+# Enable WAL mode for SQLite
+from django.db.backends.signals import connection_created
+from django.dispatch import receiver
+
+@receiver(connection_created)
+def enable_wal_mode(sender, connection, **kwargs):
+    if connection.vendor == 'sqlite':
+        cursor = connection.cursor()
+        cursor.execute('PRAGMA journal_mode=WAL;')
+        cursor.execute('PRAGMA synchronous=NORMAL;')
+        cursor.execute('PRAGMA cache_size=-64000;')  # 64MB
+        cursor.execute('PRAGMA foreign_keys=ON;')
+        
+        # Check and print the settings
+        cursor.execute('PRAGMA journal_mode;')
+        journal_mode = cursor.fetchone()[0]
+        print(f"Journal mode: {journal_mode}")
+        
+        cursor.execute('PRAGMA synchronous;')
+        sync_mode = cursor.fetchone()[0]
+        print(f"Synchronous mode: {sync_mode}")
+        
+        cursor.execute('PRAGMA cache_size;')
+        cache_size = cursor.fetchone()[0]
+        print(f"Cache size: {cache_size}")
+        
+        cursor.execute('PRAGMA foreign_keys;')
+        foreign_keys = cursor.fetchone()[0]
+        print(f"Foreign keys: {foreign_keys}")
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
