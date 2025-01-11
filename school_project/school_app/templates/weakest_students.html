@@ -16,20 +16,26 @@
         </form>
 
         <!-- Table to display weakest students -->
-        <div class="card shadow-sm p-4">
+         <div class="card shadow-sm p-4">
             <table class="table table-bordered table-striped">
                 <thead class="thead-dark">
                     <tr>
-                        <th scope="col">Student Name</th>
-                        <th scope="col">School Name</th>
+                    <th>S.No</th>
+                    <th>Student Name</th>
+                    <th>School Name</th>
+                    <th>Average Marks</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for student in data %}
                         <tr>
                             
-                            <td>{{ student.student__school__name }}</td>
-                            <td>{{ student.student__name }}</td>
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ student.student__name }}</td>
+                                <td>{{ student.student__school__name }}</td>
+                                <td>{{ student.avg_marks|floatformat:2 }}</td>
+                            </tr>
                         </tr>
                     {% empty %}
                         <tr>
