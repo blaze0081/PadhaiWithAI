@@ -5,9 +5,9 @@
         <h2 class="text-center mb-4" style="font-size: 2.5em; color: #0056b3; font-weight: bold;">School Average Marks</h2>
 
         <!-- Table of Schools and their Average Marks -->
-        <div class="card shadow-sm">
+         <div class="card shadow-sm">
             <div class="card-body">
-                <table class="table table-bordered table-striped">
+                <table id="schoolTable" class="table table-bordered table-striped">
                     <thead>
                         <tr>
                             <th scope="col">S.No.</th>
@@ -26,7 +26,7 @@
                             </tr>
                         {% empty %}
                             <tr>
-                                <td colspan="2" class="text-center text-muted">No data available</td>
+                                <td colspan="3" class="text-center text-muted">No data available</td>
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -34,4 +34,17 @@
             </div>
         </div>
     </div>
+
+   
+
+    <script>
+        $(document).ready(function() {
+            // Initialize the DataTable
+            $('#schoolTable').DataTable({
+                "paging": true,
+                "searching": true,
+                "ordering": true
+            });
+        });
+    </script>
 {% endblock %}
