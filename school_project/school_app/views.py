@@ -533,7 +533,7 @@ def student_ranking(request):
         Marks.objects.select_related('student', 'student__school')
         .annotate(
             percentage=ExpressionWrapper(
-                F('marks') * 100 / 45.00 ,
+                F('marks') * 100 / 35.00 ,
                 output_field=FloatField()
             )
         )
