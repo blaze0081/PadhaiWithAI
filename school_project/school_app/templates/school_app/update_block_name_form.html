@@ -1,0 +1,7 @@
+<!-- update_block_name_form.html -->
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="file" name="excel_file" accept=".xlsx" required>
+    <button type="submit">Upload and Update Block Names</button>
+</form>
