@@ -35,10 +35,72 @@ from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User
 from django.utils import timezone
 
+#1201025 Sushil Agrawal
+# View to calculate test results by percentage ranges
+
+@login_required
+def test_results_analysis(request):
+    schools = School.objects.all()
+    results = []
+
+    for school in schools:
+        # Retrieve all tests associated with this school
+        school_tests = Test.objects.filter(marks__student__school=school).distinct()
+
+        school_data = {
+            'school_name': school.name,
+            'tests': []
+        }
+        max_marks = 35
+        for test in school_tests:
+            total_students = Student.objects.filter(school=school).count()
+
+            # Fetch marks for this test and school
+            marks = Marks.objects.filter(test=test, student__school=school)
+
+            # Calculate the number of students in each percentage range
+            category_0_33 = marks.filter(marks__lt=(0.33 * max_marks)).count()
+            category_33_60 = marks.filter(marks__gte=(0.33 * max_marks), marks__lt=(0.60 * max_marks)).count()
+            category_60_80 = marks.filter(marks__gte=(0.60 * max_marks), marks__lt=(0.80 * max_marks)).count()
+            category_80_90 = marks.filter(marks__gte=(0.80 * max_marks), marks__lt=(0.90 * max_marks)).count()
+            category_90_100 = marks.filter(marks__gte=(0.90 * max_marks), marks__lt=max_marks).count()
+            category_100 = marks.filter(marks=max_marks).count()
+
+            # Avoid division by zero
+            if total_students > 0:
+                test_data = {
+                    'test_name': test.test_name,
+                    'total_students': total_students,
+                    'category_0_33': f"{category_0_33}/{total_students} ({(category_0_33 / total_students * 100):.2f}%)",
+                    'category_33_60': f"{category_33_60}/{total_students} ({(category_33_60 / total_students * 100):.2f}%)",
+                    'category_60_80': f"{category_60_80}/{total_students} ({(category_60_80 / total_students * 100):.2f}%)",
+                    'category_80_90': f"{category_80_90}/{total_students} ({(category_80_90 / total_students * 100):.2f}%)",
+                    'category_90_100': f"{category_90_100}/{total_students} ({(category_90_100 / total_students * 100):.2f}%)",
+                    'category_100': f"{category_100}/{total_students} ({(category_100 / total_students * 100):.2f}%)",
+                }
+            else:
+                test_data = {
+                    'test_name': test.test_name,
+                    'total_students': total_students,
+                    'category_0_33': "N/A",
+                    'category_33_60': "N/A",
+                    'category_60_80': "N/A",
+                    'category_80_90': "N/A",
+                    'category_90_100': "N/A",
+                    'category_100': "N/A",
+                }
+
+            school_data['tests'].append(test_data)
+
+        results.append(school_data)
+
+    return render(request, 'test_results_analysis.html', {'results': results})
+
 @login_required
 def test_wise_average_marks(request):
     from django.db.models import Avg, F, ExpressionWrapper, FloatField
-
+    from django.db.models import Count, Case, When, IntegerField
+    max_marks = 35
     # Assuming max_marks is a field in the Test model for maximum marks of the test
      #F('avg_marks') * 100 / F('max_marks'),
     data = (
@@ -46,10 +108,15 @@ def test_wise_average_marks(request):
             avg_marks=Avg('marks__marks'),
             percentage=ExpressionWrapper(
                 F('avg_marks') * 100 / 35,               
-                output_field=FloatField()
-            )
+                output_field=FloatField()),
+                category_0_33=Count(Case(When(marks__marks__lt=max_marks * 0.33, then=1), output_field=IntegerField())),
+                category_33_60=Count(Case(When(marks__marks__gte=max_marks * 0.33, marks__marks__lt=max_marks* 0.60, then=1), output_field=IntegerField())),
+                category_60_80=Count(Case(When(marks__marks__gte=max_marks* 0.60, marks__marks__lt=max_marks * 0.80, then=1), output_field=IntegerField())),
+                category_80_90=Count(Case(When(marks__marks__gte=max_marks* 0.80, marks__marks__lt=max_marks* 0.90, then=1), output_field=IntegerField())),
+                category_90_100=Count(Case(When(marks__marks__gte=max_marks* 0.90, marks__marks__lt=max_marks, then=1), output_field=IntegerField())),
+                category_100=Count(Case(When(marks__marks=max_marks , then=1), output_field=IntegerField()))
         )
-        .values('test_name', 'avg_marks', 'percentage')
+        .values('test_name', 'avg_marks', 'percentage', 'category_0_33', 'category_33_60', 'category_60_80', 'category_80_90', 'category_90_100', 'category_100')
         .order_by('-percentage')
     )
 
@@ -58,7 +125,9 @@ def test_wise_average_marks(request):
 
 @login_required
 def submit_attendance(request):
-    if request.user.is_school_admin:
+    #if request.user.is_school_admin:
+   # user = authenticate(request, email=email, password=password)
+    if True:
         students = request.user.school.students.all()
         if request.method == 'POST':
             selected_students = request.POST.getlist('absent_students')
@@ -72,10 +141,11 @@ def submit_attendance(request):
             return redirect('attendance_summary')
 
         context = {'students': students}
-        return render(request, 'attendance/submit.html', context)
+        return render(request, 'attendance_submit.html', context)
     return redirect('home')
 @login_required
 def attendance_summary(request):
+    from django.db.models import Avg, Count, Q
     if request.user.is_system_admin:
         total_schools = School.objects.count()
         schools_logged_in = CustomUser.objects.filter(
@@ -95,7 +165,7 @@ def attendance_summary(request):
             'schools_logged_in': schools_logged_in,
             'total_schools': total_schools,
         }
-        return render(request, 'attendance/summary.html', context)
+        return render(request, 'attendance_summary.html', context)
     return redirect('home')
 #11/01/2025
 @login_required

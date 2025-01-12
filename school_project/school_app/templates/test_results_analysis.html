@@ -1,0 +1,64 @@
+{% extends 'school_app/base.html' %}
+
+{% block content %}
+<style>
+
+        
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+    
+    th, td {
+        border: 1px solid #ddd;
+        text-align: center;
+        padding: 10px;
+    }
+    
+    th {
+        background-color: #f4f4f4;
+    }
+    
+</style>
+    <h1>Test Results Analysis</h1>
+    <div>
+        <table border="1" cellspacing="0" cellpadding="5">
+            <thead>
+                <tr>
+                    <th>School Name</th>
+                    <th>Test Name</th>
+                    <th>Total Students</th>
+                    <th>0-33%</th>
+                    <th>33-59%</th>
+                    <th>60-79%</th>
+                    <th>80-89%</th>
+                    <th>90-99%</th>
+                    <th>100%</th>
+                </tr>
+            </thead>
+            <tbody>
+        {% for school in results %}
+        {% comment %} <h2>School: {{ school.school_name }}</h2> {% endcomment %}
+       
+           
+                {% for test in school.tests %}
+                <tr>
+                    <td>{{ school.school_name }}</td>
+                    <td>{{ test.test_name }}</td>
+                    <td>{{ test.total_students }}</td>
+                    <td>{{ test.category_0_33 }}</td>
+                    <td>{{ test.category_33_60 }}</td>
+                    <td>{{ test.category_60_80 }}</td>
+                    <td>{{ test.category_80_90 }}</td>
+                    <td>{{ test.category_90_100 }}</td>
+                    <td>{{ test.category_100 }}</td>
+                </tr>
+                {% endfor %}
+           
+        {% endfor %}
+    </tbody>
+</table>
+    </div>
+
+{% endblock %}
