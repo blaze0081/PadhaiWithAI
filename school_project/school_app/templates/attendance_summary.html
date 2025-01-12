@@ -1,0 +1,23 @@
+{% extends 'school_app/base.html' %}
+
+{% block content %}
+
+<h1>Attendance Summary</h1>
+<p>Schools Logged In Today: {{ schools_logged_in }} / {{ total_schools }}</p>
+<table>
+    <tr>
+        <th>School Name</th>
+        <th>Present Students</th>
+        <th>Total Students</th>
+        <th>Attendance Percentage</th>
+    </tr>
+    {% for data in attendance_data %}
+    <tr>
+        <td>{{ data.student__school__name }}</td>
+        <td>{{ data.present_count }}</td>
+        <td>{{ data.total_students }}</td>
+        <td>{{ data.present_count|divisibleby:data.total_students|floatformat:2 }}%</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

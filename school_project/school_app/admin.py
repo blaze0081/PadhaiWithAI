@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser, School, Student, Marks
+from .models import CustomUser, School, Student, Marks,Attendance
 from django.contrib.auth.models import Group
 from .models import Test
 from django.utils.html import format_html
@@ -99,12 +99,18 @@ class MarksAdmin(admin.ModelAdmin):
     list_filter = ('test', 'student')  # Removed 'test_number'
     search_fields = ('student__name', 'test__test_name')
 
+class AttendanceAdmin(admin.ModelAdmin):
+    list_display = ('student', 'date', 'is_present')
+    list_filter = ('date', 'is_present')
+    search_fields = ('student__name',)
 
+admin.site.register(Attendance, AttendanceAdmin)
 # Register models with updated admin
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(School, SchoolAdmin)
 admin.site.register(Student, StudentAdmin)
 admin.site.register(Marks, MarksAdmin)
+
 # admin.site.register(Group)  # Ensure the Group model is registered
 
 #collector_group, created = Group.objects.get_or_create(name='Collector')
