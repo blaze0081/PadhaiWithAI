@@ -45,7 +45,7 @@ def test_wise_average_marks(request):
         Test.objects.annotate(
             avg_marks=Avg('marks__marks'),
             percentage=ExpressionWrapper(
-                F('avg_marks') * 100 / 45,               
+                F('avg_marks') * 100 / 35,               
                 output_field=FloatField()
             )
         )
@@ -301,7 +301,7 @@ def top_students(request):
         .annotate(
             avg_marks=Avg('marks'),
             percentage= ExpressionWrapper(
-                    Avg('marks') * 100 / 45.00,
+                    Avg('marks') * 100 / 35.00,
                     output_field=FloatField()
                 )
         )
