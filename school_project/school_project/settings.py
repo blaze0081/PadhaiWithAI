@@ -95,13 +95,9 @@ WHITENOISE_AUTOREFRESH = DEBUG
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        **env.db(default="sqlite:///db.sqlite3"),
-        "OPTIONS": {
-            "timeout": 20,
-        }
-    }
+    "default": env.db(default="sqlite:///db.sqlite3"),
 }
+
 
 # Enable WAL mode for SQLite
 from django.db.backends.signals import connection_created
