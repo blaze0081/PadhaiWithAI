@@ -4,20 +4,52 @@
     <div class="container mt-5">
         <h2 class="text-center mb-4" style="font-size: 2.5em; color: #0056b3; font-weight: bold;">School Average Marks</h2>
 
-        <!-- List of Schools and their Average Marks -->
-        <div class="card shadow-sm">
+        <!-- Table of Schools and their Average Marks -->
+         <div class="card shadow-sm">
             <div class="card-body">
-                <ul class="list-group">
-                    {% for school in data %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span class="font-weight-bold" style="font-size: 1.2em; color: #333;">{{ school.name }}</span>
-                            <span class="badge bg-primary rounded-pill" style="font-size: 1.2em; padding: 10px 20px;">{{ school.avg_marks }}</span>
-                        </li>
-                    {% empty %}
-                        <li class="list-group-item text-center text-muted">No data available</li>
-                    {% endfor %}
-                </ul>
+                <table id="schoolTable" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col">S.No.</th>
+                            <th scope="col" style="font-size: 1.2em; color: #333;">School Name</th>
+                            <th scope="col" style="font-size: 1.2em; color: #333;">Average Marks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for school in data %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td> <!-- Display Serial Number -->
+                                <td style="font-size: 1.2em; color: #333;">{{ school.name }}</td>
+                                <td style="font-size: 1.2em; color: #333;">
+                                    {{ school.avg_marks|default:0|floatformat:2 }}
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-center text-muted">No data available</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
+  <!-- Back to Dashboard Button -->
+  <div class="text-center mt-4">
+    <a href="{% url 'student_report' %}" class="btn btn-secondary" style="font-size: 1.1em; padding: 10px 20px;">
+        Back to Dashboard
+    </a>
+</div>
+   
+
+    <script>
+        $(document).ready(function() {
+            // Initialize the DataTable
+            $('#schoolTable').DataTable({
+                "paging": true,
+                "searching": true,
+                "ordering": true
+            });
+        });
+    </script>
 {% endblock %}

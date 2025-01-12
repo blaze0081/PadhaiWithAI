@@ -9,7 +9,7 @@
             <div class="row">
                 <div class="col-md-6 offset-md-3 d-flex justify-content-between align-items-center">
                     <label for="weakest" class="form-label">Number of Weakest:</label>
-                    <input type="number" name="weakest" value="3" class="form-control w-50">
+                    <input type="number" name="weakest" value="5" class="form-control w-50">
                     <button type="submit" class="btn btn-primary ms-2">Show</button>
                 </div>
             </div>
@@ -20,16 +20,22 @@
             <table class="table table-bordered table-striped">
                 <thead class="thead-dark">
                     <tr>
-                        <th scope="col">Student Name</th>
-                        <th scope="col">School Name</th>
+                    <th>S.No</th>
+                    <th>Student Name</th>
+                    <th>School Name</th>
+                    <th>Marks</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for student in data %}
                         <tr>
                             
-                            <td>{{ student.student__school__name }}</td>
-                            <td>{{ student.student__name }}</td>
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ student.student__name }}</td>
+                                <td>{{ student.student__school__name }}</td>
+                                <td>{{ student.avg_marks|floatformat:2 }}</td>
+                            </tr>
                         </tr>
                     {% empty %}
                         <tr>
@@ -40,4 +46,10 @@
             </table>
         </div>
     </div>
+    <!-- Back to Dashboard Button -->
+ <div class="text-center mt-4">
+    <a href="{% url 'student_report' %}" class="btn btn-secondary" style="font-size: 1.1em; padding: 10px 20px;">
+        Back to Dashboard
+    </a>
+</div>
 {% endblock %}

@@ -9,20 +9,53 @@
             <form method="get" class="d-flex justify-content-between align-items-center">
                 <div class="form-group">
                     <label for="toppers">Number of Toppers:</label>
-                    <input type="number" id="toppers" name="toppers" value="3" class="form-control w-25">
+                    <input type="number" id="toppers" name="toppers" value="5" class="form-control w-50">
                 </div>
                 <button type="submit" class="btn btn-primary">Show</button>
             </form>
         </div>
 
         <!-- Top Students List -->
-        <ul class="list-group">
+        {% comment %} <ul class="list-group">
             {% for student in data %}
                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <span>{{ student.student__school__name }} - {{ student.student__name }}  </span>
+                    <span>{{ student.student__school__name }} - {{ student.student__name }}- {{ stud }}  </span>
                     <span class="badge badge-success badge-pill">Topper</span>
                 </li>
             {% endfor %}
-        </ul>
+        </ul> {% endcomment %}
+
+        <table border="1" cellpadding="10" cellspacing="0" class="table table-bordered table-striped" >
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Student Name</th>
+                    <th>School Name</th>
+                    <th>Marks</th>
+                    <th>Marks</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in data %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ student.student__name }}</td>
+                        <td>{{ student.student__school__name }}</td>
+                        <td>{{ student.avg_marks|floatformat:2 }}</td>
+                        <td>{{ student.percentage|floatformat:2 }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center">No data available</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
+    <!-- Back to Dashboard Button -->
+ <div class="text-center mt-4">
+    <a href="{% url 'student_report' %}" class="btn btn-secondary" style="font-size: 1.1em; padding: 10px 20px;">
+        Back to Dashboard
+    </a>
+</div>
 {% endblock %}
