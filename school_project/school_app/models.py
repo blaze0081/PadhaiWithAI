@@ -48,6 +48,9 @@ class CustomUser(AbstractUser):
         return self.email
 
 class School(models.Model):
+   # Block_id= models.CharField(max_length=20, null=True, blank=True)
+    #Block_Name= models.CharField(max_length=50, null=True, blank=True)
+   # Nic_code= models.CharField(max_length=20, null=True, blank=True)
     name = models.CharField(max_length=100)
     admin = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='administered_school')
     created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='created_schools', null=True)
@@ -104,22 +107,11 @@ class Test(models.Model):
     test_date = models.DateField(null=True, blank=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)  # Reference to the collector who created the test
     created_at = models.DateTimeField(auto_now_add=True)
-
+    #max_marks = models.FloatField()
     def __str__(self):
         return self.test_name
     
-# class Marks(models.Model):
-#     student = models.ForeignKey(Student, on_delete=models.CASCADE)
-#     test = models.ForeignKey(Test, on_delete=models.CASCADE)
-#     test_number = models.CharField(max_length=50)
-#     marks = models.DecimalField(max_digits=5, decimal_places=2)
-#     date = models.DateField(auto_now_add=True)
-    
-#     class Meta:
-#         unique_together = ('student', 'test')  # Prevent duplicate marks for a student in the same test
-#     def __str__(self):
-#        # return f"{self.student.name} - {self.test_number}: {self.marks}"
-#         return f"{self.student.name} - {self.test.test_name}: {self.marks}"
+# Marks Model
 class Marks(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     test = models.ForeignKey(Test, on_delete=models.CASCADE)
@@ -131,3 +123,13 @@ class Marks(models.Model):
 
     def __str__(self):
         return f"{self.student.name} - {self.test.test_name}: {self.marks}"
+    
+    #11012025
+# Attendance Model
+class Attendance(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='attendances')
+    date = models.DateField(auto_now_add=True)
+    is_present = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = ('student', 'date')
