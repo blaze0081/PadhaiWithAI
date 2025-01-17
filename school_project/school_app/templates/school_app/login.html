@@ -1,109 +1,157 @@
 {% extends 'school_app/base.html' %}
 {% load static %} 
 {% block content %}
-
 <style>
-  /* Container for all images */
-  .photo-line {
-      display: flex;
-      overflow-x: scroll;
-      white-space: nowrap;
-      padding: 20px 0;
-      gap: 10px; /* Adds space between images */
-  }
+    .photo-line {
+        padding: 20px 0;
+    }
 
-  /* Each photo container */
-  .photo-container {
-      text-align: center;
-      display: inline-block;
-      width: 150px; /* Width of passport-size image */
-      height: 180px; /* Height of passport-size image */
-      border: 2px solid #000; /* Optional border around the image */
-      padding: 10px;
-      margin-right: 10px;
-  }
+    .slider {
+        width: 100%;
+        margin: 0 auto;
+    }
 
-  /* Passport-size image styling */
-  .passport-photo {
-      width: 150px; /* Set the width of the passport-size image */
-      height: 120px; /* Set the height of the passport-size image */
-      border-radius: 5px; /* Optional: rounded corners for the image */
-  }
+    .photo-container {
+        text-align: center;
+        display: inline-block;
+        width: 150px; /* Width of passport-size image */
+        height: 180px; /* Height of passport-size image */
+        margin: 10px;
+        border: 2px solid #000;
+    }
 
-  /* Marquee caption styling */
-  .caption {
-      font-size: 14px;
-      font-weight: bold;
-      color: #333;
-  }
+    .passport-photo {
+        width: 120%;
+        height: 150px;
+        border-radius: 5px; /* Optional: rounded corners */
+    }
 
-  /* Optional: make the marquee scroll slower or faster */
-  marquee {
-      font-size: 14px;
-  }
+    .caption {
+        font-size: 14px;
+        font-weight: bold;
+        color: #333;
+        text-align: center;
+        margin-top: 5px;
+    }
 </style>
-<h2>Toppers of the Week</h2>
-<div class="photo-line">
- 
-  <!-- Repeat this block 20 times for each photo -->
-  <div class="photo-container">
-      <img src="{% static 'school_app/images/Anitatoda.jpg' %}" alt="Anita Saini Todaraisingh" class="passport-photo">
-      <div class="caption">
-          <marquee behavior="scroll" direction="left" scrollamount="3">Anita Saini Todaraisingh </marquee>
-      </div>
-  </div>
-  <div class="photo-container">
-      <img src="{% static 'school_app/images/ayushghad.jpeg' %}" alt="AYUSH DEVATWAL GSSS GHAD" class="passport-photo">
-      <div class="caption">
-          <marquee behavior="scroll" direction="left" scrollamount="3">AYUSH DEVATWAL GSSS GHAD</marquee>
-      </div>
-  </div>
-  <div class="photo-container">
-      <img src="{% static 'school_app/images/akshatsharma.jpg' %}" alt="Photo 3" class="passport-photo">
-      <div class="caption">
-          <marquee behavior="scroll" direction="left" scrollamount="3">Akshat Sharma</marquee>
-      </div>
-  </div>
-  <div class="photo-container">
-    <img src="{% static 'school_app/images/rohitgour.jpg' %}" alt="Photo 3" class="passport-photo">
-    <div class="caption">
-        <marquee behavior="scroll" direction="left" scrollamount="3">Rohit Gour</marquee>
+<!-- Slick Carousel CSS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css"/>
+
+<!-- jQuery (required for Slick) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Slick Carousel JS -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+
+  <h2>Toppers of the Week</h2>
+  <div class="photo-line">
+    <div class="slider">
+            <!-- Repeat this block 20 times for each photo -->
+            <div class="photo-container">
+                <img src="{% static 'school_app/images/Monikameena.jpeg' %}" alt="Monika meena" class="passport-photo">
+                <div class="caption">
+                    Monika meena
+                </div>
+            </div>
+            <div class="photo-container">
+                <img src="{% static 'school_app/images/sannuthakhar.jpeg' %}" alt="sannuthakhar" class="passport-photo">
+                <div class="caption">
+                    Sannu thakhar
+                </div>
+            </div>
+            <div class="photo-container">
+                <img src="{% static 'school_app/images/Abhishekchandawa.jpeg' %}" alt="Abhishek Chandawa" class="passport-photo">
+                <div class="caption">
+                    Abhishek Chandawa
+                </div>
+            </div>
+            <div class="photo-container">
+                <img src="{% static 'school_app/images/Khushiramyogi.jpeg' %}" alt="Khushiramyogi" class="passport-photo">
+                <div class="caption">
+                    Khushi ram yogi
+                </div>
+            </div>
+            <div class="photo-container">
+                <img src="{% static 'school_app/images/ektachoudary.jpeg' %}" alt="ektachoudary" class="passport-photo">
+                <div class="caption">
+                    ekta choudary
+                </div>
+            </div>
+            <div class="photo-container">
+                <img src="{% static 'school_app/images/Deepaksaini.jpeg' %}" alt="Deepaksaini" class="passport-photo">
+                <div class="caption">
+                    Deepak saini
+                </div>
+            </div>
+            <div class="photo-container">
+                <img src="{% static 'school_app/images/alveerabano.jpeg' %}" alt="alveerabano" class="passport-photo">
+                <div class="caption">
+                    Alveera Bano
+                </div>
+            </div>
+            <div class="photo-container">
+                <img src="{% static 'school_app/images/vikashchoudhary.jpeg' %}" alt="vikashchoudhary" class="passport-photo">
+                <div class="caption">
+                    Vikash Choudhary
+                </div>
+            </div>
+            <div class="photo-container">
+                <img src="{% static 'school_app/images/Anitatoda.jpg' %}" alt="Anita Saini Todaraisingh" class="passport-photo">
+                <div class="caption">
+                    <marquee behavior="scroll" direction="left" scrollamount="3">Anita Saini Todaraisingh </marquee>
+                </div>
+            </div>
+            <div class="photo-container">
+                <img src="{% static 'school_app/images/ayushghad.jpeg' %}" alt="AYUSH DEVATWAL GSSS GHAD" class="passport-photo">
+                <div class="caption">
+                    <marquee behavior="scroll" direction="left" scrollamount="3">AYUSH DEVATWAL GSSS GHAD</marquee>
+                </div>
+            </div>
+            <div class="photo-container">
+                <img src="{% static 'school_app/images/akshatsharma.jpg' %}" alt="Photo 3" class="passport-photo">
+                <div class="caption">
+                    <marquee behavior="scroll" direction="left" scrollamount="3">Akshat Sharma</marquee>
+                </div>
+            </div>
+            <div class="photo-container">
+              <img src="{% static 'school_app/images/rohitgour.jpg' %}" alt="Photo 3" class="passport-photo">
+              <div class="caption">
+                  <marquee behavior="scroll" direction="left" scrollamount="3">Rohit Gour</marquee>
+              </div>
+          </div>
+          <div class="photo-container">
+            <img src="{% static 'school_app/images/MOHITKUMARNAGAR.jpeg' %}" alt="MOHIT KUMAR NAGAR" class="passport-photo">
+            <div class="caption">
+                <marquee behavior="scroll" direction="left" scrollamount="3">MOHIT KUMAR NAGAR GSSS KANWARA</marquee>
+            </div>
+          </div>
+          <div class="photo-container">
+            <img src="{% static 'school_app/images/POOJADHAKAR.jpeg' %}" alt="POOJADHAKAR" class="passport-photo">
+            <div class="caption">
+                <marquee behavior="scroll" direction="left" scrollamount="3">POOJA DHAKAR GSSS KANWARA</marquee>
+            </div>
+          </div>
+          <div class="photo-container">
+            <img src="{% static 'school_app/images/Payalmeena.jpeg' %}" alt="Payal Kumari Meena  GSSS Niwariya " class="passport-photo">
+            <div class="caption">
+                <marquee behavior="scroll" direction="left" scrollamount="3">Payal Kumari Meena  GSSS Niwariya </marquee>
+            </div>
+          </div>
+          <div class="photo-container">
+            <img src="{% static 'school_app/images/KUMKUM.jpeg' %}" alt="KUMKUM DHAKAR GSSS KANWARA" class="passport-photo">
+            <div class="caption">
+                <marquee behavior="scroll" direction="left" scrollamount="3">KUMKUM DHAKAR GSSS KANWARA </marquee>
+            </div>
+          </div>
+          <div class="photo-container">
+            <img src="{% static 'school_app/images/rohityogi.jpeg' %}" alt="Rohit Yogi GSSS Niwariya " class="passport-photo">
+            <div class="caption">
+                <marquee behavior="scroll" direction="left" scrollamount="3">Rohit Yogi GSSS Niwariya </marquee>
+            </div>            
+            
     </div>
-</div>
-<div class="photo-container">
-  <img src="{% static 'school_app/images/MOHITKUMARNAGAR.jpeg' %}" alt="MOHIT KUMAR NAGAR" class="passport-photo">
-  <div class="caption">
-      <marquee behavior="scroll" direction="left" scrollamount="3">MOHIT KUMAR NAGAR GSSS KANWARA</marquee>
   </div>
-</div>
-<div class="photo-container">
-  <img src="{% static 'school_app/images/POOJADHAKAR.jpeg' %}" alt="POOJADHAKAR" class="passport-photo">
-  <div class="caption">
-      <marquee behavior="scroll" direction="left" scrollamount="3">POOJA DHAKAR GSSS KANWARA</marquee>
-  </div>
-</div>
-<div class="photo-container">
-  <img src="{% static 'school_app/images/Payalmeena.jpeg' %}" alt="Payal Kumari Meena  GSSS Niwariya " class="passport-photo">
-  <div class="caption">
-      <marquee behavior="scroll" direction="left" scrollamount="3">Payal Kumari Meena  GSSS Niwariya </marquee>
-  </div>
-</div>
-<div class="photo-container">
-  <img src="{% static 'school_app/images/KUMKUM.jpeg' %}" alt="KUMKUM DHAKAR GSSS KANWARA" class="passport-photo">
-  <div class="caption">
-      <marquee behavior="scroll" direction="left" scrollamount="3">KUMKUM DHAKAR GSSS KANWARA </marquee>
-  </div>
-</div>
-<div class="photo-container">
-  <img src="{% static 'school_app/images/rohityogi.jpeg' %}" alt="Rohit Yogi GSSS Niwariya " class="passport-photo">
-  <div class="caption">
-      <marquee behavior="scroll" direction="left" scrollamount="3">Rohit Yogi <br> GSSS Niwariya </marquee>
-  </div>
-</div>
-  <!-- Repeat for 20 photos -->
-  <!-- Example for the 20th photo -->
-  
-</div>
 
 <div class="content container mt-5">
     <div class="row align-items-center">
@@ -133,4 +181,33 @@
     </div>
   </div>
 </div>
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        // Initialize the Slick slider
+        $('.slider').slick({
+            infinite: true, // Infinite scrolling
+            slidesToShow: 5, // Number of images to show at once
+            slidesToScroll: 1, // Number of images to scroll at once
+            autoplay: true, // Enable autoplay
+            autoplaySpeed: 2000, // Speed between images
+            arrows: true, // Show next/previous arrows
+            dots: true, // Show navigation dots
+            responsive: [
+                {
+                    breakpoint: 768, // For smaller screens
+                    settings: {
+                        slidesToShow: 3
+                    }
+                },
+                {
+                    breakpoint: 480, // For very small screens
+                    settings: {
+                        slidesToShow: 1
+                    }
+                }
+            ]
+        });
+    });
+</script>
 {% endblock %}
