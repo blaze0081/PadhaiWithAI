@@ -1,31 +1,86 @@
 {% extends 'school_app/base.html' %}
 
 {% block content %}
+<style>
+  table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+  }
 
-<h2>Test Entry Count by School</h2>
+  th, td {
+      padding: 10px;
+      text-align: left;
+      border: 1px solid #ddd;
+  }
 
-<!-- Table to display school names and their test counts -->
-<table class="table table-bordered">
-  <thead>
-    <tr>
-      <th>S.No.</th>
-      <th>School Name</th>
-      <th>Test Count</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for school in schools %}
-      <tr>
-        <td>{{ forloop.counter }}</td> <!-- Display Serial Number -->
-        <td>{{ school.name }}</td>
-        <td>{{ school.test_count }}</td>
-      </tr>
-    {% empty %}
-      <tr>
-        <td colspan="2">No schools with test entries found.</td>
-      </tr>
-    {% endfor %}
-  </tbody>
+  th {
+      background-color: #f4f4f4;
+  }
+
+  tr:hover {
+      background-color: #f1f1f1;
+  }
+
+  .total-row {
+      font-weight: bold;
+      background-color: #e0e0e0;
+  }
+
+  .form-container {
+      margin: 20px 0;
+  }
+
+  select {
+      padding: 8px;
+      margin-right: 10px;
+      font-size: 16px;
+  }
+
+  button {
+      padding: 8px 16px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      border: none;
+  }
+</style>
+<h2>School-wise Student Marks Entry and Difference Between Total Students and Marks Entered</h2>
+
+<div class="form-container">
+    <form method="get" action="{% url 'schools_with_test_counts' %}">
+      
+        <label for="test">Select Test:</label>
+        <select name="test_id" id="test">
+            <option value="">All Tests</option>
+            {% for test in tests %}
+            <option value="{{ test.test_number }}" {% if test.test_number == selected_test %}selected{% endif %}>{{ test.test_name }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">View Data</button>
+    </form>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>School Name</th>
+            <th>Total Students</th>
+            <th>Marks Entered (Tests)</th>
+            <th>Difference </th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for school in schools %}
+        <tr {% if school.name == 'All Schools' %}class="total-row"{% endif %}>
+            <td>{{ school.name }}</td>
+            <td>{{ school.total_students }}</td>
+            <td>{{ school.test_count }}</td>
+            <td>{{ school.difference }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
 </table>
 
 <!-- Link to return to the report dashboard -->
