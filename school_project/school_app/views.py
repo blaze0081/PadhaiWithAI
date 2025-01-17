@@ -242,8 +242,51 @@ def inactive_schools(request):
 #3
 @login_required
 def schools_with_test_counts(request):
-    schools = School.objects.annotate(test_count=Count('student__marks__test')).order_by('-test_count')
-    context = {'schools': schools}
+    # Retrieve the list of available tests
+    tests = Test.objects.all()
+    
+    # Check if a test is selected, and fetch data for that test
+    selected_test = request.GET.get('test_id')  # Assume the selected test's ID is sent in the query string
+    
+    # Annotate school data with test counts and students, filtered by the selected test if any
+    if selected_test:
+        schools = School.objects.filter(
+            student__marks__test_id=selected_test
+        ).annotate(
+            test_count=Count('student__marks__test'),
+            total_students=Count('student')
+        ).order_by('-total_students')
+    else:
+        # If no test is selected, show data for all tests
+        schools = School.objects.annotate(
+            test_count=Count('student__marks__test'),
+            total_students=Count('student')
+        ).order_by('-total_students')
+
+# Calculate the difference for each school and add it to the context
+    for school in schools:
+        school.difference = school.total_students - school.test_count
+    # Compute totals for all schools if no specific test is selected
+    total_students_all = sum(school.total_students for school in schools)
+    total_tests_all = sum(school.test_count for school in schools)
+    total_difference_all = total_students_all - total_tests_all
+
+    # Add the "All Schools" row
+    all_schools_row = {
+        'name': 'All Schools',
+        'total_students': total_students_all,
+        'test_count': total_tests_all,
+        'difference': total_difference_all
+    }
+
+    # Add this row at the end
+    schools = list(schools) + [all_schools_row]
+
+    context = {
+        'schools': schools,
+        'tests': tests,
+        'selected_test': selected_test,
+    }
     return render(request, 'schools_with_test_counts.html', context)
 #4
 @login_required
