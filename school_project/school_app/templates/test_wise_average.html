@@ -10,8 +10,10 @@
         <tr>
             <th>S.No.</th>
             <th>Test Name</th>
+            <th>Total Student</th>
             <th>Average Marks</th>
             <th>Percentage</th>
+            <th>category_0_and_less%</th>
             <th>Category 0-33%</th>
             <th>Category 33-60%</th>
             <th>Category 60-80%</th>
@@ -25,8 +27,10 @@
         <tr>
             <td>{{ forloop.counter }}</td>
             <td>{{ test.test_name }}</td>
+            <td> {{ test.total_students }}</td>
             <td>{{ test.avg_marks|floatformat:2 }}</td>
-            <td>{{ test.percentage|floatformat:2 }}%</td>           
+            <td>{{ test.percentage|floatformat:2 }}%</td> 
+            <td>{{ test.category_0_and_less }}</td>                   
             <td>{{ test.category_0_33 }}</td>
             <td>{{ test.category_33_60 }}</td>
             <td>{{ test.category_60_80 }}</td>
