@@ -1,10 +1,114 @@
 {% extends 'school_app/base.html' %}
 {% load static %} 
 {% block content %}
+
+<style>
+  /* Container for all images */
+  .photo-line {
+      display: flex;
+      overflow-x: scroll;
+      white-space: nowrap;
+      padding: 20px 0;
+      gap: 10px; /* Adds space between images */
+  }
+
+  /* Each photo container */
+  .photo-container {
+      text-align: center;
+      display: inline-block;
+      width: 150px; /* Width of passport-size image */
+      height: 180px; /* Height of passport-size image */
+      border: 2px solid #000; /* Optional border around the image */
+      padding: 10px;
+      margin-right: 10px;
+  }
+
+  /* Passport-size image styling */
+  .passport-photo {
+      width: 150px; /* Set the width of the passport-size image */
+      height: 120px; /* Set the height of the passport-size image */
+      border-radius: 5px; /* Optional: rounded corners for the image */
+  }
+
+  /* Marquee caption styling */
+  .caption {
+      font-size: 14px;
+      font-weight: bold;
+      color: #333;
+  }
+
+  /* Optional: make the marquee scroll slower or faster */
+  marquee {
+      font-size: 14px;
+  }
+</style>
+<h2>Toppers of the Week</h2>
+<div class="photo-line">
+ 
+  <!-- Repeat this block 20 times for each photo -->
+  <div class="photo-container">
+      <img src="{% static 'school_app/images/Anitatoda.jpg' %}" alt="Anita Saini Todaraisingh" class="passport-photo">
+      <div class="caption">
+          <marquee behavior="scroll" direction="left" scrollamount="3">Anita Saini Todaraisingh </marquee>
+      </div>
+  </div>
+  <div class="photo-container">
+      <img src="{% static 'school_app/images/ayushghad.jpeg' %}" alt="AYUSH DEVATWAL GSSS GHAD" class="passport-photo">
+      <div class="caption">
+          <marquee behavior="scroll" direction="left" scrollamount="3">AYUSH DEVATWAL GSSS GHAD</marquee>
+      </div>
+  </div>
+  <div class="photo-container">
+      <img src="{% static 'school_app/images/akshatsharma.jpg' %}" alt="Photo 3" class="passport-photo">
+      <div class="caption">
+          <marquee behavior="scroll" direction="left" scrollamount="3">Akshat Sharma</marquee>
+      </div>
+  </div>
+  <div class="photo-container">
+    <img src="{% static 'school_app/images/rohitgour.jpg' %}" alt="Photo 3" class="passport-photo">
+    <div class="caption">
+        <marquee behavior="scroll" direction="left" scrollamount="3">Rohit Gour</marquee>
+    </div>
+</div>
+<div class="photo-container">
+  <img src="{% static 'school_app/images/MOHITKUMARNAGAR.jpeg' %}" alt="MOHIT KUMAR NAGAR" class="passport-photo">
+  <div class="caption">
+      <marquee behavior="scroll" direction="left" scrollamount="3">MOHIT KUMAR NAGAR GSSS KANWARA</marquee>
+  </div>
+</div>
+<div class="photo-container">
+  <img src="{% static 'school_app/images/POOJADHAKAR.jpeg' %}" alt="POOJADHAKAR" class="passport-photo">
+  <div class="caption">
+      <marquee behavior="scroll" direction="left" scrollamount="3">POOJA DHAKAR GSSS KANWARA</marquee>
+  </div>
+</div>
+<div class="photo-container">
+  <img src="{% static 'school_app/images/Payalmeena.jpeg' %}" alt="Payal Kumari Meena  GSSS Niwariya " class="passport-photo">
+  <div class="caption">
+      <marquee behavior="scroll" direction="left" scrollamount="3">Payal Kumari Meena  GSSS Niwariya </marquee>
+  </div>
+</div>
+<div class="photo-container">
+  <img src="{% static 'school_app/images/KUMKUM.jpeg' %}" alt="KUMKUM DHAKAR GSSS KANWARA" class="passport-photo">
+  <div class="caption">
+      <marquee behavior="scroll" direction="left" scrollamount="3">KUMKUM DHAKAR GSSS KANWARA </marquee>
+  </div>
+</div>
+<div class="photo-container">
+  <img src="{% static 'school_app/images/rohityogi.jpeg' %}" alt="Rohit Yogi GSSS Niwariya " class="passport-photo">
+  <div class="caption">
+      <marquee behavior="scroll" direction="left" scrollamount="3">Rohit Yogi <br> GSSS Niwariya </marquee>
+  </div>
+</div>
+  <!-- Repeat for 20 photos -->
+  <!-- Example for the 20th photo -->
+  
+</div>
+
 <div class="content container mt-5">
     <div class="row align-items-center">
     <div class="col-md-5">
-        <img src="{% static 'school_app/images/pai.jpg' %}" class="img-fluid rounded" alt="PadhaiWithAI Image" style="max-height: 100%; object-fit: cover;">
+        <img src="{% static 'school_app/images/pailogo.jpeg' %}" class="img-fluid rounded" alt="PadhaiWithAI Image" style="max-height: 100%; object-fit: cover;">
     </div>
         <div class="col-md-6">
             <h1 class="text-center">Welcome to the Login Page</h>
