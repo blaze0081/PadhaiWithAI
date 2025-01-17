@@ -100,23 +100,28 @@ def test_results_analysis(request):
 def test_wise_average_marks(request):
     from django.db.models import Avg, F, ExpressionWrapper, FloatField
     from django.db.models import Count, Case, When, IntegerField
+    
     max_marks = 35
-    # Assuming max_marks is a field in the Test model for maximum marks of the test
-     #F('avg_marks') * 100 / F('max_marks'),
+
     data = (
         Test.objects.annotate(
             avg_marks=Avg('marks__marks'),
             percentage=ExpressionWrapper(
-                F('avg_marks') * 100 / 35,               
+                F('avg_marks') * 100 / max_marks,               
                 output_field=FloatField()),
-                category_0_33=Count(Case(When(marks__marks__lt=max_marks * 0.33, then=1), output_field=IntegerField())),
-                category_33_60=Count(Case(When(marks__marks__gte=max_marks * 0.33, marks__marks__lt=max_marks* 0.60, then=1), output_field=IntegerField())),
-                category_60_80=Count(Case(When(marks__marks__gte=max_marks* 0.60, marks__marks__lt=max_marks * 0.80, then=1), output_field=IntegerField())),
-                category_80_90=Count(Case(When(marks__marks__gte=max_marks* 0.80, marks__marks__lt=max_marks* 0.90, then=1), output_field=IntegerField())),
-                category_90_100=Count(Case(When(marks__marks__gte=max_marks* 0.90, marks__marks__lt=max_marks, then=1), output_field=IntegerField())),
-                category_100=Count(Case(When(marks__marks=max_marks , then=1), output_field=IntegerField()))
+            # Count the total number of students for each test
+            total_students=Count('marks', distinct=True),  # Total number of students
+            # Count the number of students with marks less than 0 (invalid or missing)
+            category_0_and_less=Count(Case(When(marks__marks__lte=0, then=1), output_field=IntegerField())),
+            category_0_33=Count(Case(When(marks__marks__gte=max_marks * 0.01,marks__marks__lt=max_marks * 0.33, then=1), output_field=IntegerField())),
+            category_33_60=Count(Case(When(marks__marks__gte=max_marks * 0.33, marks__marks__lt=max_marks * 0.60, then=1), output_field=IntegerField())),
+            category_60_80=Count(Case(When(marks__marks__gte=max_marks * 0.60, marks__marks__lt=max_marks * 0.80, then=1), output_field=IntegerField())),
+            category_80_90=Count(Case(When(marks__marks__gte=max_marks * 0.80, marks__marks__lt=max_marks * 0.90, then=1), output_field=IntegerField())),
+            category_90_100=Count(Case(When(marks__marks__gte=max_marks * 0.90, marks__marks__lt=max_marks, then=1), output_field=IntegerField())),
+            category_100=Count(Case(When(marks__marks=max_marks , then=1), output_field=IntegerField()))
         )
-        .values('test_name', 'avg_marks', 'percentage', 'category_0_33', 'category_33_60', 'category_60_80', 'category_80_90', 'category_90_100', 'category_100')
+        .values('test_name', 'avg_marks', 'percentage', 'total_students', 'category_0_and_less', 
+                'category_0_33', 'category_33_60', 'category_60_80', 'category_80_90', 'category_90_100', 'category_100')
         .order_by('-percentage')
     )
 
