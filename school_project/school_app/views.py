@@ -34,7 +34,9 @@ from .forms import ExcelFileUploadForm
 from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User
 from django.utils import timezone
-
+from django.db.models import Avg, Count, Q, F
+from datetime import date
+from django.utils.dateparse import parse_date
 #1201025 Sushil Agrawal
 # View to calculate test results by percentage ranges
 
