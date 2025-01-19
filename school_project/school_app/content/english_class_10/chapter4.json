@@ -42,7 +42,11 @@
           ]
         },
         {
-          "question": "Solve the problems given in Example 1."
+          "question": "Solve the problems given in Example 1.",
+          "sub_questions":[
+            "(i)	John and Jivanti together have 45 marbles.Both of them lost 5 marbles each,and the product of the number of marbles they now have is 124.We would like to find out how many marbles they had to start with.",
+            "(ii)	A cottage industry produces a certain number of toys in a day. The cost of productionofeachtoy(inrupees)wasfoundtobe55minusthenumberoftoys producedinaday.On a particular day,the total cost of production was ₹750.We would like to find out the number of toys produced on that day."
+          ]
         },
         {
           "question": "Find two numbers whose sum is 27 and product is 182."
