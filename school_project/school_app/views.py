@@ -546,6 +546,8 @@ def login_view(request):
 # Writtern by Sushil
 @login_required
 def collector_dashboard(request):
+    from django.db.models import Avg, F, ExpressionWrapper, FloatField
+    from django.db.models import Count, Case, When, IntegerField
     # Fetch tests created by the collector
     if not request.user.groups.filter(name='Collector').exists():
         return HttpResponseForbidden("You are not authorized to access this page.")
@@ -555,7 +557,102 @@ def collector_dashboard(request):
     # Fetch all schools (You can add filters here if necessary)
     schools = School.objects.all()
     live_sessions = Session.objects.filter(expire_date__gte=timezone.now())
+    #max_marks = 35
+    # Assuming max_marks is a field in the Test model for maximum marks of the test
+     #F('avg_marks') * 100 / F('max_marks'),
+    data = (
+        Test.objects.annotate(
+            avg_marks=Avg('marks__marks'),
+            percentage=ExpressionWrapper(
+                F('avg_marks') * 100 / F('max_marks'),               
+                output_field=FloatField()),
+                category_0_33=Count(Case(When(marks__marks__lt=F('max_marks') * 0.33, then=1), output_field=IntegerField())),
+                category_33_60=Count(Case(When(marks__marks__gte=F('max_marks') * 0.33, marks__marks__lt=F('max_marks')* 0.60, then=1), output_field=IntegerField())),
+                category_60_80=Count(Case(When(marks__marks__gte=F('max_marks')* 0.60, marks__marks__lt=F('max_marks') * 0.80, then=1), output_field=IntegerField())),
+                category_80_90=Count(Case(When(marks__marks__gte=F('max_marks')* 0.80, marks__marks__lt=F('max_marks')* 0.90, then=1), output_field=IntegerField())),
+                category_90_100=Count(Case(When(marks__marks__gte=F('max_marks')* 0.90, marks__marks__lt=F('max_marks'), then=1), output_field=IntegerField())),
+                category_100=Count(Case(When(marks__marks=F('max_marks') , then=1), output_field=IntegerField()))
+        )
+        .values('test_name','subject_name', 'avg_marks', 'percentage', 'category_0_33', 'category_33_60', 'category_60_80', 'category_80_90', 'category_90_100', 'category_100')
+        .order_by('-percentage')
+    )
+# Aggregate category counts for pie chart
+    for entry in data:
+        entry['categories'] = [
+            entry['category_0_33'],
+            entry['category_33_60'],
+            entry['category_60_80'],
+            entry['category_80_90'],
+            entry['category_90_100'],
+            entry['category_100']
+        ]
+  # Aggregate average marks for each test per school
+    tests = Test.objects.all()
+    chart_data = []
 
+    for test in tests:
+    # Get the schools and calculate the average marks for the test
+        schools = School.objects.annotate(
+        average_marks=Avg('student__marks__marks', filter=F('student__marks__test__test_number') == test.test_number)
+    )
+       
+    # Check if no marks are entered for this test (by checking if no average_marks are calculated)
+        if schools.filter(average_marks__isnull=True).count() == schools.count():
+        # If no marks are entered for the test, set the chart data with zero counts
+            print ("if condition")
+            chart_data.append({
+            "test_name": test.test_name,
+            "test_number": test.test_number,  # Reference test_number as primary key
+            "max_marks": test.max_marks,
+            "data": {
+                "below_33": 0,
+                "between_33_60": 0,
+                "between_60_80": 0,
+                "between_80_90": 0,
+                "between_90_100": 0,
+                "between_100": 0
+            }
+            })
+            continue  # Skip to the next test if no data for this test
+
+    # Categorize schools based on their average marks for the test
+        below_33 = schools.filter(average_marks__lt=0.33 * test.max_marks).count()
+        between_33_60 = schools.filter(
+            average_marks__gte=0.33 * test.max_marks,
+            average_marks__lt=0.6 * test.max_marks,
+        ).count()
+        between_60_80 = schools.filter(
+            average_marks__gte=0.6 * test.max_marks,
+            average_marks__lt=0.8 * test.max_marks,
+        ).count()
+        between_80_90 = schools.filter(
+            average_marks__gte=0.8 * test.max_marks,
+            average_marks__lt=0.9 * test.max_marks,
+        ).count()
+        between_90_100 = schools.filter(
+            average_marks__gte=0.9 * test.max_marks,
+            average_marks__lte=test.max_marks,
+        ).count()
+        between_100 = schools.filter(
+            average_marks=test.max_marks,
+        ).count()
+
+        # Append the data for the current test to the chart_data list
+    chart_data.append({
+            "test_name": test.test_name,
+            "test_number": test.test_number,  # Reference test_number as primary key
+            "max_marks": test.max_marks,
+            "data": {
+                "below_33": below_33,
+                "between_33_60": between_33_60,
+                "between_60_80": between_60_80,
+                "between_80_90": between_80_90,
+                "between_90_100": between_90_100,
+                "between_100": between_100
+            }
+        })
+      
+    
     return render(request, 'school_app/collector_dashboard.html', {
         'tests': tests,
         'schools': schools,
@@ -563,6 +660,8 @@ def collector_dashboard(request):
         'total_students': Student.objects.count(),
         'total_tests': Test.objects.count(),
         'get_active_users': live_sessions.count(),
+        'data': data,
+        'chart_data': chart_data
     })
 
 @login_required
