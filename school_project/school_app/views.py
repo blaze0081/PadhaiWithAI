@@ -586,73 +586,7 @@ def collector_dashboard(request):
             entry['category_90_100'],
             entry['category_100']
         ]
-  # Aggregate average marks for each test per school
-    tests = Test.objects.all()
-    chart_data = []
-
-    for test in tests:
-    # Get the schools and calculate the average marks for the test
-        schools = School.objects.annotate(
-        average_marks=Avg('student__marks__marks', filter=F('student__marks__test__test_number') == test.test_number)
-    )
-       
-    # Check if no marks are entered for this test (by checking if no average_marks are calculated)
-        if schools.filter(average_marks__isnull=True).count() == schools.count():
-        # If no marks are entered for the test, set the chart data with zero counts
-            print ("if condition")
-            chart_data.append({
-            "test_name": test.test_name,
-            "test_number": test.test_number,  # Reference test_number as primary key
-            "max_marks": test.max_marks,
-            "data": {
-                "below_33": 0,
-                "between_33_60": 0,
-                "between_60_80": 0,
-                "between_80_90": 0,
-                "between_90_100": 0,
-                "between_100": 0
-            }
-            })
-            continue  # Skip to the next test if no data for this test
-
-    # Categorize schools based on their average marks for the test
-        below_33 = schools.filter(average_marks__lt=0.33 * test.max_marks).count()
-        between_33_60 = schools.filter(
-            average_marks__gte=0.33 * test.max_marks,
-            average_marks__lt=0.6 * test.max_marks,
-        ).count()
-        between_60_80 = schools.filter(
-            average_marks__gte=0.6 * test.max_marks,
-            average_marks__lt=0.8 * test.max_marks,
-        ).count()
-        between_80_90 = schools.filter(
-            average_marks__gte=0.8 * test.max_marks,
-            average_marks__lt=0.9 * test.max_marks,
-        ).count()
-        between_90_100 = schools.filter(
-            average_marks__gte=0.9 * test.max_marks,
-            average_marks__lte=test.max_marks,
-        ).count()
-        between_100 = schools.filter(
-            average_marks=test.max_marks,
-        ).count()
-
-        # Append the data for the current test to the chart_data list
-    chart_data.append({
-            "test_name": test.test_name,
-            "test_number": test.test_number,  # Reference test_number as primary key
-            "max_marks": test.max_marks,
-            "data": {
-                "below_33": below_33,
-                "between_33_60": between_33_60,
-                "between_60_80": between_60_80,
-                "between_80_90": between_80_90,
-                "between_90_100": between_90_100,
-                "between_100": between_100
-            }
-        })
-      
-    
+ 
     return render(request, 'school_app/collector_dashboard.html', {
         'tests': tests,
         'schools': schools,
@@ -661,7 +595,7 @@ def collector_dashboard(request):
         'total_tests': Test.objects.count(),
         'get_active_users': live_sessions.count(),
         'data': data,
-        'chart_data': chart_data
+        
     })
 
 @login_required
