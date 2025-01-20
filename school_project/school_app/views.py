@@ -402,9 +402,49 @@ def upload_student_data(request):
 # Views
 @login_required
 def school_average_marks(request):
-    from django.db.models import Avg
-    data = School.objects.annotate(avg_marks=Avg('student__marks__marks')).order_by('-avg_marks')
-    context = {'data': data}
+    # First, we will fetch schools and aggregate the average marks for each test in each school
+    schools = School.objects.all()
+    results = []
+
+    for school in schools:
+        school_data = {
+            'school_name': school.name,
+            'test_averages': [],
+            'school_average': 0
+        }
+
+        # Get all tests associated with the school
+        tests = Test.objects.filter(marks__student__school=school).distinct()
+
+        # List to hold all test averages for calculating school average later
+        test_avg_list = []
+
+        for test in tests:
+            # Get the average marks for the school in the current test
+            avg_marks = Marks.objects.filter(test=test, student__school=school).aggregate(avg_marks=Avg('marks'))['avg_marks']
+
+            if avg_marks is not None:
+                test_avg_list.append(avg_marks)
+            else:
+                test_avg_list.append(0)
+
+            # Add the test average to the school's data
+            school_data['test_averages'].append({
+                'test_name': test.subject_name,
+                'average_marks': avg_marks if avg_marks is not None else 0
+            })
+
+        # Calculate the overall school average by averaging all test averages
+        if test_avg_list:
+            school_data['school_average'] = sum(test_avg_list) / len(test_avg_list)
+
+        # Add the school data to the results
+        results.append(school_data)
+
+    # Sort the schools based on the highest overall school average
+    results.sort(key=lambda x: x['school_average'], reverse=True)
+
+    context = {'results': results}
     return render(request, 'school_average.html', context)
 
 @login_required
