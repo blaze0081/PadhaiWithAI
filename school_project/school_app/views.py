@@ -559,6 +559,33 @@ def collector_dashboard(request):
     # Fetch all schools (You can add filters here if necessary)
     schools = School.objects.all()
     live_sessions = Session.objects.filter(expire_date__gte=timezone.now())
+    
+    data = (
+        Test.objects.annotate(
+            avg_marks=Avg('marks__marks'),
+            percentage=ExpressionWrapper(
+                F('avg_marks') * 100 / F('max_marks'),               
+                output_field=FloatField()),
+                category_0_33=Count(Case(When(marks__marks__lt=F('max_marks') * 0.33, then=1), output_field=IntegerField())),
+                category_33_60=Count(Case(When(marks__marks__gte=F('max_marks') * 0.33, marks__marks__lt=F('max_marks')* 0.60, then=1), output_field=IntegerField())),
+                category_60_80=Count(Case(When(marks__marks__gte=F('max_marks')* 0.60, marks__marks__lt=F('max_marks') * 0.80, then=1), output_field=IntegerField())),
+                category_80_90=Count(Case(When(marks__marks__gte=F('max_marks')* 0.80, marks__marks__lt=F('max_marks')* 0.90, then=1), output_field=IntegerField())),
+                category_90_100=Count(Case(When(marks__marks__gte=F('max_marks')* 0.90, marks__marks__lt=F('max_marks'), then=1), output_field=IntegerField())),
+                category_100=Count(Case(When(marks__marks=F('max_marks') , then=1), output_field=IntegerField()))
+        )
+        .values('test_name','subject_name', 'avg_marks', 'percentage', 'category_0_33', 'category_33_60', 'category_60_80', 'category_80_90', 'category_90_100', 'category_100')
+        .order_by('-percentage')
+    )
+# Aggregate category counts for pie chart
+    for entry in data:
+        entry['categories'] = [
+            entry['category_0_33'],
+            entry['category_33_60'],
+            entry['category_60_80'],
+            entry['category_80_90'],
+            entry['category_90_100'],
+            entry['category_100']
+        ]
     return render(request, 'school_app/collector_dashboard.html', {
         'tests': tests,
         'schools': schools,
@@ -566,8 +593,7 @@ def collector_dashboard(request):
         'total_students': Student.objects.count(),
         'total_tests': Test.objects.count(),
         'get_active_users': live_sessions.count(),
-        
-        
+        'data': data
     })
 
 @login_required
