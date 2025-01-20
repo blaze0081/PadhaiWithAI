@@ -53,15 +53,15 @@ def test_results_analysis(request):
             'school_name': school.name,
             'tests': []
         }
-        max_marks = 35
+        
         for test in school_tests:
             total_students = Student.objects.filter(school=school).count()
 
             # Fetch marks for this test and school
             marks = Marks.objects.filter(test=test, student__school=school)
-
+            max_marks =  test.max_marks
             # Calculate the number of students in each percentage range
-            category_0_33 = marks.filter(marks__lt=(0.33 * max_marks)).count()
+            category_0_33 = marks.filter(marks__lt=(0.33 * test.max_marks)).count()
             category_33_60 = marks.filter(marks__gte=(0.33 * max_marks), marks__lt=(0.60 * max_marks)).count()
             category_60_80 = marks.filter(marks__gte=(0.60 * max_marks), marks__lt=(0.80 * max_marks)).count()
             category_80_90 = marks.filter(marks__gte=(0.80 * max_marks), marks__lt=(0.90 * max_marks)).count()
@@ -102,9 +102,6 @@ def test_results_analysis(request):
 def test_wise_average_marks(request):
     from django.db.models import Avg, F, ExpressionWrapper, FloatField
     from django.db.models import Count, Case, When, IntegerField
-    
-    max_marks = 35
-
     data = (
          Test.objects.annotate(
             avg_marks=Avg('marks__marks'),
