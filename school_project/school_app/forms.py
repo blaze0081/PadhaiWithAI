@@ -90,10 +90,16 @@ class TestForm(forms.ModelForm):
             'placeholder': 'Select Answer file',  # Placeholder text for guidance
         })
     )
+    max_marks = forms.FloatField(
+        required=True,
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Max marks of the test'}),
+        label="Max Marks"
+    )
+
 
     class Meta:
         model = Test
-        fields = ['test_name', 'subject_name', 'pdf_file_questions', 'pdf_file_answers',  'test_date']
+        fields = ['test_name', 'subject_name', 'pdf_file_questions', 'pdf_file_answers',  'test_date','max_marks']
  
 class ExcelFileUploadForm(forms.Form):
        excel_file = forms.FileField()  # Ensure the field is named 'excel_file'

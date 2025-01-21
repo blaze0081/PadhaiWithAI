@@ -59,7 +59,6 @@ urlpatterns = [
     path('test/<int:test_id>/marks/delete/<int:student_id>/', views.delete_marks, name='delete_marks'),
     path('studentslist/', views.school_student_list, name='school_student_list'),
 
-
     #01/01/2025
 
     path('school/average/', views.school_average_marks, name='school_average_marks'),
@@ -84,6 +83,15 @@ urlpatterns = [
     path('attendance/submit/', views.submit_attendance, name='submit_attendance'),
     path('attendance/summary/', views.attendance_summary, name='attendance_summary'),
     path('test-results-analysis/', views.test_results_analysis, name='test_results_analysis'),
+
+        
+    path('attendance/date-wise-summary/',views.date_wise_attendance_summary, name='date_wise_attendance_summary'),
+    path('attendance/district-wise-summary/', views.district_wise_attendance_summary, name='district_wise_attendance_summary'),
+    path('attendance/block-wise-summary/', views.block_wise_attendance_summary, name='block_wise_attendance_summary'),
+  
+    
+    path('attendance/school-daily-summary/', views.school_daily_attendance_summary, name='school_daily_attendance_summary'),
+    path('block-attendance-report/', views.block_attendance_report, name='block_attendance_report'),
 
 ]
 

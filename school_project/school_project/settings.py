@@ -97,6 +97,16 @@ WHITENOISE_AUTOREFRESH = DEBUG
 DATABASES = {
     "default": env.db(default="sqlite:///db.sqlite3"),
 }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'school_project',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres', 
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
+}
 
 
 # Enable WAL mode for SQLite

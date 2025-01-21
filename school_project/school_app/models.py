@@ -9,6 +9,9 @@ class CustomUserManager(BaseUserManager):
         email = self.normalize_email(email)
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
+        user.is_district_user = False
+        user.is_block_user = False
+        user.is_school_user = True
         user.save(using=self._db)
         return user
 
@@ -38,7 +41,9 @@ class CustomUser(AbstractUser):
         verbose_name='user permissions',
         help_text='Specific permissions for this user.',
     )
-    
+    is_district_user = models.BooleanField(default=False)
+    is_block_user = models.BooleanField(default=False)
+    is_school_user = models.BooleanField(default=True)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
     
@@ -107,7 +112,7 @@ class Test(models.Model):
     test_date = models.DateField(null=True, blank=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)  # Reference to the collector who created the test
     created_at = models.DateTimeField(auto_now_add=True)
-    #max_marks = models.FloatField()
+    max_marks = models.FloatField()
     def __str__(self):
         return self.test_name
     
@@ -133,3 +138,20 @@ class Attendance(models.Model):
 
     class Meta:
         unique_together = ('student', 'date')
+
+class District(models.Model):
+    name_english = models.CharField(max_length=100)
+    name_hindi = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name_english
+
+class Block(models.Model):
+    name_english = models.CharField(max_length=100)
+    name_hindi = models.CharField(max_length=100)
+    district = models.ForeignKey(District, on_delete=models.CASCADE)
+    admin = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='block_admin', null=True, blank=True )
+   # created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name_english

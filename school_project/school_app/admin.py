@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser, School, Student, Marks,Attendance
+from .models import CustomUser, School, Student, Marks,Attendance,Block
 from django.contrib.auth.models import Group
 from .models import Test
 from django.utils.html import format_html
@@ -8,7 +8,7 @@ from django.utils.html import format_html
 # Customizing the Test model in the admin interface
 class TestAdmin(admin.ModelAdmin):
     # Define the fields to display in the list view
-    list_display = ['test_number', 'test_name', 'subject_name', 'test_date', 'is_active', 'created_by', 'created_at']
+    list_display = ['test_number', 'test_name', 'subject_name', 'test_date', 'is_active', 'created_by', 'created_at', 'max_marks']
     
     # Add filters on the admin page for certain fields
     list_filter = ['is_active', 'test_date', 'subject_name', 'created_by']
@@ -67,18 +67,18 @@ admin.site.register(Test, TestAdmin)
 
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
-    list_display = ('email', 'is_staff', 'is_system_admin')
-    list_filter = ('is_staff', 'is_system_admin')
+    list_display = ('email', 'is_staff', 'is_system_admin','is_district_user', 'is_block_user', 'is_school_user')
+    list_filter = ('is_staff', 'is_system_admin','is_district_user', 'is_block_user', 'is_school_user')
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
         ('Permissions', {
-            'fields': ('is_staff', 'is_system_admin', 'is_active', 'groups', 'user_permissions')
+            'fields': ('is_staff', 'is_system_admin', 'is_active', 'groups', 'user_permissions','is_district_user', 'is_block_user', 'is_school_user')
         }),
     )
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'password1', 'password2', 'is_staff', 'is_system_admin', 'is_active')}
+            'fields': ('email', 'password1', 'password2', 'is_staff', 'is_system_admin', 'is_active','is_district_user', 'is_block_user', 'is_school_user')}
         ),
     )
     search_fields = ('email',)
@@ -103,6 +103,14 @@ class AttendanceAdmin(admin.ModelAdmin):
     list_display = ('student', 'date', 'is_present')
     list_filter = ('date', 'is_present')
     search_fields = ('student__name',)
+
+class BlockAdmin(admin.ModelAdmin):
+    list_display = ('name_english', 'name_hindi', 'district', 'admin')
+    search_fields = ('name_english', 'name_hindi', 'district__name')  # You can also search by district name
+    list_filter = ('district',)  # Filter blocks by district in the admin panel
+    ordering = ('name_english',)  # Default ordering by the English name
+
+admin.site.register(Block, BlockAdmin)
 
 admin.site.register(Attendance, AttendanceAdmin)
 # Register models with updated admin
