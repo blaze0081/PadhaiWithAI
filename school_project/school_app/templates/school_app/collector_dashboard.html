@@ -88,15 +88,53 @@
 	
 </div>
 
+<div class="d-flex flex-column align-items-center gap-3 mb-4">
+  
+</div>
+
+<div class="text-end mb-4">
+	<!-- Button to create a new test -->
+	
+</div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+	/* Container for the grid layout */
+	.chart-container {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); /* Creates a 2-column layout */
+		gap: 20px;
+		padding: 20px;
+		border: 1px solid #000;
+	}
+
+	/* Individual chart container */
+	.chart-box {
+		padding: 20px;
+		border: 1px solid #ddd;
+		border-radius: 8px;
+		background-color: #fff;
+	}
+
+	/* Optional: Styling for the canvas */
+	canvas {
+		width: 100%;  /* Ensure the canvas takes up the full width of its container */
+		height: 200px; /* Set a fixed height */
+	}
+
+	/* Responsive design: Stack the charts in a single column on smaller screens */
+	@media (max-width: 768px) {
+		.chart-container {
+			grid-template-columns: 1fr; /* Stack charts vertically on small screens */
+		}
+	}
+</style>
 <h4>Visualizing Student Performance: Test Categories and Average Marks</h4>
-<div style="border: 1px solid #000; padding: 20px;">
+<div class="chart-container">
     {% for test_data in data %}
-        <!-- Wrap each test in a container with specific size -->
-        <div style="width: 450px; height: 250px;padding: 20px; ">
-            {{ test_data.test_name }} ({{ test_data.subject_name }})
-            <!-- Remove inline width and height from canvas, let CSS handle it -->
-            <canvas id="pieChart{{ forloop.counter }}" ></canvas>
+        <!-- Wrap each test in a container -->
+        <div class="chart-box">
+            <h3>{{ test_data.test_name }} ({{ test_data.subject_name }})</h3>
+            <canvas id="pieChart{{ forloop.counter }}"></canvas>
             <script>
                 // Prepare data for the pie chart
                 var ctx = document.getElementById('pieChart{{ forloop.counter }}').getContext('2d');
@@ -150,6 +188,11 @@
 		<!-- Button to create a new test -->
 		
 	</div>
+	<div class="text-end mb-4">
+		<!-- Button to create a new test -->
+		
+	</div>
+	
 
 <div class="table-responsive">
 	<h2 style="font-size: 36px;">Scheduled Exams</h2>
