@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Block-Wise Attendance Summary</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Block-Wise Attendance Summary</h1>
+    <form method="get" class="filter-form">
+        <label for="start_date">Start Date:</label>
+        <input type="date" name="start_date" id="start_date" value="{{ start_date|date:'Y-m-d' }}">
+        
+        <label for="end_date">End Date:</label>
+        <input type="date" name="end_date" id="end_date" value="{{ end_date|date:'Y-m-d' }}">
+    
+        <button type="submit">Filter</button>
+    </form>
+    
+    {% for date, records in summary_by_block_and_date.items %}
+        <h2>Date: {{ date }}</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Block Name</th>
+                    <th>Total Students</th>
+                    <th>Present Students</th>
+                    <th>Absent Students</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in records %}
+                    <tr>
+                        <td>{{ record.block_name }}</td>
+                        <td>{{ record.total_students }}</td>
+                        <td>{{ record.present_students }}</td>
+                        <td>{{ record.absent_students }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endfor %}
+</body>
+</html>

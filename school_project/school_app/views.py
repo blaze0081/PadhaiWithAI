@@ -16,7 +16,6 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.db.models import Avg, Max, Min
 from django.http import JsonResponse
-from .models import Student, Marks
 from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError
 from django.contrib.auth.forms import PasswordChangeForm
@@ -29,7 +28,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.core.exceptions import ValidationError
 from .models import Test, Marks, Student, School
 from decimal import InvalidOperation
-from .models import CustomUser, School,Attendance
+from .models import CustomUser
 from .forms import ExcelFileUploadForm 
 from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User
@@ -145,8 +144,6 @@ def block_wise_attendance_summary(request):
         'start_date': start_date,
         'end_date': end_date
     })
-
-
 @login_required
 def district_wise_attendance_summary(request):
     # Fetch attendance data grouped by district and date
