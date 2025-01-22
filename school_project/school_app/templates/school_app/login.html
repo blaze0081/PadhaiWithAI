@@ -44,7 +44,7 @@
 <!-- Slick Carousel JS -->
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
 
-  <h2>Toppers of the Week</h2>
+  <h2 style="color:#069">Toppers of the Week</h2>
   <div class="photo-line">
     <div class="slider">
             <!-- Repeat this block 20 times for each photo -->
@@ -167,11 +167,11 @@
                         {% csrf_token %}
                         <div class="mb-3 text-left">
                             <label for="email" class="form-label" style="font-size: 20px;">Email</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
+                            <input type="email" class="form-control" id="email" name="email" required placeholder="Login email">
                         </div>
                         <div class="mb-1 text-left">
                             <label for="password" class="form-label" style="font-size: 20px;">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
+                            <input type="password" class="form-control" id="password" name="password" required placeholder="Password">
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Login</button>
                     </form>

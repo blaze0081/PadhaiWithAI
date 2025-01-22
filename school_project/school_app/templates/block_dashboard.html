@@ -1,0 +1,563 @@
+{% extends 'school_app/base.html' %}
+{% block content %}
+<div>
+	<h1 style="text-align: center; font-size: 40px;">Block Dashboard</h1>
+	<br>
+</div>
+
+<!-- Action Buttons -->
+ <div class="row mt-4">
+	<div class="col-md-4">
+        <div class="card">
+            <div class="card-body" style="text-align: center;">
+				{% if total_schools == 0 %}
+    				<p>No Schools available.</p>
+				{% else %}
+					<p class="card-text">Total Schools: <b> {{ total_schools }} </b></p>
+				{% endif %}		
+				
+	            <a href="{% url 'school_student_list' %}" class="btn btn-info ">School Report</a>
+            </div>
+        </div>
+    </div>
+	<div class="col-md-4">
+        <div class="card">
+            <div class="card-body" style="text-align: center;">
+				{% if total_students == 0 %}
+    				<p>No Schools available.</p>
+				{% else %}
+				<p class="card-text">Total Students: <b> {{ total_students }}</b></p>
+				{% endif %}	
+				
+	            <a href="{% url 'student_report' %}" class="btn btn-info ">Student Analysis</a>
+            </div>
+        </div>
+    </div>
+	<div class="col-md-4">
+        <div class="card">
+            <div class="card-body" style="text-align: center;">  
+				<a href="{% url 'report_dashboard' %}" class="btn btn-info">
+					Report Dashboard
+				</a>
+            </div>
+        </div>
+    </div>
+</div>
+ <div class="d-flex flex-column align-items-center gap-3 mb-4">
+  
+</div>
+
+<div class="text-end mb-4">
+	<!-- Button to create a new test -->
+	
+</div>
+
+<div class="d-flex flex-column align-items-center gap-3 mb-4">
+  
+</div>
+
+<div class="text-end mb-4">
+	<!-- Button to create a new test -->
+	
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+	/* Container for the grid layout */
+	.chart-container {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); /* Creates a 2-column layout */
+		gap: 20px;
+		padding: 20px;
+		border: 1px solid #000;
+	}
+
+	/* Individual chart container */
+	.chart-box {
+		padding: 20px;
+		border: 1px solid #ddd;
+		border-radius: 8px;
+		background-color: #fff;
+	}
+
+	/* Optional: Styling for the canvas */
+	canvas {
+		width: 100%;  /* Ensure the canvas takes up the full width of its container */
+		height: 200px; /* Set a fixed height */
+	}
+
+	/* Responsive design: Stack the charts in a single column on smaller screens */
+	@media (max-width: 768px) {
+		.chart-container {
+			grid-template-columns: 1fr; /* Stack charts vertically on small screens */
+		}
+	}
+</style>
+<h4>Visualizing Student Performance: Test Categories and Average Marks</h4>
+<div class="chart-container">
+    {% for test_data in data %}
+        <!-- Wrap each test in a container -->
+        <div class="chart-box">
+            <h3>{{ test_data.test_name }} ({{ test_data.subject_name }})</h3>
+            <canvas id="pieChart{{ forloop.counter }}"></canvas>
+            <script>
+                // Prepare data for the pie chart
+                var ctx = document.getElementById('pieChart{{ forloop.counter }}').getContext('2d');
+                var pieChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['0-33%', '33-60%', '60-80%', '80-90%', '90-100%', '100%'],
+                        datasets: [{
+                            label: 'Student Categories',
+                            data: {{ test_data.categories|safe }},
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.2)',
+                                'rgba(54, 162, 235, 0.2)',
+                                'rgba(255, 206, 86, 0.2)',
+                                'rgba(75, 192, 192, 0.2)',
+                                'rgba(153, 102, 255, 0.2)',
+                                'rgba(255, 159, 64, 0.2)'
+                            ],
+                            borderColor: [
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(153, 102, 255, 1)',
+                                'rgba(255, 159, 64, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(tooltipItem) {
+                                        return tooltipItem.label + ': ' + tooltipItem.raw + ' students';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            </script>
+        </div>
+    {% endfor %}
+</div>
+	<div class="text-end mb-4">
+		<!-- Button to create a new test -->
+		
+	</div>
+	<div class="text-end mb-4">
+		<!-- Button to create a new test -->
+		
+	</div>
+	<h4>Test-Wise number of School Performance</h4>    
+	<div >
+		{% for data in result %}
+		<h3>{{ data.test_name }} - {{ data.subject_name }}</h3>
+		<canvas id="chart_{{ data.test_name|slugify }}_{{ data.subject_name|slugify }}" width="400" height="80"></canvas>
+	
+		<script>
+			// Use a unique ID for each chart using test_name and subject_name
+			(function() {
+				var chartId = 'chart_{{ data.test_name|slugify }}_{{ data.subject_name|slugify }}';
+				var ctx = document.getElementById(chartId).getContext('2d');
+				
+				var data = {
+					labels: ['0-33%', '33-60%', '60-80%', '80-90%', '90-100%', '100%'],
+					datasets: [{
+						label: 'Number of Schools in Each Category',
+						data: [
+							{{ data.category_0_33 }},
+							{{ data.category_33_60 }},
+							{{ data.category_60_80 }},
+							{{ data.category_80_90 }},
+							{{ data.category_90_100 }},
+							{{ data.category_100 }}
+						],
+						backgroundColor: [
+							'rgba(255, 99, 132, 0.2)',
+							'rgba(54, 162, 235, 0.2)',
+							'rgba(255, 206, 86, 0.2)',
+							'rgba(75, 192, 192, 0.2)',
+							'rgba(153, 102, 255, 0.2)',
+							'rgba(255, 159, 64, 0.2)'
+						],
+						borderColor: [
+							'rgba(255, 99, 132, 1)',
+							'rgba(54, 162, 235, 1)',
+							'rgba(255, 206, 86, 1)',
+							'rgba(75, 192, 192, 1)',
+							'rgba(153, 102, 255, 1)',
+							'rgba(255, 159, 64, 1)'
+						],
+						borderWidth: 1
+					}]
+				};
+	
+				var config = {
+					type: 'bar',
+					data: data,
+					options: {
+						scales: {
+							y: {
+								beginAtZero: true
+							}
+						}
+					}
+				};
+	
+				// Initialize the chart with unique context
+				new Chart(ctx, config);
+			})();
+		</script>
+		{% endfor %}
+</div>
+
+<div class="table-responsive">
+	<h4>Scheduled Exams</h4>
+	<table class="table table-striped table-bordered table-hover">
+		<thead>
+			<tr>
+				<th>#</th>
+				<th>Test Name</th>
+				<th>Subject Name</th>
+				<th>Test Date</th>
+				<th>Status</th>
+				<th>Download Question Paper</th>
+				<th>Download Answer</th>				
+				<th>Test Results</th> <!-- New Column -->
+			</tr>
+		</thead>
+		<tbody>
+			{% for test in tests %}
+			<tr>
+				<td>{{ forloop.counter }}</td>
+				<td>{{ test.test_name }}</td>
+				<td>{{ test.subject_name }}</td>
+				<td>{{ test.test_date }}</td>
+				<td>
+					{% if test.is_active %}
+						<span class="badge bg-success">Active</span>
+					{% else %}
+						<span class="badge bg-secondary">Inactive</span>
+					{% endif %}
+				</td>
+				<td>
+				{% if test.pdf_file_questions %}
+					<a href="{{ test.pdf_file_questions.url }}" class="btn btn-danger btn-sm" download>Download Question</a>
+				{% else %}
+					<p>No PDF available for download.</p>
+				{% endif %}
+			</td>
+			<td>
+				{% if test.pdf_file_answers %}
+					<a href="{{ test.pdf_file_answers.url }}" class="btn btn-info btn-sm" download>Download Answer</a>
+				{% else %}
+					<p>No PDF available for download.</p>
+				{% endif %}
+			</td>
+		
+				<td>
+					<a href="{% url 'view_test_results' test.test_number %}" class="btn btn-warning btn-sm">View Results</a>
+				</td>
+			</tr>
+			{% empty %}
+			<tr>
+				<td colspan="7" class="text-center">No tests available.</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</div>
+<style>
+	/* Custom table style */
+	table {
+		width: 100%;             /* Set table width to 100% */
+		border-collapse: collapse;  /* Collapse table borders */
+	}
+
+	table th, table td {
+		border: 1px solid #ddd;   /* Add border to table cells */
+		padding: 12px;             /* Add padding inside cells */
+		text-align: left;          /* Left-align text */
+	}
+
+	table th {
+		background-color: #f2f2f2;  /* Light gray background for header */
+		font-weight: bold;          /* Bold text in header */
+	}
+
+	/* Add some space at the bottom */
+	.container {
+		margin-bottom: 30px;
+	}
+</style>
+
+<div class="container mt-5">
+	<h4>Registered Schools List</h4>
+	<!-- Table -->
+	<table id="schoolsTable" class="table table-striped">
+		<thead>
+			<tr>
+				<th>#</th>
+				<th>School Name</th>
+				<th>Email</th>
+				<th>Created At</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for school in schools %}
+			<tr>
+				<td>{{ forloop.counter }}</td>
+				<td>{{ school.name }}</td>
+				<td>{{ school.admin }}</td>
+				<td>{{ school.created_at|date:"d M Y, H:i" }}</td>
+			</tr>
+			{% empty %}
+			<tr>
+				<td colspan="4">No schools available.</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</div>
+
+<style>
+    /* ✅ General Styles */
+    .calendar-container {
+        text-align: center;
+        margin: 20px auto;
+        max-width: 100%;
+        padding: 20px;
+        background: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+        margin-bottom: 20px;
+        font-size: 1.8em;
+        color: #333;
+    }
+
+    /* ✅ Navigation Controls */
+    .navigation {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .navigation button {
+        background-color: #007BFF;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    .navigation button:hover {
+        background-color: #0056b3;
+    }
+
+    .current-month {
+        font-size: 1.4em;
+        font-weight: bold;
+    }
+
+    /* ✅ Calendar Table */
+    .calendar {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+    }
+
+    .calendar th,
+    .calendar td {
+        border: 1px solid #ddd;
+        text-align: center;
+        padding: 5px;
+        vertical-align: top;
+        min-height: 50px;
+    }
+
+    .calendar th {
+        background-color: #007BFF;
+        color: white;
+        font-weight: bold;
+    }
+
+    .calendar td {
+        background-color: #ffffff;
+    }
+
+    .calendar .day {
+        font-weight: bold;
+        font-size: 14px;
+        color: #333;
+        margin-bottom: 5px;
+    }
+
+    .calendar .event {
+        font-size: 10px;
+        text-align: left;
+        margin-top: 5px;
+        background-color: #e3f2fd;
+       // border-left: 4px solid #2196f3;
+        padding: 1px;
+        border-radius: 4px;
+        //overflow: hidden;
+        text-overflow: ellipsis;
+        //white-space: nowrap;
+    }
+
+    /* ✅ Dynamic Height for Empty Cells */
+    .calendar td.no-event {
+        height: 40px; /* Minimal height for empty cells */
+    }
+
+    /* ✅ Responsive Design */
+    @media (max-width: 768px) {
+        .calendar th,
+        .calendar td {
+            padding: 5px;
+            font-size: 12px;
+        }
+
+        .navigation button {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        .current-month {
+            font-size: 1.2em;
+        }
+
+        h2 {
+            font-size: 1.4em;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .calendar th,
+        .calendar td {
+            font-size: 10px;
+            padding: 4px;
+        }
+
+        .event {
+            font-size: 10px;
+        }
+
+        .navigation button {
+            padding: 4px 8px;
+            font-size: 10px;
+        }
+
+        .current-month {
+            font-size: 1em;
+        }
+
+        h2 {
+            font-size: 1.2em;
+        }
+    }
+</style>
+<div class="calendar-container">
+    <h2> कक्षा 10 वाले विद्यार्थियों के अध्यापन हेतु समय सारणी</h2>
+    <div class="navigation">
+        <button onclick="prevMonth()">← Previous</button>
+        <span id="currentMonth" class="current-month"></span>
+        <button onclick="nextMonth()">Next →</button>
+    </div>
+    <table class="calendar">
+        <thead>
+            <tr>
+                <th>रविवार</th>
+                <th>सोमवार</th>
+                <th>मंगलवार</th>
+                <th>बुधवार</th>
+                <th>गुरुवार</th>
+                <th>शुक्रवार</th>
+                <th>शनिवार</th>
+            </tr>
+        </thead>
+        <tbody id="calendar-body"></tbody>
+    </table>
+</div>
+
+<script>
+    const events = [
+        //{ start: '2025-01-07', end: '2025-01-07', title: 'Trainings' }, 
+        { start: '2025-01-08', end: '2025-01-10', title: '- <b>अध्याय 01 एवं 03</b><br>01-वास्तविक संख्याएँ <br>03–दो चर वाले रैखिक समीकरण ' }, 
+        { start: '2025-01-11', end: '2025-01-11', title: '<p style="color: red;">-<b> अध्याय 01 एवं 03 का मूल्यांकन (प्रथम)</b><br>-अभिभावक-शिक्षक मीटिंग में लक्ष्य 2025 की जानकारी </p>' },
+        { start: '2025-01-13', end: '2025-01-13', title: '- <b>अध्याय 02,05</b> <br>02 - बहुपद<br>05 – समान्तर श्रेणी' },
+       // { start: '2025-01-14', end: '2025-01-14', title: '- HoliDay' },
+        { start: '2025-01-15', end: '2025-01-16', title: '<b>अध्याय 02 एवं 05</b><br>02-बहुपद<br>05–समान्तर श्रेणी' },
+        { start: '2025-01-20', end: '2025-01-20', title: '<p style="color: red;">-अध्याय 02 एवं 05 का मूल्यांकन (द्वितीय)</p>' },
+        { start: '2025-01-21', end: '2025-01-24', title: '- <b>अध्याय 04, 07,14</b> <br>04- द्विघात समीकरण <br>07- निर्देशांक ज्यामिति<br>14-प्रायिकता' },
+        { start: '2025-01-25', end: '2025-01-25', title: '<p style="color: red;">- अध्याय 04, 07, 14 का मूल्यांकन (तृतीय)</p>' },
+        { start: '2025-01-27', end: '2025-01-31', title: '- <b>अध्याय 10,11,13</b><br>10 - वृत <br>11 - वृतों से संबंधित क्षेत्रफल <br>13 - सांख्यिकी' },
+          { start: '2025-02-01', end: '2025-02-01', title: '<p style="color: red;">- अध्याय 10, 11, 13 का मूल्यांकन (चतुर्थ)</p>' },
+        { start: '2025-02-07', end: '2025-02-08', title: '-<b> अध्याय  06,08,09,12</b><br>06 - त्रिभुज <br>08 - त्रिकोणमिति का परिचय <br>09 - त्रिकोणमिति का अनुप्रयोग <br>12 - पृष्ठीय क्षेत्रफल एवं आयतन' },
+        { start: '2025-02-10', end: '2025-02-14', title: '- <b>अध्याय  06,08,09,12</b><br>06 - त्रिभुज <br>08 - त्रिकोणमिति का परिचय <br>09 - त्रिकोणमिति का अनुप्रयोग <br>12 - पृष्ठीय क्षेत्रफल एवं आयतन' },	    
+        { start: '2025-02-15', end: '2025-02-15', title: '<p style="color: red;">- अध्याय 06,08,09 एवं 12 का मूल्यांकन (पंचम)</p>' },
+    ];
+
+    let currentDate = new Date();
+
+    function renderCalendar(date) {
+        const calendarBody = document.getElementById('calendar-body');
+        const currentMonth = document.getElementById('currentMonth');
+        calendarBody.innerHTML = '';
+
+        const year = date.getFullYear();
+        const month = date.getMonth();
+
+        currentMonth.innerText = `${date.toLocaleString('default', { month: 'long' })} ${year}`;
+
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        let row = '<tr>';
+        for (let i = 0; i < firstDay; i++) row += '<td></td>';
+
+        for (let day = 1; day <= daysInMonth; day++) {
+            let fullDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            let eventHTML = events.filter(e => fullDate >= e.start && fullDate <= e.end)
+                                  .map(e => `<div class="event">${e.title}</div>`).join('');
+            let cellClass = eventHTML ? '' : 'no-event';
+            row += `<td class="${cellClass}"><div class="day">${day}</div>${eventHTML}</td>`;
+            if ((day + firstDay) % 7 === 0) row += '</tr><tr>';
+        }
+
+        row += '</tr>';
+        calendarBody.innerHTML = row;
+    }
+
+    function prevMonth() { currentDate.setMonth(currentDate.getMonth() - 1); renderCalendar(currentDate); }
+    function nextMonth() { currentDate.setMonth(currentDate.getMonth() + 1); renderCalendar(currentDate); }
+
+    renderCalendar(currentDate);
+</script>
+
+<!-- Initialize DataTables -->
+<script>
+	$(document).ready(function() {
+		$('#schoolsTable').DataTable({
+			"paging": true,          // Enable pagination
+			"searching": true,       // Enable searching
+			"ordering": true,        // Enable sorting
+			"info": true,            // Display information about the table
+			"lengthChange": true    // Disable changing number of rows per page
+		});
+	});
+</script>{% endblock %}

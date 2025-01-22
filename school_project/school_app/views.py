@@ -446,7 +446,7 @@ def schools_with_test_counts(request):
     
     # Check if a test is selected, and fetch data for that test
     selected_test = request.GET.get('test_id')  # Assume the selected test's ID is sent in the query string
-    
+    print(selected_test)
     # Annotate school data with test counts and students, filtered by the selected test if any
     if selected_test:
         schools = School.objects.filter(
@@ -603,7 +603,13 @@ def upload_student_data(request):
 @login_required
 def school_average_marks(request):
     # First, we will fetch schools and aggregate the average marks for each test in each school
-    schools = School.objects.all()
+    
+    if request.user.is_district_user:
+        schools = School.objects.all()
+    else:
+        block = Block.objects.get(admin=request.user)
+        schools = School.objects.all().filter(block=block)
+    
     results = []
 
     for school in schools:
@@ -777,12 +783,37 @@ def login_view(request):
                 return redirect('system_admin_dashboard')
             elif School.objects.filter(admin=user).exists():
                 return redirect('dashboard')
+            
+            elif request.user.is_block_user:
+               return redirect ('block_dashboard')
             else:
                 return redirect('school_add')
 
         messages.error(request, 'Invalid credentials')
     return render(request, 'school_app/login.html')
 
+def block_dashboard(request):
+    if not request.user.is_block_user:
+        return render(request, '403.html')
+    
+    try:
+        block = Block.objects.get(admin=request.user)
+    except Block.DoesNotExist:
+        return render(request, '403.html') 
+    data = get_block_data(block)
+    return render(request, 'block_dashboard.html',data)
+
+def get_block_data(block):
+    schools = School.objects.filter(block=block)
+    students = Student.objects.filter(school__in=schools)
+    tests = Test.objects.all()
+    return {
+        'total_schools': schools.count(),
+        'total_students': students.count(),
+        'total_tests': tests.count(),
+        'tests': tests,
+        'schools': schools,
+    }
 # Writtern by Sushil
 @login_required
 def collector_dashboard(request):
@@ -879,7 +910,7 @@ def collector_dashboard(request):
             'category_90_100': row[6],
             'category_100': row[7]
         })
-    print(result_data)
+    
     return render(request, 'school_app/collector_dashboard.html', {
         'tests': tests,
         'schools': schools,
@@ -892,9 +923,49 @@ def collector_dashboard(request):
     })
 
 @login_required
+# def view_test_results(request, test_number):
+#     test = get_object_or_404(Test, test_number=test_number)
+#     results = Marks.objects.filter(test_id=test_number).select_related('student')
+
+#     # Get sorting parameters
+#     sort_by = request.GET.get('sort_by', 'student__name')  # Default sorting by student name
+#     order = request.GET.get('order', 'asc')  # Default order is ascending
+
+#     # Adjust the ordering
+#     if order == 'desc':
+#         sort_by = f"-{sort_by}"
+    
+#     results = results.order_by(sort_by)
+
+#     context = {
+#         'test': test,
+#         'results': results,
+#         'current_sort_by': request.GET.get('sort_by', 'student__name'),
+#         'current_order': request.GET.get('order', 'asc'),
+#     }
+#     return render(request, 'school_app/test_results.html', context)
 def view_test_results(request, test_number):
     test = get_object_or_404(Test, test_number=test_number)
-    results = Marks.objects.filter(test_id=test_number).select_related('student')
+    
+    # Check user role
+    if request.user.is_block_user:
+        # If user is a block user, get the block and filter results accordingly
+        block = Block.objects.get(admin=request.user)
+        schools = School.objects.filter(block=block)
+    elif request.user.is_district_user:
+        # If user is a district user, get the district and filter results accordingly
+        
+        schools = School.objects.all()
+
+    elif request.user.is_school_user:
+        # If user is a district user, get the district and filter results accordingly        
+        schools = School.objects.filter(admin=request.user)
+    else:
+        # If the user is neither a block nor district user, show an error or default behavior
+        return render(request, '403.html')  # Or redirect to an appropriate page
+
+    # Get results for schools related to the block or district
+    results = Marks.objects.filter(test_id=test_number, student__school__in=schools).select_related('student')
 
     # Get sorting parameters
     sort_by = request.GET.get('sort_by', 'student__name')  # Default sorting by student name
@@ -904,16 +975,18 @@ def view_test_results(request, test_number):
     if order == 'desc':
         sort_by = f"-{sort_by}"
     
+    # Apply the sorting to the results
     results = results.order_by(sort_by)
 
+    # Pass the context to the template
     context = {
         'test': test,
         'results': results,
         'current_sort_by': request.GET.get('sort_by', 'student__name'),
         'current_order': request.GET.get('order', 'asc'),
     }
-    return render(request, 'school_app/test_results.html', context)
 
+    return render(request, 'school_app/test_results.html', context)
 # Written by Sushil
 @login_required
 def add_test(request):
@@ -970,28 +1043,64 @@ def student_ranking(request):
     from django.db.models import F, ExpressionWrapper, FloatField
 
     # Check if the user has the 'Collector' group
-    if not request.user.groups.filter(name='Collector').exists():
-        return HttpResponseForbidden("You are not authorized to access this page.")
+    # if not request.user.groups.filter(name='Collector').exists():
+    #     return HttpResponseForbidden("You are not authorized to access this page.")
     #F('test__max_marks')
     # Retrieve rankings with percentage calculation
-    rankings = (
-        Marks.objects.select_related('student', 'student__school', 'test')
-        .annotate(
-            percentage=ExpressionWrapper(
-                F('marks') * 100 / F('test__max_marks') ,
-                output_field=FloatField()
+    if request.user.is_district_user:
+        rankings = (
+            Marks.objects.select_related('student', 'student__school', 'test')
+            .annotate(
+                percentage=ExpressionWrapper(
+                    F('marks') * 100 / F('test__max_marks') ,
+                    output_field=FloatField()
+                )
             )
+            .order_by('test', '-marks')
         )
-        .order_by('test', '-marks')
-    )
+
+    elif request.user.is_block_user:
+        # Filter students by block
+        block = Block.objects.get(admin=request.user)
+        schools_in_block = School.objects.filter(block=block)
+        students_in_block = Student.objects.filter(school__in=schools_in_block)
+
+        # Retrieve rankings for students in the block
+        rankings = (
+            Marks.objects.filter(student__in=students_in_block)
+            .select_related('student', 'student__school', 'test')
+            .annotate(
+                percentage=ExpressionWrapper(
+                    F('marks') * 100 / F('test__max_marks'),
+                    output_field=FloatField()
+                )
+            )
+            .order_by('test', '-marks')
+        )
+
+    else:
+        # If the user is neither district nor block user, return a forbidden response
+        return HttpResponseForbidden("You are not authorized to access this page.")
 
     return render(request, 'student_ranking.html', {'rankings': rankings})
 @login_required
 def student_report(request):
    
-    if not request.user.groups.filter(name='Collector').exists():
-        return HttpResponseForbidden("You are not authorized to access this page.")
-    total_students = Student.objects.count()
+    # if not request.user.groups.filter(name='Collector').exists():
+    #     return HttpResponseForbidden("You are not authorized to access this page.")
+    # if not request.user.groups.filter(name='Collector').exists():
+    #     return HttpResponseForbidden("You are not authorized to access this page.")
+   
+    if request.user.is_district_user:
+         total_students = Student.objects.count()
+    else:
+        block = Block.objects.get(admin=request.user)
+        schools = School.objects.all().filter(block=block)
+        # Count students from all schools within the block
+        students = Student.objects.filter(school__in=schools)
+        total_students = students.count()
+
+    #total_students = Student.objects.count()
     return render(request, 'student_report.html', {'total_students': total_students})
 
 
@@ -1335,7 +1444,12 @@ def logout_view(request):
 #31/12/2024
 @login_required
 def school_student_list(request):
-    schools = School.objects.all()
+    if request.user.is_block_user:
+        block = Block.objects.get(admin=request.user)
+        schools = School.objects.all().filter(block=block)
+    else:
+        schools = School.objects.all()
+    
     school_students = {}
 
     # Get students for each school
@@ -1343,8 +1457,6 @@ def school_student_list(request):
         school_students[school] = school.student_set.all()
 
     return render(request, 'school_student_list.html', {'school_students': school_students})
-
-
 
 # Math Tools Functions
 def get_available_books():

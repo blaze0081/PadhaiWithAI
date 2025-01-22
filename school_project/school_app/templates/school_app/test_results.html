@@ -5,6 +5,7 @@
     <table class="table table-bordered table-striped">
         <thead>
             <tr>
+                <th>S.No.</th>
                 <th>
                     <a href="?sort_by=student__name&order={% if current_sort_by == 'student__name' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
                         Student Name
@@ -46,6 +47,7 @@
         <tbody>
             {% for result in results %}
             <tr>
+                <td>{{ forloop.counter }}</td>
                 <td>{{ result.student.name }}</td>
                 <td>{{ result.marks }}</td>
                 <td>{{ result.date }}</td>
@@ -57,6 +59,6 @@
             {% endfor %}
         </tbody>
     </table>
-    <a href="{% url 'collector_dashboard' %}" class="btn btn-secondary mt-3">Back to Dashboard</a>
+  
 </div>
 {% endblock %}

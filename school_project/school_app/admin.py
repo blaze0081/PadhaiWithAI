@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser, School, Student, Marks,Attendance,Block
+from .models import CustomUser, School, Student, Marks,Attendance,Block, District
 from django.contrib.auth.models import Group
 from .models import Test
 from django.utils.html import format_html
@@ -105,10 +105,10 @@ class AttendanceAdmin(admin.ModelAdmin):
     search_fields = ('student__name',)
 
 class BlockAdmin(admin.ModelAdmin):
-    list_display = ('name_english', 'name_hindi', 'district', 'admin')
-    search_fields = ('name_english', 'name_hindi', 'district__name')  # You can also search by district name
-    list_filter = ('district',)  # Filter blocks by district in the admin panel
-    ordering = ('name_english',)  # Default ordering by the English name
+    list_display = ('name_english', 'name_hindi')
+    search_fields = ('name_english', 'name_hindi')  # You can also search by district name
+    #list_filter = ('district',)  # Filter blocks by district in the admin panel
+    #ordering = ('name_english',)  # Default ordering by the English name
 
 admin.site.register(Block, BlockAdmin)
 
