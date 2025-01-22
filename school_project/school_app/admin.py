@@ -105,9 +105,9 @@ class AttendanceAdmin(admin.ModelAdmin):
     search_fields = ('student__name',)
 
 class BlockAdmin(admin.ModelAdmin):
-    list_display = ('name_english', 'name_hindi', 'district', 'admin')
-    search_fields = ('name_english', 'name_hindi', 'district__name')  # You can also search by district name
-    list_filter = ('district',)  # Filter blocks by district in the admin panel
+    list_display = ('name_english', 'name_hindi', 'admin')
+    search_fields = ('name_english', 'name_hindi')  # You can also search by district name
+    #list_filter = ('district',)  # Filter blocks by district in the admin panel
     ordering = ('name_english',)  # Default ordering by the English name
 
 admin.site.register(Block, BlockAdmin)
