@@ -1,30 +1,44 @@
 {% extends 'school_app/base.html' %}
 
 {% block content %}
+
+<!-- Test Selection Dropdown -->
+
+
     <div class="container mt-5">
         <h2 class="text-center mb-4" style="color: #007bff; font-size: 2.5em;">Top Students</h2>
         
-        <!-- Form to select number of toppers -->
-        <div class="card mb-4 p-4 shadow-sm">
-            <form method="get" class="d-flex justify-content-between align-items-center">
-                <div class="form-group">
-                    <label for="toppers">Number of Toppers:</label>
-                    <input type="number" id="toppers" name="toppers" value="5" class="form-control w-50">
-                </div>
-                <button type="submit" class="btn btn-primary">Show</button>
-            </form>
-        </div>
-
-        <!-- Top Students List -->
-        {% comment %} <ul class="list-group">
-            {% for student in data %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <span>{{ student.student__school__name }} - {{ student.student__name }}- {{ stud }}  </span>
-                    <span class="badge badge-success badge-pill">Topper</span>
-                </li>
+        <!-- Test Selection Dropdown (multiple selection) -->
+<form method="get">
+    <div class="form-group">
+        <label for="test">Select Tests:</label>
+        <select name="test" id="test" class="form-control" multiple>
+            <option value="" {% if not selected_test_numbers %}selected{% endif %}>All Tests</option>
+            {% for test in tests %}
+                <option value="{{ test.test_number }}" {% if test.test_number in selected_test_numbers %}selected{% endif %}>
+                    {{ test.subject_name }} - {{ test.name }}  <!-- Show subject and test name -->
+                </option>
             {% endfor %}
-        </ul> {% endcomment %}
+        </select>
+    </div>
 
+    <div class="form-group">
+        <label for="toppers">Number of Top Students:</label>
+        <input type="number" name="toppers" id="toppers" class="form-control" value="{{ number_of_toppers }}">
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+        <hr>
+
+        <p><strong>Maximum Marks Used for Percentage Calculation:</strong> 
+            {% if selected_test_number %}
+                {{ selected_test_max_marks }} (for selected test)
+            {% else %}
+                {{ selected_test_max_marks }} (across all tests)
+            {% endif %}
+        </p>
         <table border="1" cellpadding="10" cellspacing="0" class="table table-bordered table-striped" >
             <thead>
                 <tr>

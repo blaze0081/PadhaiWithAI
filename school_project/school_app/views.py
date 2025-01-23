@@ -36,9 +36,9 @@ from django.utils import timezone
 from django.db.models import Avg, Count, Q, F
 from datetime import date
 from django.utils.dateparse import parse_date
-from django.db.models import Avg, F, ExpressionWrapper, FloatField
+from django.db.models import Avg, F, ExpressionWrapper, FloatField,Sum
 from django.db.models import Count, Case, When, IntegerField
-
+from django.db import connection
 #21012025
 
 @login_required
@@ -656,31 +656,91 @@ def school_average_marks(request):
 
 @login_required
 def top_students(request):
-    from django.db.models import F, ExpressionWrapper, FloatField
+     # Get the number of toppers from the URL (default 5 if not provided)
     number_of_toppers = int(request.GET.get('toppers', 5))
 
-    # Calculate average marks and percentage
-    data = (
-        Marks.objects.values('student__name', 'student__school__name')
-        .annotate(
-            avg_marks=Avg('marks'),
-            percentage= ExpressionWrapper(
-                    Avg('marks') * 100 / 35.00,
+    # Get the selected test_numbers from the GET parameters (default to None, which means all tests)
+    selected_test_numbers = request.GET.getlist('test', [])
+
+    # Filter out empty strings in the selected test numbers
+    selected_test_numbers = [test for test in selected_test_numbers if test]
+
+    if selected_test_numbers:
+        # Filter marks by the selected test_numbers
+        data = (
+            Marks.objects.filter(test__test_number__in=selected_test_numbers)
+            .values('student__name', 'student__school__name')
+            .annotate(
+                avg_marks=Avg('marks'),  # Average marks for the selected tests
+                total_max_marks=Sum('test__max_marks'),  # Sum of max marks for selected tests
+                percentage=ExpressionWrapper(
+                    Sum('marks') * 100 / Sum('test__max_marks'),  # Calculate percentage based on the total max marks
                     output_field=FloatField()
                 )
+            )
+            .order_by('-avg_marks')[:number_of_toppers]
         )
-        .order_by('-avg_marks')[:number_of_toppers]
-    )
+        # Get the sum of max marks across selected tests for percentage calculation
+        selected_tests_max_marks = Test.objects.filter(test_number__in=selected_test_numbers).aggregate(total_max_marks=Sum('max_marks'))['total_max_marks']
+    else:
+        # Show top students from all tests
+        data = (
+            Marks.objects.values('student__name', 'student__school__name')
+            .annotate(
+                avg_marks=Avg('marks'),  # Average marks for all tests
+                total_max_marks=Sum('test__max_marks'),  # Sum of max marks across all tests
+                percentage=ExpressionWrapper(
+                    Sum('marks') * 100 / Sum('test__max_marks'),  # Percentage based on total max marks across all tests
+                    output_field=FloatField()
+                )
+            )
+            .order_by('-avg_marks')[:number_of_toppers]
+        )
+        # Get the sum of max marks across all tests for percentage calculation
+        selected_tests_max_marks = Test.objects.aggregate(total_max_marks=Sum('max_marks'))['total_max_marks']
 
-    context = {'data': data, 'number_of_toppers': number_of_toppers}
+    # Get the list of available tests for selection (based on test_number and subject_name)
+    tests = Test.objects.all()
+
+    context = {
+        'data': data,
+        'number_of_toppers': number_of_toppers,
+        'tests': tests,
+        'selected_test_numbers': selected_test_numbers,
+        'selected_tests_max_marks': selected_tests_max_marks
+    }
+
+
     return render(request, 'top_students.html', context)
 
 @login_required
 def weakest_students(request):
+   # Get the number of weakest students to display from query parameters (default is 5)
     number_of_weakest = int(request.GET.get('weakest', 5))
-    from django.db.models import Avg
-    data = Marks.objects.values('student__name', 'student__school__name').annotate(avg_marks=Avg('marks')).order_by('avg_marks')[:number_of_weakest]
-    context = {'data': data, 'number_of_weakest': number_of_weakest}
+
+    # Optionally get the test number to filter by (if you want to filter by specific tests)
+    test_number = request.GET.get('test', None)
+
+    # Get all available tests to populate the dropdown
+    all_tests = Test.objects.all()
+
+    if test_number:
+        # If a specific test number is provided, filter by that test
+        data = (
+            Marks.objects.filter(test__test_number=test_number)
+            .values('student__name', 'student__school__name')
+            .annotate(avg_marks=Avg('marks'))
+            .order_by('avg_marks')[:number_of_weakest]
+        )
+    else:
+        # If no test number is provided, show weakest students across all tests
+        data = (
+            Marks.objects.values('student__name', 'student__school__name')
+            .annotate(avg_marks=Avg('marks'))
+            .order_by('avg_marks')[:number_of_weakest]
+        )
+
+    context = {'data': data, 'number_of_weakest': number_of_weakest, 'test_number': test_number, 'all_tests': all_tests}
     return render(request, 'weakest_students.html', context)
 
 @login_required
@@ -813,6 +873,7 @@ def get_block_data(block):
         'total_tests': tests.count(),
         'tests': tests,
         'schools': schools,
+        'Block_name': block.name_english,
     }
 # Writtern by Sushil
 @login_required
@@ -1188,6 +1249,33 @@ def dashboard(request):
         category_80_90 = [item['category_80_90_1'] for item in result]
         category_90_100 = [item['category_90_100_1'] for item in result]
         category_100 = [item['category_100_1'] for item in result]
+
+        query = """    SELECT se.school_name_with_nic_code, s.nic_code, 
+        se.school_nic_code, se.session_year, se.total_students, se.passed_students, 
+        se.first_division_students, se.overall_exam_result, se.math_exam_result, se.math_above_80, 
+        se.math_above_90, se.math_100_percent     FROM student_exam_results se     INNER JOIN 
+        school_app_school s      ON    se.school_nic_code = s.nic_code  WHERE s.nic_code =%s    """
+        with connection.cursor() as cursor:
+         cursor.execute(query,[school.nic_code])
+         result = cursor.fetchall()
+        # Convert result to a list of dictionaries
+        results_dict = [
+        {
+            'school_name_with_nic_code': row[0],
+            'nic_code': row[1],
+            'school_nic_code': row[2],
+            'session_year': row[3],
+            'total_students': row[4],
+            'passed_students': row[5],
+            'first_division_students': row[6],
+            'overall_exam_result': row[7],
+            'math_exam_result': row[8],
+            'math_above_80': row[9],
+            'math_above_90': row[10],
+            'math_100_percent': row[11]
+        }
+        for row in result
+    ]
         
         context = {
             'school': school,
@@ -1202,6 +1290,7 @@ def dashboard(request):
             'category_80_90': category_80_90,
             'category_90_100': category_90_100,
             'category_100': category_100,
+            'results': results_dict,
         }
     except School.DoesNotExist:
         messages.error(request, "No school found for the current user.")

@@ -64,6 +64,44 @@
 	<!-- Button to create a new test -->
 	
 </div>
+<div class="container">
+    <h5>Previous School Results</h5>
+
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% else %}
+        <table class="table table-bordered mt-3">
+            <thead>
+                <tr>
+                    <th>Session Year</th>
+                    <th>Total Students</th>
+                    <th>Passed Students</th>
+                    <th>First Division Students</th>
+                    <th>Overall Exam Result</th>
+                    <th>Math Exam Result</th>
+                    <th>Math Above 80%</th>
+                    <th>Math Above 90%</th>
+                    <th>Math 100%</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in results %}
+                    <tr>
+                        <td>{{ row.session_year }}</td>
+                        <td>{{ row.total_students }}</td>
+                        <td>{{ row.passed_students }}</td>
+                        <td>{{ row.first_division_students }}</td>
+                        <td>{{ row.overall_exam_result }}</td>
+                        <td>{{ row.math_exam_result }}</td>
+                        <td>{{ row.math_above_80 }}</td>
+                        <td>{{ row.math_above_90 }}</td>
+                        <td>{{ row.math_100_percent }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 	/* Container for the grid layout */
