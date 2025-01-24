@@ -867,6 +867,7 @@ def get_block_data(block):
     schools = School.objects.filter(block=block)
     students = Student.objects.filter(school__in=schools)
     tests = Test.objects.all()
+        
     return {
         'total_schools': schools.count(),
         'total_students': students.count(),
@@ -918,40 +919,20 @@ def collector_dashboard(request):
         ]
     # Define the raw SQL query
     sql_query = """
-    WITH school_avg_marks AS (
-        SELECT
-            sch.id AS school_id,
-            t.test_name,
-            t.subject_name,
-            t.max_marks,
-            AVG(m.marks) AS avg_marks
-        FROM 
-            public.school_app_marks m
-        JOIN 
-            public.school_app_student s ON m.student_id = s.id
-        JOIN 
-            public.school_app_school sch ON s.school_id = sch.id
-        JOIN 
-            public.school_app_test t ON m.test_id = t.test_number
-        GROUP BY 
-            sch.id, t.test_name, t.subject_name, t.max_marks
+    WITH school_avg_marks AS (SELECT
+            sch.id AS school_id, t.test_name, t.subject_name, t.max_marks, AVG(m.marks) AS avg_marks
+        FROM  public.school_app_marks m
+        JOIN  public.school_app_student s ON m.student_id = s.id         JOIN  public.school_app_school sch ON s.school_id = sch.id
+        JOIN  public.school_app_test t ON m.test_id = t.test_number        GROUP BY    sch.id, t.test_name, t.subject_name, t.max_marks
     )
-    SELECT
-        test_name,
-        subject_name,
+    SELECT         test_name,        subject_name,
         COUNT(DISTINCT CASE WHEN avg_marks < max_marks * 0.33 THEN school_id END) AS category_0_33,
         COUNT(DISTINCT CASE WHEN avg_marks >= max_marks * 0.33 AND avg_marks < max_marks * 0.60 THEN school_id END) AS category_33_60,
         COUNT(DISTINCT CASE WHEN avg_marks >= max_marks * 0.60 AND avg_marks < max_marks * 0.80 THEN school_id END) AS category_60_80,
         COUNT(DISTINCT CASE WHEN avg_marks >= max_marks * 0.80 AND avg_marks < max_marks * 0.90 THEN school_id END) AS category_80_90,
         COUNT(DISTINCT CASE WHEN avg_marks >= max_marks * 0.90 AND avg_marks < max_marks THEN school_id END) AS category_90_100,
         COUNT(DISTINCT CASE WHEN avg_marks = max_marks THEN school_id END) AS category_100
-    FROM 
-        school_avg_marks
-    GROUP BY 
-        test_name, subject_name
-    ORDER BY 
-        test_name;
-    """
+    FROM         school_avg_marks    GROUP BY   test_name, subject_name    ORDER BY   test_name;  """
     
     # Execute the query
     with connection.cursor() as cursor:
