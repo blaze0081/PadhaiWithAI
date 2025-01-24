@@ -7,30 +7,32 @@
         <!-- Table of Schools and their Average Marks -->
          <div class="card shadow-sm">
             <div class="card-body">
-                <table id="schoolTable" class="table table-bordered table-striped">
-                    <thead>
-                        <tr>
-                            <th scope="col">S.No.</th>
-                            <th scope="col" style="font-size: 1.2em; color: #333;">School Name</th>
-                            <th scope="col" style="font-size: 1.2em; color: #333;">Average Marks</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for school in data %}
-                            <tr>
-                                <td>{{ forloop.counter }}</td> <!-- Display Serial Number -->
-                                <td style="font-size: 1.2em; color: #333;">{{ school.name }}</td>
-                                <td style="font-size: 1.2em; color: #333;">
-                                    {{ school.avg_marks|default:0|floatformat:2 }}
-                                </td>
-                            </tr>
-                        {% empty %}
-                            <tr>
-                                <td colspan="3" class="text-center text-muted">No data available</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+     
+            <table id="schoolTable" class="table table-bordered table-striped">
+                <thead>
+                <tr>
+                    <th style="font-size: 1.2em; color: #333;">S.No.</th>
+                    <th style="font-size: 1.2em; color: #333;">School Name</th>
+                    {% for test_avg in results.0.test_averages %}
+                    <th style="font-size: 1.2em; color: #333;">{{ test_avg.test_name }}</th>
+                    {% endfor %}
+                    {% for test_avg in results.1.test_averages %}
+                    <th style="font-size: 1.2em; color: #333;">{{ test_avg.test_name }}</th>
+                    {% endfor %}
+                </tr>
+                </thead>
+                <tbody>
+                {% for school in results %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                    <td style="font-size: 1.2em; color: #333;">{{ school.school_name }}</td>
+                    {% for test_avg in school.test_averages %}
+                        <td>{{ test_avg.average_marks|default:0|floatformat:2 }}</td>
+                    {% endfor %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table> 
             </div>
         </div>
     </div>
@@ -39,8 +41,7 @@
     <a href="{% url 'student_report' %}" class="btn btn-secondary" style="font-size: 1.1em; padding: 10px 20px;">
         Back to Dashboard
     </a>
-</div>
-   
+</div>  
 
     <script>
         $(document).ready(function() {

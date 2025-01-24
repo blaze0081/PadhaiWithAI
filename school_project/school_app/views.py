@@ -34,22 +34,93 @@ from .forms import ExcelFileUploadForm
 from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.db.models import Avg, Count, Q, F
+from datetime import date
+from django.utils.dateparse import parse_date
+#1201025 Sushil Agrawal
+# View to calculate test results by percentage ranges
+
+@login_required
+def test_results_analysis(request):
+    schools = School.objects.all()
+    results = []
+
+    for school in schools:
+        # Retrieve all tests associated with this school
+        school_tests = Test.objects.filter(marks__student__school=school).distinct()
+
+        school_data = {
+            'school_name': school.name,
+            'tests': []
+        }
+        
+        for test in school_tests:
+            total_students = Student.objects.filter(school=school).count()
+
+            # Fetch marks for this test and school
+            marks = Marks.objects.filter(test=test, student__school=school)
+            max_marks =  test.max_marks
+            # Calculate the number of students in each percentage range
+            category_0_33 = marks.filter(marks__lt=(0.33 * test.max_marks)).count()
+            category_33_60 = marks.filter(marks__gte=(0.33 * max_marks), marks__lt=(0.60 * max_marks)).count()
+            category_60_80 = marks.filter(marks__gte=(0.60 * max_marks), marks__lt=(0.80 * max_marks)).count()
+            category_80_90 = marks.filter(marks__gte=(0.80 * max_marks), marks__lt=(0.90 * max_marks)).count()
+            category_90_100 = marks.filter(marks__gte=(0.90 * max_marks), marks__lt=max_marks).count()
+            category_100 = marks.filter(marks=max_marks).count()
+
+            # Avoid division by zero
+            if total_students > 0:
+                test_data = {
+                    'test_name': test.test_name,
+                    'total_students': total_students,
+                    'category_0_33': f"{category_0_33}/{total_students} ({(category_0_33 / total_students * 100):.2f}%)",
+                    'category_33_60': f"{category_33_60}/{total_students} ({(category_33_60 / total_students * 100):.2f}%)",
+                    'category_60_80': f"{category_60_80}/{total_students} ({(category_60_80 / total_students * 100):.2f}%)",
+                    'category_80_90': f"{category_80_90}/{total_students} ({(category_80_90 / total_students * 100):.2f}%)",
+                    'category_90_100': f"{category_90_100}/{total_students} ({(category_90_100 / total_students * 100):.2f}%)",
+                    'category_100': f"{category_100}/{total_students} ({(category_100 / total_students * 100):.2f}%)",
+                }
+            else:
+                test_data = {
+                    'test_name': test.test_name,
+                    'total_students': total_students,
+                    'category_0_33': "N/A",
+                    'category_33_60': "N/A",
+                    'category_60_80': "N/A",
+                    'category_80_90': "N/A",
+                    'category_90_100': "N/A",
+                    'category_100': "N/A",
+                }
+
+            school_data['tests'].append(test_data)
+
+        results.append(school_data)
+
+    return render(request, 'test_results_analysis.html', {'results': results})
 
 @login_required
 def test_wise_average_marks(request):
     from django.db.models import Avg, F, ExpressionWrapper, FloatField
-
-    # Assuming max_marks is a field in the Test model for maximum marks of the test
-     #F('avg_marks') * 100 / F('max_marks'),
+    from django.db.models import Count, Case, When, IntegerField
     data = (
-        Test.objects.annotate(
+         Test.objects.annotate(
             avg_marks=Avg('marks__marks'),
             percentage=ExpressionWrapper(
-                F('avg_marks') * 100 / 35,               
-                output_field=FloatField()
-            )
+                F('avg_marks') * 100 / F('max_marks'),               
+                output_field=FloatField()),
+            # Count the total number of students for each test
+            total_students=Count('marks', distinct=True),  # Total number of students
+            # Count the number of students with marks less than 0 (invalid or missing)
+            category_0_and_less=Count(Case(When(marks__marks__lte=0, then=1), output_field=IntegerField())),
+            category_0_33=Count(Case(When(marks__marks__gte=F('max_marks') * 0.01,marks__marks__lt=F('max_marks') * 0.33, then=1), output_field=IntegerField())),
+            category_33_60=Count(Case(When(marks__marks__gte=F('max_marks') * 0.33, marks__marks__lt=F('max_marks') * 0.60, then=1), output_field=IntegerField())),
+            category_60_80=Count(Case(When(marks__marks__gte=F('max_marks') * 0.60, marks__marks__lt=F('max_marks') * 0.80, then=1), output_field=IntegerField())),
+            category_80_90=Count(Case(When(marks__marks__gte=F('max_marks') * 0.80, marks__marks__lt=F('max_marks') * 0.90, then=1), output_field=IntegerField())),
+            category_90_100=Count(Case(When(marks__marks__gte=F('max_marks') * 0.90, marks__marks__lt=F('max_marks'), then=1), output_field=IntegerField())),
+            category_100=Count(Case(When(marks__marks=F('max_marks') , then=1), output_field=IntegerField()))
         )
-        .values('test_name', 'avg_marks', 'percentage')
+        .values('test_name', 'avg_marks', 'percentage', 'total_students', 'category_0_and_less', 
+                'category_0_33', 'category_33_60', 'category_60_80', 'category_80_90', 'category_90_100', 'category_100')
         .order_by('-percentage')
     )
 
@@ -58,7 +129,9 @@ def test_wise_average_marks(request):
 
 @login_required
 def submit_attendance(request):
-    if request.user.is_school_admin:
+    #if request.user.is_school_admin:
+   # user = authenticate(request, email=email, password=password)
+    if True:
         students = request.user.school.students.all()
         if request.method == 'POST':
             selected_students = request.POST.getlist('absent_students')
@@ -72,10 +145,11 @@ def submit_attendance(request):
             return redirect('attendance_summary')
 
         context = {'students': students}
-        return render(request, 'attendance/submit.html', context)
+        return render(request, 'attendance_submit.html', context)
     return redirect('home')
 @login_required
 def attendance_summary(request):
+    from django.db.models import Avg, Count, Q
     if request.user.is_system_admin:
         total_schools = School.objects.count()
         schools_logged_in = CustomUser.objects.filter(
@@ -95,7 +169,7 @@ def attendance_summary(request):
             'schools_logged_in': schools_logged_in,
             'total_schools': total_schools,
         }
-        return render(request, 'attendance/summary.html', context)
+        return render(request, 'attendance_summary.html', context)
     return redirect('home')
 #11/01/2025
 @login_required
@@ -167,8 +241,51 @@ def inactive_schools(request):
 #3
 @login_required
 def schools_with_test_counts(request):
-    schools = School.objects.annotate(test_count=Count('student__marks__test')).order_by('-test_count')
-    context = {'schools': schools}
+    # Retrieve the list of available tests
+    tests = Test.objects.all()
+    
+    # Check if a test is selected, and fetch data for that test
+    selected_test = request.GET.get('test_id')  # Assume the selected test's ID is sent in the query string
+    
+    # Annotate school data with test counts and students, filtered by the selected test if any
+    if selected_test:
+        schools = School.objects.filter(
+            student__marks__test_id=selected_test
+        ).annotate(
+            test_count=Count('student__marks__test'),
+            total_students=Count('student')
+        ).order_by('-total_students')
+    else:
+        # If no test is selected, show data for all tests
+        schools = School.objects.annotate(
+            test_count=Count('student__marks__test'),
+            total_students=Count('student')
+        ).order_by('-total_students')
+
+# Calculate the difference for each school and add it to the context
+    for school in schools:
+        school.difference = school.total_students - school.test_count
+    # Compute totals for all schools if no specific test is selected
+    total_students_all = sum(school.total_students for school in schools)
+    total_tests_all = sum(school.test_count for school in schools)
+    total_difference_all = total_students_all - total_tests_all
+
+    # Add the "All Schools" row
+    all_schools_row = {
+        'name': 'All Schools',
+        'total_students': total_students_all,
+        'test_count': total_tests_all,
+        'difference': total_difference_all
+    }
+
+    # Add this row at the end
+    schools = list(schools) + [all_schools_row]
+
+    context = {
+        'schools': schools,
+        'tests': tests,
+        'selected_test': selected_test,
+    }
     return render(request, 'schools_with_test_counts.html', context)
 #4
 @login_required
@@ -285,9 +402,49 @@ def upload_student_data(request):
 # Views
 @login_required
 def school_average_marks(request):
-    from django.db.models import Avg
-    data = School.objects.annotate(avg_marks=Avg('student__marks__marks')).order_by('-avg_marks')
-    context = {'data': data}
+    # First, we will fetch schools and aggregate the average marks for each test in each school
+    schools = School.objects.all()
+    results = []
+
+    for school in schools:
+        school_data = {
+            'school_name': school.name,
+            'test_averages': [],
+            'school_average': 0
+        }
+
+        # Get all tests associated with the school
+        tests = Test.objects.filter(marks__student__school=school).distinct()
+
+        # List to hold all test averages for calculating school average later
+        test_avg_list = []
+
+        for test in tests:
+            # Get the average marks for the school in the current test
+            avg_marks = Marks.objects.filter(test=test, student__school=school).aggregate(avg_marks=Avg('marks'))['avg_marks']
+
+            if avg_marks is not None:
+                test_avg_list.append(avg_marks)
+            else:
+                test_avg_list.append(0)
+
+            # Add the test average to the school's data
+            school_data['test_averages'].append({
+                'test_name': test.subject_name,
+                'average_marks': avg_marks if avg_marks is not None else 0
+            })
+
+        # Calculate the overall school average by averaging all test averages
+        if test_avg_list:
+            school_data['school_average'] = sum(test_avg_list) / len(test_avg_list)
+
+        # Add the school data to the results
+        results.append(school_data)
+
+    # Sort the schools based on the highest overall school average
+    results.sort(key=lambda x: x['school_average'], reverse=True)
+
+    context = {'results': results}
     return render(request, 'school_average.html', context)
 
 @login_required
@@ -428,6 +585,8 @@ def login_view(request):
 # Writtern by Sushil
 @login_required
 def collector_dashboard(request):
+    from django.db.models import Avg, F, ExpressionWrapper, FloatField
+    from django.db.models import Count, Case, When, IntegerField
     # Fetch tests created by the collector
     if not request.user.groups.filter(name='Collector').exists():
         return HttpResponseForbidden("You are not authorized to access this page.")
@@ -437,13 +596,41 @@ def collector_dashboard(request):
     # Fetch all schools (You can add filters here if necessary)
     schools = School.objects.all()
     live_sessions = Session.objects.filter(expire_date__gte=timezone.now())
+    
+    data = (
+        Test.objects.annotate(
+            avg_marks=Avg('marks__marks'),
+            percentage=ExpressionWrapper(
+                F('avg_marks') * 100 / F('max_marks'),               
+                output_field=FloatField()),
+                category_0_33=Count(Case(When(marks__marks__lt=F('max_marks') * 0.33, then=1), output_field=IntegerField())),
+                category_33_60=Count(Case(When(marks__marks__gte=F('max_marks') * 0.33, marks__marks__lt=F('max_marks')* 0.60, then=1), output_field=IntegerField())),
+                category_60_80=Count(Case(When(marks__marks__gte=F('max_marks')* 0.60, marks__marks__lt=F('max_marks') * 0.80, then=1), output_field=IntegerField())),
+                category_80_90=Count(Case(When(marks__marks__gte=F('max_marks')* 0.80, marks__marks__lt=F('max_marks')* 0.90, then=1), output_field=IntegerField())),
+                category_90_100=Count(Case(When(marks__marks__gte=F('max_marks')* 0.90, marks__marks__lt=F('max_marks'), then=1), output_field=IntegerField())),
+                category_100=Count(Case(When(marks__marks=F('max_marks') , then=1), output_field=IntegerField()))
+        )
+        .values('test_name','subject_name', 'avg_marks', 'percentage', 'category_0_33', 'category_33_60', 'category_60_80', 'category_80_90', 'category_90_100', 'category_100')
+        .order_by('-percentage')
+    )
+# Aggregate category counts for pie chart
+    for entry in data:
+        entry['categories'] = [
+            entry['category_0_33'],
+            entry['category_33_60'],
+            entry['category_60_80'],
+            entry['category_80_90'],
+            entry['category_90_100'],
+            entry['category_100']
+        ]
     return render(request, 'school_app/collector_dashboard.html', {
         'tests': tests,
         'schools': schools,
         'total_schools': School.objects.count(),
         'total_students': Student.objects.count(),
         'total_tests': Test.objects.count(),
-        'get_active_users': live_sessions.count()
+        'get_active_users': live_sessions.count(),
+        'data': data
     })
 
 @login_required

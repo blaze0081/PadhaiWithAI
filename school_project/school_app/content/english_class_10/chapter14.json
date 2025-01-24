@@ -67,7 +67,7 @@
         },
         {
           "question": "Gopi buys a fish from a shop for his aquarium. The shopkeeper takes out one fish at random from a tank containing 5 male fish and 8 female fish. What is the probability that the fish taken out is a male fish?",
-          "image": "Figure 14.4"
+          "img": "14-11-1.jpg"
         },
         {
           "question": "A game of chance consists of spinning an arrow which comes to rest pointing at one of the numbers 1, 2, 3, 4, 5, 6, 7, 8. What is the probability that it will point at",
@@ -77,7 +77,7 @@
             "a number greater than 2?",
             "a number less than 9?"
           ],
-          "image": "Figure 14.5"
+          "img": "14-12-1.jpg"
         },
         {
           "question": "A die is thrown once. Find the probability of getting",
@@ -129,11 +129,13 @@
           "sub_questions": [
             "A?",
             "D?"
-          ]
+          ],
+          "img": "14-19-1.jpg"
         },
         {
           "question": "Suppose you drop a die at random on the rectangular region shown in Fig. 14.6. What is the probability that it will land inside the circle with diameter 1m?",
-          "image": "Figure 14.6"
+          "img": "14-20-1.jpg"
+
         },
         {
           "question": "A lot consists of 144 ball pens of which 20 are defective and the others are good. Nuri will buy a pen if it is good but will not buy if it is defective. The shopkeeper draws one pen at random and gives it to her. What is the probability that",
@@ -146,7 +148,8 @@
           "question": "Refer to Example 13. (i) Complete the following table: Event : ‘Sum on 2 dice’ - 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12. Probability : 1/36, 2/36, 3/36, 4/36, 5/36, 6/36, 5/36, 4/36, 3/36, 2/36, 1/36.",
           "sub_questions": [
             "A student argues that there are 11 possible outcomes 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, and 12. Therefore, each of them has a probability of 1/11. Do you agree with this argument? Justify your answer."
-          ]
+          ],
+          "img": "14-22-1.jpg"
         },
         {
           "question": "A game consists of tossing a one-rupee coin 3 times and noting its outcome each time. Hanif wins if all the tosses give the same result, i.e., three heads or three tails, and loses otherwise. Calculate the probability that Hanif will lose the game."

@@ -87,6 +87,113 @@
 	<!-- Button to create a new test -->
 	
 </div>
+
+<div class="d-flex flex-column align-items-center gap-3 mb-4">
+  
+</div>
+
+<div class="text-end mb-4">
+	<!-- Button to create a new test -->
+	
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+	/* Container for the grid layout */
+	.chart-container {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); /* Creates a 2-column layout */
+		gap: 20px;
+		padding: 20px;
+		border: 1px solid #000;
+	}
+
+	/* Individual chart container */
+	.chart-box {
+		padding: 20px;
+		border: 1px solid #ddd;
+		border-radius: 8px;
+		background-color: #fff;
+	}
+
+	/* Optional: Styling for the canvas */
+	canvas {
+		width: 100%;  /* Ensure the canvas takes up the full width of its container */
+		height: 200px; /* Set a fixed height */
+	}
+
+	/* Responsive design: Stack the charts in a single column on smaller screens */
+	@media (max-width: 768px) {
+		.chart-container {
+			grid-template-columns: 1fr; /* Stack charts vertically on small screens */
+		}
+	}
+</style>
+<h4>Visualizing Student Performance: Test Categories and Average Marks</h4>
+<div class="chart-container">
+    {% for test_data in data %}
+        <!-- Wrap each test in a container -->
+        <div class="chart-box">
+            <h3>{{ test_data.test_name }} ({{ test_data.subject_name }})</h3>
+            <canvas id="pieChart{{ forloop.counter }}"></canvas>
+            <script>
+                // Prepare data for the pie chart
+                var ctx = document.getElementById('pieChart{{ forloop.counter }}').getContext('2d');
+                var pieChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['0-33%', '33-60%', '60-80%', '80-90%', '90-100%', '100%'],
+                        datasets: [{
+                            label: 'Student Categories',
+                            data: {{ test_data.categories|safe }},
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.2)',
+                                'rgba(54, 162, 235, 0.2)',
+                                'rgba(255, 206, 86, 0.2)',
+                                'rgba(75, 192, 192, 0.2)',
+                                'rgba(153, 102, 255, 0.2)',
+                                'rgba(255, 159, 64, 0.2)'
+                            ],
+                            borderColor: [
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(153, 102, 255, 1)',
+                                'rgba(255, 159, 64, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(tooltipItem) {
+                                        return tooltipItem.label + ': ' + tooltipItem.raw + ' students';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            </script>
+        </div>
+    {% endfor %}
+</div>
+	<div class="text-end mb-4">
+		<!-- Button to create a new test -->
+		
+	</div>
+	<div class="text-end mb-4">
+		<!-- Button to create a new test -->
+		
+	</div>
+	
+
 <div class="table-responsive">
 	<h2 style="font-size: 36px;">Scheduled Exams</h2>
 	<table class="table table-striped table-bordered table-hover">

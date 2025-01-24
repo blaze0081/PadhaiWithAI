@@ -66,3 +66,4 @@ urllib3==2.3.0
 whitenoise==6.8.2
 django-storages
 dropbox
+psycopg2==2.9.10

@@ -1,0 +1,22 @@
+{% extends 'school_app/base.html' %}
+
+{% block content %}
+
+<h1>Submit Attendance</h1>
+<form method="POST">
+    {% csrf_token %}
+    <table>
+        <tr>
+            <th>Student Name</th>
+            <th>Mark Absent</th>
+        </tr>
+        {% for student in students %}
+        <tr>
+            <td>{{ student.name }}</td>
+            <td><input type="checkbox" name="absent_students" value="{{ student.id }}"></td>
+        </tr>
+        {% endfor %}
+    </table>
+    <button type="submit">Submit Attendance</button>
+</form>
+{% endblock %}
