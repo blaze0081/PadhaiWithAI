@@ -17,8 +17,9 @@
         <tbody>
             {% for school, students in school_students.items %}
                 <tr style="background-color: #ffffff; border: 1px solid #ddd;">
+                    
                     <td style="padding: 15px; font-size: 1.2em; color: #007bff; font-weight: bold;">
-                        {{ school.name }}
+                        {{ forloop.counter }}-{{ school.name }}
                     </td>
                 </tr>
                     <tr>

@@ -5,8 +5,17 @@
         <h2 class="text-center mb-4" style="color: #007bff; font-size: 2.5em; font-weight: bold;">Weakest Students</h2>
         
         <!-- Form to filter the number of weakest students -->
-        <form method="get" class="mb-4">
-            <div class="row">
+        <form method="get" action="" class="mb-4">
+            <div class="form-group">
+                <label for="test">Select Test</label>
+                <select name="test" id="test" class="form-control" >
+                    <option value="">All Tests</option>
+                    {% for test in all_tests %}
+                        <option value="{{ test.test_number }}" {% if test.test_number == test_number %}selected{% endif %}>Test {{ test.test_number }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div  class="form-group">
                 <div class="col-md-6 offset-md-3 d-flex justify-content-between align-items-center">
                     <label for="weakest" class="form-label">Number of Weakest:</label>
                     <input type="number" name="weakest" value="5" class="form-control w-50">
@@ -14,7 +23,6 @@
                 </div>
             </div>
         </form>
-
         <!-- Table to display weakest students -->
         <div class="card shadow-sm p-4">
             <table class="table table-bordered table-striped">

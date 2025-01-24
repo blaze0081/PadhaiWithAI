@@ -99,6 +99,7 @@ DATABASES = {
 }
 
 
+
 # Enable WAL mode for SQLite
 from django.db.backends.signals import connection_created
 from django.dispatch import receiver

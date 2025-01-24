@@ -44,10 +44,35 @@
 <!-- Slick Carousel JS -->
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
 
-  <h2>Toppers of the Week</h2>
+  <h2 style="color:#069">Toppers of the Week</h2>
   <div class="photo-line">
     <div class="slider">
             <!-- Repeat this block 20 times for each photo -->
+            <div class="photo-container">
+                <img src="{% static 'school_app/images/lakshyapratapsingh.jpeg' %}" alt="" class="passport-photo">
+                <div class="caption">
+                    <marquee behavior="scroll" direction="left" scrollamount="3">Lakshya Pratap Singh, GSSS Dhundhiya</marquee>
+                </div>
+           </div>
+            <div class="photo-container">
+                <img src="{% static 'school_app/images/nishamalpura.jpeg' %}" alt="" class="passport-photo">
+                <div class="caption">
+                    Nisha Meena
+                </div>
+            </div>
+            <div class="photo-container">
+                <img src="{% static 'school_app/images/khushijhilay.jpeg' %}" alt="" class="passport-photo">
+                <div class="caption">
+                    Khushi Saini
+                </div>
+            </div>
+            <div class="photo-container">
+                <img src="{% static 'school_app/images/komaljhilay.jpeg' %}" alt="" class="passport-photo">
+                <div class="caption">
+                    komal Choudhary
+                </div>
+            </div>
+
             <div class="photo-container">
                 <img src="{% static 'school_app/images/mamtaganwar.jpeg' %}" alt="" class="passport-photo">
                 <div class="caption">
@@ -67,12 +92,13 @@
                      Radhika Bairwa
                 </div>
             </div>
-            <div class="photo-container">
-                <img src="{% static 'school_app/images/lakshyapratapsingh.jpeg' %}" alt="" class="passport-photo">
+            <div class="photo-container">   
+                 <img src="{% static 'school_app/images/anjaliganwar.jpeg' %}" alt="" class="passport-photo">
                 <div class="caption">
-                Lakshya Pratap Singh
+                    Anjali Kharra
                 </div>
-           </div>
+            </div>
+          
            <div class="photo-container">
                 <img src="{% static 'school_app/images/manishkakod.jpeg' %}" alt="" class="passport-photo">
                 <div class="caption">
@@ -141,9 +167,9 @@
                 </div>
         </div>
         <div class="photo-container">
-              <img src="{% static 'school_app/images/rohitgour.jpg' %}" alt="Photo 3" class="passport-photo">
+              <img src="{% static 'school_app/images/Mohitrammeenachoki.jpg' %}" alt="Photo 3" class="passport-photo">
               <div class="caption">
-                  <marquee behavior="scroll" direction="left" scrollamount="3">Rohit Gour</marquee>
+                  <marquee behavior="scroll" direction="left" scrollamount="3">Mohit ram Meena</marquee>
               </div>
         </div>
         <div class="photo-container">
@@ -159,9 +185,9 @@
             </div>
           </div>
           <div class="photo-container">
-            <img src="{% static 'school_app/images/Payalmeena.jpeg' %}" alt="Payal Kumari Meena  GSSS Niwariya " class="passport-photo">
+            <img src="{% static 'school_app/images/abhishekchhan.jpeg' %}" alt="" class="passport-photo">
             <div class="caption">
-                <marquee behavior="scroll" direction="left" scrollamount="3">Payal Kumari Meena  GSSS Niwariya </marquee>
+                <marquee behavior="scroll" direction="left" scrollamount="3">Abhishek Saini</marquee>
             </div>
           </div>
           <div class="photo-container">
@@ -178,7 +204,6 @@
          </div>
     </div>
 </div>
-
 <div class="content container mt-5">
     <div class="row align-items-center">
     <div class="col-md-5">
@@ -193,11 +218,11 @@
                         {% csrf_token %}
                         <div class="mb-3 text-left">
                             <label for="email" class="form-label" style="font-size: 20px;">Email</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
+                            <input type="email" class="form-control" id="email" name="email" required placeholder="Login email">
                         </div>
                         <div class="mb-1 text-left">
                             <label for="password" class="form-label" style="font-size: 20px;">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
+                            <input type="password" class="form-control" id="password" name="password" required placeholder="Password">
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Login</button>
                     </form>
@@ -214,7 +239,7 @@
         $('.slider').slick({
             infinite: true, // Infinite scrolling
             slidesToShow: 5, // Number of images to show at once
-            slidesToScroll: 1, // Number of images to scroll at once
+            slidesToScroll: 3, // Number of images to scroll at once
             autoplay: true, // Enable autoplay
             autoplaySpeed: 2000, // Speed between images
             arrows: true, // Show next/previous arrows

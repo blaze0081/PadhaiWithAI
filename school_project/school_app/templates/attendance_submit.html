@@ -1,22 +1,95 @@
 {% extends 'school_app/base.html' %}
 
 {% block content %}
+<style>
+    .attendance-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .attendance-title {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    
+    .attendance-form {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .attendance-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+    
+    .attendance-table th, .attendance-table td {
+        padding: 10px;
+        text-align: left;
+        border: 1px solid #ddd;
+    }
+    
+    .attendance-table th {
+        background-color: #f4f4f4;
+    }
+    
+    .form-actions {
+        display: flex;
+        justify-content: center;
+    }
+    
+    .btn {
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+    
+    .btn-primary {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+    }
+    
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+    
+</style>
+    <div class="attendance-container">
+        <h1 class="attendance-title">Submit Attendance</h1>
 
-<h1>Submit Attendance</h1>
-<form method="POST">
-    {% csrf_token %}
-    <table>
-        <tr>
-            <th>Student Name</th>
-            <th>Mark Absent</th>
-        </tr>
-        {% for student in students %}
-        <tr>
-            <td>{{ student.name }}</td>
-            <td><input type="checkbox" name="absent_students" value="{{ student.id }}"></td>
-        </tr>
-        {% endfor %}
-    </table>
-    <button type="submit">Submit Attendance</button>
-</form>
+        <form method="POST" class="attendance-form">
+            {% csrf_token %}
+            
+            <div class="table-responsive">
+                <table class="attendance-table">
+                    <thead>
+                        <tr>
+                            <th>S.No.</th>
+                            <th>Student Name</th>
+                            <th>Mark Absent</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ student.name }}</td>
+                            <td>
+                                <input type="checkbox" name="absent_students" value="{{ student.id }}" id="student-{{ student.id }}" aria-label="Mark {{ student.name }} as absent">
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Submit Attendance</button>
+            </div>
+        </form>
+    </div>
+    <a href="{% url 'dashboard' %}" class="action-btn edit-btn" style="margin-left: 20px;">Back to Dashboard</a>
 {% endblock %}

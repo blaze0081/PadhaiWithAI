@@ -88,7 +88,15 @@
             <p>See schools with no test entries.</p>
             <a href="{% url 'schools_without_tests' %}">View Report</a>
         </div>
-
+        <div class="card">
+            <h3>Student Attendance</h3>
+        
+            <a href="{% url 'date_wise_attendance_summary' %}">daily Attendance summary</a>
+            <a href="{% url 'attendance_summary' %}">Student Attendance summary</a>
+            <a href="{% url 'district_wise_attendance_summary' %}">District Wise Attendance summary</a>
+            district_wise_attendance_summary
+            
+        </div>
        
         {% comment %} <div class="card">
             <h3>A</h3>
