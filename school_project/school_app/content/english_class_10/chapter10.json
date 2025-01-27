@@ -34,7 +34,7 @@
       "exercise": "10.2",
       "questions": [
         {
-          "question": "From a point Q, the length of the tangent to a circle is 24 cm, and the distance of Q from the centre is 25 cm. Find the radius of the circle.",
+          "question": "From a point Q, the length of the tangent to a circle is 24 cm, and the distance of Q from the centre is 25 cm. Find the radius of the circle.(A)7 cm(B) 12 cm(C) 15 cm (D)24.5 cm",
           "options": [
             "7 cm",
             "12 cm",
@@ -43,17 +43,17 @@
           ]
         },
         {
-          "question": "In Fig. 10.11, if TP and TQ are the two tangents to a circle with centre O such that ∠POQ = 110°, then ∠PTQ is equal to:",
+          "question": "In Fig. 10.11, if TP and TQ are the two tangents to a circle with centre O such that ∠POQ = 110°, then ∠PTQ is equal to:  (A) 60°(B) 70°(C) 80°(D) 90°",
           "options": [
             "60°",
             "70°",
             "80°",
             "90°"
           ],
-          "image": "Fig_10.11.png"
+         "img": "10-2-2.jpg"
         },
         {
-          "question": "If tangents PA and PB from a point P to a circle with centre O are inclined to each other at an angle of 80°, then ∠POA is equal to:",
+          "question": "If tangents PA and PB from a point P to a circle with centre O are inclined to each other at an angle of 80°, then ∠POA is equal to:  (A) 50° (B) 60°(C) 70° (D) 80°",
           "options": [
             "50°",
             "60°",
@@ -75,11 +75,11 @@
         },
         {
           "question": "A quadrilateral ABCD is drawn to circumscribe a circle. Prove that AB + CD = AD + BC.",
-          "image": "Fig_10.12.png"
+          "img": "10-2-8.jpg"
         },
         {
           "question": "In Fig. 10.13, XY and X'Y' are two parallel tangents to a circle with centre O, and another tangent AB with point of contact C intersects XY at A and X'Y' at B. Prove that ∠AOB = 90°.",
-          "image": "Fig_10.13.png"
+          "img": "10-2-9.jpg"
         },
         {
           "question": "Prove that the angle between the two tangents drawn from an external point to a circle is supplementary to the angle subtended by the line segment joining the points of contact at the centre."
@@ -89,7 +89,7 @@
         },
         {
           "question": "A triangle ABC is drawn to circumscribe a circle of radius 4 cm such that the segments BD and DC into which BC is divided by the point of contact D are of lengths 8 cm and 6 cm, respectively. Find the sides AB and AC.",
-          "image": "Fig_10.14.png"
+          "img": "10-2-12.jpg"
         },
         {
           "question": "Prove that opposite sides of a quadrilateral circumscribing a circle subtend supplementary angles at the centre of the circle."
