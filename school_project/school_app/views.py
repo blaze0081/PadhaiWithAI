@@ -1847,9 +1847,9 @@ def generate_math(request):
                     all_generated_questions.append(generated_content)
                     
                 except Exception as e:
-                    error_msg = f"{error_messages[language]['error']} {str(e)}"
-                    messages.error(request, error_msg)
-                    continue
+                    print(f"Error generating questions: {e}")
+                    messages.error(request, f"Error generating questions: {str(e)}")
+                    return redirect('login')
 
             # Combine all generated questions
             combined_content = "\n\n".join(all_generated_questions)
@@ -1870,8 +1870,9 @@ def generate_math(request):
     except json.JSONDecodeError:
         messages.error(request, error_messages[language]['invalid_data'])
     except Exception as e:
-        error_msg = f"{error_messages[language]['error']} {str(e)}"
-        messages.error(request, error_msg)
+        print(f"Unexpected error: {e}")
+        messages.error(request, f"An unexpected error occurred: {str(e)}")
+        return redirect('login')
 
     return redirect('math_tools')
 
