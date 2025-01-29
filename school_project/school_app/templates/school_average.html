@@ -17,9 +17,6 @@
                     {% for test_avg in results.0.test_averages %}
                     <th style="font-size: 1.2em; color: #333;">{{ test_avg.test_name }}</th>
                     {% endfor %}
-                    {% for test_avg in results.1.test_averages %}
-                    <th style="font-size: 1.2em; color: #333;">{{ test_avg.test_name }}</th>
-                    {% endfor %}
                 </tr>
                 </thead>
                 <tbody>
@@ -43,15 +40,14 @@
         Back to Dashboard
     </a>
 </div>  
-
-    <script>
-        $(document).ready(function() {
-            // Initialize the DataTable
-            $('#schoolTable').DataTable({
-                "paging": true,
-                "searching": true,
-                "ordering": true
-            });
-        });
-    </script>
 {% endblock %}
+<script>
+    $(document).ready(function() {
+        // Initialize the DataTable
+        $('#schoolTable').DataTable({
+            "paging": true,
+            "searching": true,
+            "ordering": true
+        });
+    });
+</script>

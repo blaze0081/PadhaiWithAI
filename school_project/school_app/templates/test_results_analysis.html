@@ -22,43 +22,91 @@
     
 </style>
     <h1>Test Results Analysis</h1>
-    <div>
-        <table border="1" cellspacing="0" cellpadding="5">
-            <thead>
-                <tr>
-                    <th>School Name</th>
-                    <th>Test Name</th>
-                    <th>Total Students</th>
-                    <th>0-33%</th>
-                    <th>33-59%</th>
-                    <th>60-79%</th>
-                    <th>80-89%</th>
-                    <th>90-99%</th>
-                    <th>100%</th>
-                </tr>
-            </thead>
-            <tbody>
-        {% for school in results %}
-        {% comment %} <h2>School: {{ school.school_name }}</h2> {% endcomment %}
-       
-           
-                {% for test in school.tests %}
-                <tr>
-                    <td>{{ school.school_name }}</td>
-                    <td>{{ test.test_name }}</td>
-                    <td>{{ test.total_students }}</td>
-                    <td>{{ test.category_0_33 }}</td>
-                    <td>{{ test.category_33_60 }}</td>
-                    <td>{{ test.category_60_80 }}</td>
-                    <td>{{ test.category_80_90 }}</td>
-                    <td>{{ test.category_90_100 }}</td>
-                    <td>{{ test.category_100 }}</td>
-                </tr>
-                {% endfor %}
-           
-        {% endfor %}
-    </tbody>
-</table>
-    </div>
+    <!-- Block Filter Form (for District and Block Users) -->
+    {% if request.user.is_district_user or request.user.is_block_user %}
+        <form method="get">
+            <div class="form-group">
+                <label for="block">Select Block:</label>
+                <select name="block" id="block" class="form-control">
+                    <option value="">All Blocks</option>
+                    {% for block in blocks %}
+                        <option value="{{ block.id }}" {% if block.id == selected_block_id %}selected{% endif %}>
+                            {{ block.name_english }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Filter</button>
+        </form>
+        <hr>
+    {% endif %}
 
+    <!-- Test Filter Form -->
+    <form method="get">
+        <div class="form-group">
+            <label for="test">Select Tests:</label>
+            <select name="test" id="test" class="form-control" multiple>
+                <option value="">All Tests</option>
+                {% for test in tests %}
+                    <option value="{{ test.test_number }}" {% if test.test_number in selected_test_numbers %}selected{% endif %}>
+                        {{ test.subject_name }} - {{ test.test_name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Filter</button>
+    </form>
+
+    <hr>
+
+    <!-- Results Table -->
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>School Name</th>
+                <th>Block Name</th>
+                <th>Test Name</th>
+                <th>Total Students</th>
+                <th>Category 0-33%</th>
+                <th>Category 33-60%</th>
+                <th>Category 60-80%</th>
+                <th>Category 80-90%</th>
+                <th>Category 90-100%</th>
+                <th>Category 100%</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for school_data in results %}
+                {% for test_data in school_data.tests %}
+                    <tr>
+                        <td>{{ school_data.school_name }}</td>
+                        <td>{{ school_data.block_name }}</td>
+                        <td>{{ test_data.test_name }}</td>
+                        <td>{{ test_data.total_students }}</td>
+                        <td>{{ test_data.category_0_33 }}</td>
+                        <td>{{ test_data.category_33_60 }}</td>
+                        <td>{{ test_data.category_60_80 }}</td>
+                        <td>{{ test_data.category_80_90 }}</td>
+                        <td>{{ test_data.category_90_100 }}</td>
+                        <td>{{ test_data.category_100 }}</td>
+                    </tr>
+                {% endfor %}
+            {% empty %}
+                <tr>
+                    <td colspan="10" class="text-center">No data available</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+    <script>
+        $(document).ready(function() {
+            // Initialize the DataTable
+            $('#schoolTable').DataTable({
+                "paging": true,
+                "searching": true,
+                "ordering": true
+            });
+        });
+    </script>
 {% endblock %}

@@ -3,69 +3,64 @@
 {% block content %}
 
 <!-- Test Selection Dropdown -->
-
-
     <div class="container mt-5">
         <h2 class="text-center mb-4" style="color: #007bff; font-size: 2.5em;">Top Students</h2>
-        
-        <!-- Test Selection Dropdown (multiple selection) -->
+    <!-- Selection Form -->
 <form method="get">
     <div class="form-group">
-        <label for="test">Select Tests:</label>
+        <label for="test"><strong>Select Tests:</strong></label>
         <select name="test" id="test" class="form-control" multiple>
             <option value="" {% if not selected_test_numbers %}selected{% endif %}>All Tests</option>
             {% for test in tests %}
                 <option value="{{ test.test_number }}" {% if test.test_number in selected_test_numbers %}selected{% endif %}>
-                    {{ test.subject_name }} - {{ test.name }}  <!-- Show subject and test name -->
+                    {{ test.subject_name }} - {{ test.name }}
                 </option>
             {% endfor %}
         </select>
     </div>
 
-    <div class="form-group">
-        <label for="toppers">Number of Top Students:</label>
-        <input type="number" name="toppers" id="toppers" class="form-control" value="{{ number_of_toppers }}">
-    </div>
-
-    <button type="submit" class="btn btn-primary">Submit</button>
+    <button type="submit" class="btn btn-primary">Show Rankings</button>
 </form>
 
-        <hr>
+<hr>
 
-        <p><strong>Maximum Marks Used for Percentage Calculation:</strong> 
-            {% if selected_test_number %}
-                {{ selected_test_max_marks }} (for selected test)
-            {% else %}
-                {{ selected_test_max_marks }} (across all tests)
-            {% endif %}
-        </p>
-        <table border="1" cellpadding="10" cellspacing="0" class="table table-bordered table-striped" >
-            <thead>
-                <tr>
-                    <th>Rank</th>
-                    <th>Student Name</th>
-                    <th>School Name</th>
-                    <th>Marks</th>
-                    <th>Marks</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for student in data %}
-                    <tr>
-                        <td>{{ forloop.counter }}</td>
-                        <td>{{ student.student__name }}</td>
-                        <td>{{ student.student__school__name }}</td>
-                        <td>{{ student.avg_marks|floatformat:2 }}</td>
-                        <td>{{ student.percentage|floatformat:2 }}</td>
-                    </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="4" class="text-center">No data available</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+<p><strong>Maximum Marks Used for Percentage Calculation:</strong> 
+    {% if selected_test_numbers %}
+        {{ selected_tests_max_marks }} (for selected tests)
+    {% else %}
+        {{ selected_tests_max_marks }} (cumulative across all tests)
+    {% endif %}
+</p>
+
+<!-- Rankings Table -->
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Rank</th>
+            <th>Student Name</th>
+            <th>School Name</th>
+            <th>Total Marks</th>
+            <th>Percentage</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for student in data %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ student.student__name }}</td>
+                <td>{{ student.student__school__name }}</td>
+                <td>{{ student.total_marks }}</td>
+                <td>{{ student.percentage|floatformat:2 }}%</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="5" class="text-center">No data available</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+
     <!-- Back to Dashboard Button -->
  <div class="text-center mt-4">
     <a href="{% url 'student_report' %}" class="btn btn-secondary" style="font-size: 1.1em; padding: 10px 20px;">
