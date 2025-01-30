@@ -53,7 +53,7 @@
       
         <label for="test">Select Test:</label>
         <select name="test_id" id="test">
-            <option value="">All Tests</option>
+            {% comment %} <option value="">All Tests</option> {% endcomment %}
             {% for test in tests %}
             <option value="{{ test.test_number }}" {% if test.test_number == selected_test %}selected{% endif %}>{{ test.test_name }}</option>
             {% endfor %}
@@ -62,27 +62,42 @@
     </form>
 </div>
 
-<table>
+{% if selected_test_name %}
+    <p>You have selected: <strong>{{ selected_test_name }}</strong></p>
+{% else %}
+    <p>No specific test selected. Showing data for all tests.</p>
+{% endif %}
+
+<table class="table table-striped">
     <thead>
         <tr>
             <th>School Name</th>
             <th>Total Students</th>
-            <th>Marks Entered (Tests)</th>
-            <th>Difference </th>
+            <th>Test Count</th>
+            <th>Difference</th>
         </tr>
     </thead>
     <tbody>
         {% for school in schools %}
-        <tr {% if school.name == 'All Schools' %}class="total-row"{% endif %}>
-            <td>{{ school.name }}</td>
-            <td>{{ school.total_students }}</td>
-            <td>{{ school.test_count }}</td>
-            <td>{{ school.difference }}</td>
-        </tr>
+            <tr>
+                <td>{{ school.name }}</td>
+                <td>{{ school.total_students }}</td>
+                <td>{{ school.test_count }}</td>
+                <td>{{ school.difference }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="4" class="text-center">No data available</td>
+            </tr>
         {% endfor %}
+        <tr>
+            <td><strong>{{ all_schools_row.name }}</strong></td>
+            <td><strong>{{ all_schools_row.total_students }}</strong></td>
+            <td><strong>{{ all_schools_row.test_count }}</strong></td>
+            <td><strong>{{ all_schools_row.difference }}</strong></td>
+        </tr>
     </tbody>
 </table>
-
 <!-- Link to return to the report dashboard -->
 <a href="{% url 'report_dashboard' %}">Back to Report Dashboard</a>
 

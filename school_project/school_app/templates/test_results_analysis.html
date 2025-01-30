@@ -36,25 +36,26 @@
                     {% endfor %}
                 </select>
             </div>
-            <button type="submit" class="btn btn-primary">Filter</button>
+            <div class="form-group">
+                <label for="test">Select Tests:</label>
+                <select name="test" id="test" class="form-control" multiple>
+                    <option value="">All Tests</option>
+                    {% for test in tests %}
+                        <option value="{{ test.test_number }}" {% if test.test_number in selected_test_numbers %}selected{% endif %}>
+                            {{ test.subject_name }} - {{ test.test_name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+           
+            <button type="submit" class="btn btn-primary">View Data</button>
         </form>
         <hr>
     {% endif %}
 
     <!-- Test Filter Form -->
     <form method="get">
-        <div class="form-group">
-            <label for="test">Select Tests:</label>
-            <select name="test" id="test" class="form-control" multiple>
-                <option value="">All Tests</option>
-                {% for test in tests %}
-                    <option value="{{ test.test_number }}" {% if test.test_number in selected_test_numbers %}selected{% endif %}>
-                        {{ test.subject_name }} - {{ test.test_name }}
-                    </option>
-                {% endfor %}
-            </select>
-        </div>
-        <button type="submit" class="btn btn-primary">Filter</button>
+       
     </form>
 
     <hr>

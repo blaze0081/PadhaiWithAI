@@ -3,67 +3,65 @@
 {% block content %}
     <div class="container mt-5">
         <h2 class="text-center mb-4" style="color: #007bff; font-size: 2.5em; font-weight: bold;">Weakest Students</h2>
-        
-         <!-- Filter Form -->
-    <form method="get">
-        <div class="form-group">
-            <label for="test">Select Tests:</label>
-            <select name="test" id="test" class="form-control" multiple>
-                <option value="" {% if not selected_test_numbers %}selected{% endif %}>All Tests</option>
-                {% for test in tests %}
-                    <option value="{{ test.test_number }}" {% if test.test_number in selected_test_numbers %}selected{% endif %}>
-                        {{ test.subject_name }} - {{ test.test_name }}  <!-- Show subject and test name -->
-                    </option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
-
-    <hr>
-
-    <!-- Maximum Marks -->
-    <p><strong>Maximum Marks Used for Percentage Calculation:</strong>
-        {% if selected_test_numbers %}
-            {{ selected_tests_max_marks }} (for selected tests)
-        {% else %}
-            {{ selected_tests_max_marks }} (across all tests)
-        {% endif %}
-    </p>
-
-    <!-- Weakest Students Table -->
-    <h3>List of Weakest Students (Scoring Less Than 33%)</h3>
-    <table class="table table-bordered table-striped">
-        <thead>
-            <tr>
-                <th>Rank</th>
-                <th>Student Name</th>
-                <th>School Name</th>
-                <th>Block Name</th>
-                <th>Total Marks</th>
-                <th>Percentage</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for student in data %}
-                <tr>
-                    <td>{{ forloop.counter }}</td>
-                    <td>{{ student.student__name }}</td>
-                    <td>{{ student.student__school__name }}</td>
-                    <td>{{ student.student__school__block__name_english }}</td>
-                    <td>{{ student.total_marks }}</td>
-                    <td>{{ student.percentage|floatformat:2 }}%</td>
-                </tr>
-            {% empty %}
-                <tr>
-                    <td colspan="6" class="text-center">No students found who scored less than 33%</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+        <form method="get">
+            <div class="form-group">
+                <label for="test">Select Tests:</label>
+                <select name="test" id="test" class="form-control" multiple>
+                    <option value="" {% if not selected_test_numbers %}selected{% endif %}>All Tests</option>
+                    {% for test in tests %}
+                        <option value="{{ test.test_number }}" {% if test.test_number in selected_test_numbers %}selected{% endif %}>
+                            {{ test.subject_name }} - {{ test.test_name }}  <!-- Show subject and test name -->
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
     
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    
+        <hr>
+    
+        <!-- Maximum Marks -->
+        <p><strong>Maximum Marks Used for Percentage Calculation:</strong>
+            {% if selected_test_numbers %}
+                {{ selected_tests_max_marks }} (for selected tests)
+            {% else %}
+                {{ selected_tests_max_marks }} (across all tests)
+            {% endif %}
+        </p>
+    
+        <!-- Weakest Students Table -->
+        <h3>List of Weakest Students (Scoring Less Than 33%)</h3>
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Student Name</th>
+                    <th>School Name</th>
+                    <th>Block Name</th>
+                    <th>Total Marks</th>
+                    <th>Percentage</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in data %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ student.student__name }}</td>
+                        <td>{{ student.student__school__name }}</td>
+                        <td>{{ student.student__school__block__name_english }}</td>
+                        <td>{{ student.total_marks }}</td>
+                        <td>{{ student.percentage|floatformat:2 }}%</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">No students found who scored less than 33%</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+    </div>
     <!-- Back to Dashboard Button -->
  <div class="text-center mt-4">
     <a href="{% url 'student_report' %}" class="btn btn-secondary" style="font-size: 1.1em; padding: 10px 20px;">

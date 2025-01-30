@@ -10,27 +10,33 @@
             <div class="card-body">
      
             <table id="schoolTable" class="table table-bordered table-striped">
-                <thead>
-                <tr>
-                    <th style="font-size: 1.2em; color: #333;">S.No.</th>
-                    <th style="font-size: 1.2em; color: #333;">School Name</th>
-                    {% for test_avg in results.0.test_averages %}
-                    <th style="font-size: 1.2em; color: #333;">{{ test_avg.test_name }}</th>
-                    {% endfor %}
-                </tr>
-                </thead>
-                <tbody>
-                {% for school in results %}
-                    <tr>
-                        <td>{{ forloop.counter }}</td>
-                    <td style="font-size: 1.2em; color: #333;">{{ school.school_name }}</td>
-                    {% for test_avg in school.test_averages %}
-                        <td>{{ test_avg.average_marks|default:0|floatformat:2 }}</td>
-                    {% endfor %}
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table> 
+              
+                    <thead>
+                        <tr>
+                            <th>S.No</th>
+                            <th>Block Name</th>
+                            <th>School Name</th>
+                            
+                            {% for test in tests %}
+                                <th>{{ test.subject_name }}</th>
+                            {% endfor %}
+                            <th>Cumulative Average</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for school in results %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ school.block_name }}</td>
+                            <td>{{ school.school_name }}</td>                           
+                            {% for test_data in school.test_averages %}
+                                <td>{{ test_data.average_marks|floatformat:2 }}</td>
+                            {% endfor %}
+                            <td><strong>{{ school.school_average|floatformat:2 }}</strong></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -40,6 +46,8 @@
         Back to Dashboard
     </a>
 </div>  
+
+   
 {% endblock %}
 <script>
     $(document).ready(function() {

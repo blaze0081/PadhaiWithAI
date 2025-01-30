@@ -331,7 +331,7 @@ def test_wise_average_marks(request):
         )
         .values('test_name', 'avg_marks', 'percentage', 'total_students', 'category_0_and_less', 
                 'category_0_33', 'category_33_60', 'category_60_80', 'category_80_90', 'category_90_100', 'category_100')
-        .order_by('-percentage')
+        .order_by('-test_name')
     )
     elif request.user.is_block_user:
        block = Block.objects.get(admin=request.user)
@@ -520,45 +520,65 @@ def schools_without_students(request):
 #2
 @login_required
 def inactive_schools(request):
+    today = timezone.now().date()  # Get today's date
+
     schools = School.objects.filter(
-        admin__last_login__isnull=True
-    ).values('id','name', 'admin__email')
+        admin__last_login__isnull=False  # Ensure that the admin has logged in at least once
+    ).exclude(
+        admin__last_login__date=today  # Exclude admins who logged in today
+    ).values('id', 'name', 'admin__email')  # Retrieve the required fields
+
     context = {'schools': schools}
     return render(request, 'inactive_schools.html', context)
-
 #3
 @login_required
 def schools_with_test_counts(request):
-    # Retrieve the list of available tests
+    # Retrieve all tests
     tests = Test.objects.all()
-    
-    # Check if a test is selected, and fetch data for that test
-    selected_test = request.GET.get('test_id')  # Assume the selected test's ID is sent in the query string
-    #print(selected_test)
-    # Annotate school data with test counts and students, filtered by the selected test if any
-    if selected_test:
-        schools = School.objects.filter(
-            student__marks__test_id=selected_test
-        ).annotate(
-            test_count=Count('student__marks__test'),
-            total_students=Count('student')
-        ).order_by('-total_students')
-    else:
-        # If no test is selected, show data for all tests
-        schools = School.objects.annotate(
-            test_count=Count('student__marks__test'),
-            total_students=Count('student')
-        ).order_by('-total_students')
 
-# Calculate the difference for each school and add it to the context
-    for school in schools:
-        school.difference = school.total_students - school.test_count
-    # Compute totals for all schools if no specific test is selected
+    # Get selected test ID from query parameters
+    selected_test = request.GET.get('test_id')
+
+    # Determine the user role and filter schools accordingly
+    if request.user.is_district_user:
+        schools = School.objects.all()  # District user sees all schools
+    elif request.user.is_block_user:
+        block = Block.objects.get(admin=request.user)  # Get the block assigned to the block user
+        schools = School.objects.filter(block=block)  # Filter schools in the user's block
+    else:
+        school = School.objects.get(admin=request.user)  # Get the school for a school user
+        schools = School.objects.filter(id=school.id)  # Only the school of the logged-in user
+
+    # Base query for schools, counting total students per school
+    schools = schools.annotate(
+        total_students=Count('student', distinct=True),  # Total students per school
+    )
+
+    # If a specific test is selected, calculate test count per school for that test
+    if selected_test:
+        # Count the distinct tests attempted for the selected test
+        schools = schools.annotate(
+            test_count=Count('student__marks', filter=Q(student__marks__test_id=selected_test), distinct=True),  # Count test attempts for selected test
+        )
+        # Get the name of the selected test
+        selected_test_name = Test.objects.get(test_number=selected_test).test_name
+    else:
+        # If no specific test is selected, calculate total test attempts across all tests
+        schools = schools.annotate(
+            test_count=Count('student__marks__test', distinct=True),  # Count all tests attempted
+        )
+        selected_test_name = None
+    # Calculate the difference between total students and test count (e.g., number of students not attempting a test)
+    schools = schools.annotate(
+        difference=F('total_students') - F('test_count')  # Difference between total students and tests attempted
+    ).order_by('-total_students')  # Ordering by the total number of students
+
+    # Compute overall totals for all schools
     total_students_all = sum(school.total_students for school in schools)
     total_tests_all = sum(school.test_count for school in schools)
     total_difference_all = total_students_all - total_tests_all
 
-    # Add the "All Schools" row
+    # Add "All Schools" row to show overall data
     all_schools_row = {
         'name': 'All Schools',
         'total_students': total_students_all,
@@ -566,14 +586,16 @@ def schools_with_test_counts(request):
         'difference': total_difference_all
     }
 
-    # Add this row at the end
+    # Add "All Schools" data at the end of the list
     schools = list(schools) + [all_schools_row]
 
     context = {
         'schools': schools,
         'tests': tests,
         'selected_test': selected_test,
+        'selected_test_name': selected_test_name,
     }
+
     return render(request, 'schools_with_test_counts.html', context)
 #4
 @login_required
@@ -690,55 +712,50 @@ def upload_student_data(request):
 # Views
 @login_required
 def school_average_marks(request):
-    # First, we will fetch schools and aggregate the average marks for each test in each school
-    
+    # Filter schools based on user role
     if request.user.is_district_user:
         schools = School.objects.all()
-    else:
+    elif request.user.is_block_user:
         block = Block.objects.get(admin=request.user)
-        schools = School.objects.all().filter(block=block)
-    
+        schools = School.objects.filter(block=block)
+    else:
+        schools = School.objects.filter(admin=request.user)
+
     results = []
+    tests = Test.objects.all().order_by('test_number')  # Get all tests
 
     for school in schools:
         school_data = {
             'school_name': school.name,
+            'block_name': school.block.name_english if school.block else "N/A",
             'test_averages': [],
             'school_average': 0
         }
 
-        # Get all tests associated with the school
-        tests = Test.objects.filter(marks__student__school=school).distinct()
-
-        # List to hold all test averages for calculating school average later
-        test_avg_list = []
+        test_avg_list = []  # List to store test averages for cumulative calculation
 
         for test in tests:
-            # Get the average marks for the school in the current test
             avg_marks = Marks.objects.filter(test=test, student__school=school).aggregate(avg_marks=Avg('marks'))['avg_marks']
+            avg_marks = avg_marks if avg_marks is not None else 0  # Handle None values
 
-            if avg_marks is not None:
-                test_avg_list.append(avg_marks)
-            else:
-                test_avg_list.append(0)
-
-            # Add the test average to the school's data
+            test_avg_list.append(avg_marks)
             school_data['test_averages'].append({
                 'test_name': test.subject_name,
-                'average_marks': avg_marks if avg_marks is not None else 0
+                'average_marks': avg_marks
             })
 
-        # Calculate the overall school average by averaging all test averages
-        if test_avg_list:
-            school_data['school_average'] = sum(test_avg_list) / len(test_avg_list)
+        # Calculate the cumulative average for the school
+        school_data['school_average'] = sum(test_avg_list) / len(test_avg_list) if test_avg_list else 0
 
-        # Add the school data to the results
         results.append(school_data)
 
-    # Sort the schools based on the highest overall school average
+    # Sort schools by overall average marks (Descending Order)
     results.sort(key=lambda x: x['school_average'], reverse=True)
-    
-    context = {'results': results}
+
+    context = {
+        'results': results,
+        'tests': tests
+    }
     return render(request, 'school_average.html', context)
 
 
@@ -1136,7 +1153,7 @@ def collector_dashboard(request):
                 category_100=Count(Case(When(marks__marks=F('max_marks') , then=1), output_field=IntegerField()))
         )
         .values('test_name','subject_name', 'avg_marks', 'percentage', 'category_0_33', 'category_33_60', 'category_60_80', 'category_80_90', 'category_90_100', 'category_100')
-        .order_by('-percentage')
+        .order_by('-test_name')
     )
 # Aggregate category counts for pie chart
     for entry in data:
