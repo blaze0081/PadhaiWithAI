@@ -729,28 +729,46 @@ def school_average_marks(request):
             'school_name': school.name,
             'block_name': school.block.name_english if school.block else "N/A",
             'test_averages': [],
-            'school_average': 0
+            'school_average': 0,
+            'school_percentage': 0  # Add field for cumulative percentage
         }
 
         test_avg_list = []  # List to store test averages for cumulative calculation
+        total_max_marks = 0  # Variable to store the total max marks
+        total_avg_marks = 0  # Variable to store the total average marks for percentage calculation
 
         for test in tests:
+            # Get max marks for the test
+            max_marks = test.max_marks if test.max_marks else 100  # Use 100 as default if max_marks not set
+
+            # Get the average marks for the test
             avg_marks = Marks.objects.filter(test=test, student__school=school).aggregate(avg_marks=Avg('marks'))['avg_marks']
             avg_marks = avg_marks if avg_marks is not None else 0  # Handle None values
 
-            test_avg_list.append(avg_marks)
+            # Calculate the percentage for the test (avg_marks / max_marks * 100)
+            #test_percentage = (avg_marks / max_marks) * 100 if max_marks > 0 else 0
+            test_percentage = (float(avg_marks) / float(max_marks)) * 100 if max_marks > 0 else 0    
+            # Append the test details to school_data
             school_data['test_averages'].append({
                 'test_name': test.subject_name,
-                'average_marks': avg_marks
+                'average_marks': avg_marks,
+                'percentage': round(test_percentage, 2)  # Round the percentage to 2 decimal places
             })
 
-        # Calculate the cumulative average for the school
-        school_data['school_average'] = sum(test_avg_list) / len(test_avg_list) if test_avg_list else 0
+            # Add to the cumulative values
+            total_max_marks += max_marks
+            total_avg_marks += avg_marks
+
+        # Calculate cumulative percentage for the school
+        #school_data['school_percentage'] = (total_avg_marks / total_max_marks) * 100 if total_max_marks > 0 else 0
+        school_data['school_percentage'] = (float(total_avg_marks) / float(total_max_marks)) * 100 if total_max_marks > 0 else 0
+        # Calculate the cumulative average marks for the school
+        school_data['school_average'] = total_avg_marks / len(tests) if tests else 0
 
         results.append(school_data)
 
     # Sort schools by overall average marks (Descending Order)
-    results.sort(key=lambda x: x['school_average'], reverse=True)
+    results.sort(key=lambda x: x['school_percentage'], reverse=True)
 
     context = {
         'results': results,

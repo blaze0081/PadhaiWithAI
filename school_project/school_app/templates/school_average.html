@@ -2,42 +2,44 @@
 
 {% block content %}
 
-    <div class="container mt-5">
+    <div class="container">
         <h2 class="text-center mb-4" style="font-size: 2.5em; color: #0056b3; font-weight: bold;">School Average Marks</h2>
 
         <!-- Table of Schools and their Average Marks -->
-         <div class="card shadow-sm">
-            <div class="card-body">
+        <div class="table-responsive">         
      
-            <table id="schoolTable" class="table table-bordered table-striped">
-              
-                    <thead>
+                <h4>School Average Marks and Percentages</h4>
+                <table border="1" class="table table-striped table-bordered" id="rankingTable">
+                    <thead class="table-header" >
                         <tr>
-                            <th>S.No</th>
-                            <th>Block Name</th>
+                            <th>S.No.</th>
                             <th>School Name</th>
-                            
+                            <th>Block Name</th>
                             {% for test in tests %}
-                                <th>{{ test.subject_name }}</th>
+                                <th>{{ test.subject_name }} - Avg Marks</th>
+                                <th>{{ test.subject_name }} - Percentage</th>
                             {% endfor %}
-                            <th>Cumulative Average</th>
+                            <th>Avg Marks</th>
+                            <th>Cumulative Percentage</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for school in results %}
                         <tr>
                             <td>{{ forloop.counter }}</td>
+                            <td>{{ school.school_name }}</td>
                             <td>{{ school.block_name }}</td>
-                            <td>{{ school.school_name }}</td>                           
-                            {% for test_data in school.test_averages %}
-                                <td>{{ test_data.average_marks|floatformat:2 }}</td>
+                            {% for test in school.test_averages %}
+                                <td>{{ test.average_marks|floatformat:2 }}</td>
+                                <td>{{ test.percentage|floatformat:2 }}%</td>
                             {% endfor %}
-                            <td><strong>{{ school.school_average|floatformat:2 }}</strong></td>
+                            <td>{{ school.school_average|floatformat:2 }}</td>
+                            <td>{{ school.school_percentage|floatformat:2 }}%</td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
-            </div>
+            
         </div>
     </div>
   <!-- Back to Dashboard Button -->
@@ -47,15 +49,19 @@
     </a>
 </div>  
 
-   
-{% endblock %}
 <script>
     $(document).ready(function() {
-        // Initialize the DataTable
-        $('#schoolTable').DataTable({
-            "paging": true,
-            "searching": true,
-            "ordering": true
+        // Initialize DataTables with sorting enabled
+        $('#rankingTable').DataTable({
+            "paging": true,  // Enable pagination
+            "searching": true,  // Enable search box
+            "ordering": true,  // Enable sorting
+            "info": true,
+            "pageLength": 10,  // Default number of rows per page
+            "lengthMenu": [5, 10, 25, 50, 100,400],
+            "responsive": true, // Show table info (number of records, etc.)
         });
     });
 </script>
+   
+{% endblock %}
