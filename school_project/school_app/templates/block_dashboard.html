@@ -65,7 +65,16 @@
 	/* Container for the grid layout */
 	.chart-container {
 		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); /* Creates a 2-column layout */
+		{% comment %} grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); /* Creates a 2-column layout */ {% endcomment %}
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+		padding: 20px;
+		border: 1px solid #000;
+	}
+    .chart-container1 {
+		display: grid;
+		{% comment %} grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); /* Creates a 2-column layout */ {% endcomment %}
+		grid-template-columns: repeat(2, 1fr);
 		gap: 20px;
 		padding: 20px;
 		border: 1px solid #000;
@@ -164,8 +173,9 @@
 		
 	</div>
 	<h4>Schools Performance</h4>    
-	<div >
+	<div class="chart-container1">
 		{% for data in result %}
+        <div class="chart-box">
 		<h4>{{ data.test_name }} - {{ data.subject_name }}</h4>
 		<canvas id="chart_{{ data.test_name|slugify }}_{{ data.subject_name|slugify }}" width="400" height="80"></canvas>
 	
@@ -242,6 +252,7 @@
 				new Chart(ctx, config);
 			})();
 		</script>
+    </div>
 		{% endfor %}
 </div>
 

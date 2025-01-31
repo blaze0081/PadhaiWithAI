@@ -1047,15 +1047,16 @@ def block_dashboard(request):
     
     # Define the raw SQL query
     sql_query = """    WITH school_avg_marks AS (    SELECT        sch.id AS school_id,        sch.block_id,  -- Add block_id to the selection
-        t.test_name,        t.subject_name,        t.max_marks,        AVG(m.marks) AS avg_marks    FROM public.school_app_marks m    JOIN public.school_app_student s ON m.student_id = s.id
-    JOIN public.school_app_school sch ON s.school_id = sch.id    JOIN public.school_app_test t ON m.test_id = t.test_number    GROUP BY sch.id, sch.block_id, t.test_name, t.subject_name, t.max_marks  -- Include block_id in the group by
+        t.test_number, t.test_name,        t.subject_name,        t.max_marks,        AVG(m.marks) AS avg_marks    FROM public.school_app_marks m    JOIN public.school_app_student s ON m.student_id = s.id
+    JOIN public.school_app_school sch ON s.school_id = sch.id    JOIN public.school_app_test t ON m.test_id = t.test_number    GROUP BY sch.id, sch.block_id,  t.test_number, t.subject_name, t.max_marks  -- Include block_id in the group by
 )SELECT     sam.test_name,    sam.subject_name,
     COUNT(DISTINCT CASE WHEN sam.avg_marks < sam.max_marks * 0.33 THEN sam.school_id END) AS category_0_33,
     COUNT(DISTINCT CASE WHEN sam.avg_marks >= sam.max_marks * 0.33 AND sam.avg_marks < sam.max_marks * 0.60 THEN sam.school_id END) AS category_33_60,
     COUNT(DISTINCT CASE WHEN sam.avg_marks >= sam.max_marks * 0.60 AND sam.avg_marks < sam.max_marks * 0.80 THEN sam.school_id END) AS category_60_80,
     COUNT(DISTINCT CASE WHEN sam.avg_marks >= sam.max_marks * 0.80 AND sam.avg_marks < sam.max_marks * 0.90 THEN sam.school_id END) AS category_80_90,
     COUNT(DISTINCT CASE WHEN sam.avg_marks >= sam.max_marks * 0.90 AND sam.avg_marks < sam.max_marks THEN sam.school_id END) AS category_90_100,
-    COUNT(DISTINCT CASE WHEN sam.avg_marks = sam.max_marks THEN sam.school_id END) AS category_100 FROM school_avg_marks sam where sam.block_id = %s GROUP BY sam.block_id, sam.test_name, sam.subject_name ORDER BY sam.block_id, sam.test_name;  """
+    COUNT(DISTINCT CASE WHEN sam.avg_marks = sam.max_marks THEN sam.school_id END) AS category_100,sam.test_number FROM school_avg_marks sam where sam.block_id = %s GROUP BY sam.block_id,sam.test_number, sam.test_name, sam.subject_name 
+    ORDER BY sam.block_id, sam.test_number;  """
     
     # Execute the query
     with connection.cursor() as cursor:
@@ -1090,7 +1091,7 @@ def get_block_data(block):
     block_sql_query = """
     WITH student_marks AS (
         SELECT 
-            m.student_id, t.test_name, t.subject_name, t.max_marks, 
+            m.student_id, t.test_number, t.test_name, t.subject_name, t.max_marks, 
             COALESCE(m.marks, 0) AS marks, sc.block_id
         FROM school_app_marks m
         JOIN school_app_test t ON m.test_id = t.test_number
@@ -1101,7 +1102,7 @@ def get_block_data(block):
     ),
     aggregated_marks AS (
         SELECT
-            sm.block_id, sm.test_name, sm.subject_name, sm.max_marks,
+            sm.block_id, sm.test_name, sm.subject_name, sm.max_marks,sm.test_number,
             AVG(sm.marks) AS avg_marks,
             (AVG(sm.marks) * 100.0) / sm.max_marks AS percentage,
             SUM(CASE WHEN sm.marks < sm.max_marks * 0.33 THEN 1 ELSE 0 END) AS category_0_33,
@@ -1111,14 +1112,14 @@ def get_block_data(block):
             SUM(CASE WHEN sm.marks >= sm.max_marks * 0.90 AND sm.marks < sm.max_marks THEN 1 ELSE 0 END) AS category_90_100,
             SUM(CASE WHEN sm.marks = sm.max_marks THEN 1 ELSE 0 END) AS category_100
         FROM student_marks sm
-        GROUP BY sm.block_id, sm.test_name, sm.subject_name, sm.max_marks
+        GROUP BY sm.block_id, sm.test_number,sm.test_name, sm.subject_name, sm.max_marks
     )
     SELECT
-        am.block_id, am.test_name, am.subject_name, am.avg_marks, am.percentage,
+        am.block_id,am.test_number, am.test_name, am.subject_name, am.avg_marks, am.percentage,
         am.category_0_33, am.category_33_60, am.category_60_80, am.category_80_90,
         am.category_90_100, am.category_100
     FROM aggregated_marks am
-    ORDER BY am.block_id, am.test_name, am.percentage DESC;
+    ORDER BY am.block_id, am.test_number, am.percentage DESC;
     """
     # Execute the query safely with block.id as a parameter
     with connection.cursor() as cursor:
@@ -1170,8 +1171,9 @@ def collector_dashboard(request):
                 category_90_100=Count(Case(When(marks__marks__gte=F('max_marks')* 0.90, marks__marks__lt=F('max_marks'), then=1), output_field=IntegerField())),
                 category_100=Count(Case(When(marks__marks=F('max_marks') , then=1), output_field=IntegerField()))
         )
+        
         .values('test_name','subject_name', 'avg_marks', 'percentage', 'category_0_33', 'category_33_60', 'category_60_80', 'category_80_90', 'category_90_100', 'category_100')
-        .order_by('-test_name')
+        .order_by('-test_number')
     )
 # Aggregate category counts for pie chart
     for entry in data:
@@ -1500,7 +1502,7 @@ def dashboard(request):
                 category_100=Count(Case(When(marks__marks=F('max_marks') , then=1), output_field=IntegerField()))
         )
         .values('test_name','subject_name', 'avg_marks', 'percentage', 'category_0_33', 'category_33_60', 'category_60_80', 'category_80_90', 'category_90_100', 'category_100')
-        .order_by('-percentage')
+        .order_by('-test_number')
        )
        # Aggregate category counts for pie chart
         for entry in data:
@@ -1512,6 +1514,7 @@ def dashboard(request):
             entry['category_90_100'],
             entry['category_100']
         ]
+        total_students = Marks.objects.filter(student__school_id=school.id).values('student__school_id').distinct().count()
         result = (Marks.objects
               .filter(student__school_id=school.id)
               .values('test__test_name', 'test__subject_name', 'test__max_marks')
@@ -1523,9 +1526,16 @@ def dashboard(request):
                   category_60_80_1=Count(Case(When(marks__gte=F('test__max_marks') * 0.60, marks__lt=F('test__max_marks') * 0.80, then=1))),
                   category_80_90_1=Count(Case(When(marks__gte=F('test__max_marks') * 0.80, marks__lt=F('test__max_marks') * 0.90, then=1))),
                   category_90_100_1=Count(Case(When(marks__gte=F('test__max_marks') * 0.90, marks__lt=F('test__max_marks'), then=1))),
-                  category_100_1=Count(Case(When(marks=F('test__max_marks'), then=1)))
+                  category_100_1=Count(Case(When(marks=F('test__max_marks'), then=1))),
+                   # Calculating percentage of students in each category
+                  category_0_33_percent=ExpressionWrapper(Count(Case(When(marks__lt=F('test__max_marks') * 0.33, then=1))) / total_students * 100, output_field=FloatField()),
+                  category_33_60_percent=ExpressionWrapper(Count(Case(When(marks__gte=F('test__max_marks') * 0.33, marks__lt=F('test__max_marks') * 0.60, then=1))) / total_students * 100, output_field=FloatField()),
+                  category_60_80_percent=ExpressionWrapper(Count(Case(When(marks__gte=F('test__max_marks') * 0.60, marks__lt=F('test__max_marks') * 0.80, then=1))) / total_students * 100, output_field=FloatField()),
+                  category_80_90_percent=ExpressionWrapper(Count(Case(When(marks__gte=F('test__max_marks') * 0.80, marks__lt=F('test__max_marks') * 0.90, then=1))) / total_students * 100, output_field=FloatField()),
+                  category_90_100_percent=ExpressionWrapper(Count(Case(When(marks__gte=F('test__max_marks') * 0.90, marks__lt=F('test__max_marks'), then=1))) / total_students * 100, output_field=FloatField()),
+                  category_100_percent=ExpressionWrapper(Count(Case(When(marks=F('test__max_marks'), then=1))) / total_students * 100, output_field=FloatField())
               )
-              .order_by('-percentage')
+              .order_by('-test__test_number')
               )
     
         labels = [item['test__test_name'] for item in result]
@@ -1536,6 +1546,12 @@ def dashboard(request):
         category_80_90 = [item['category_80_90_1'] for item in result]
         category_90_100 = [item['category_90_100_1'] for item in result]
         category_100 = [item['category_100_1'] for item in result]
+        category_0_33_percent = [item['category_0_33_percent'] for item in result]
+        category_33_60_percent = [item['category_33_60_percent'] for item in result]
+        category_60_80_percent = [item['category_60_80_percent'] for item in result]
+        category_80_90_percent = [item['category_80_90_percent'] for item in result]
+        category_90_100_percent = [item['category_90_100_percent'] for item in result]
+        category_100_percent = [item['category_100_percent'] for item in result]
 
         query = """    SELECT se.school_name_with_nic_code, s.nic_code, 
         se.school_nic_code, se.session_year, se.total_students, se.passed_students, 
@@ -1578,6 +1594,12 @@ def dashboard(request):
             'category_90_100': category_90_100,
             'category_100': category_100,
             'results': results_dict,
+            'category_0_33_percent': category_0_33_percent,
+            'category_33_60_percent': category_33_60_percent,
+            'category_60_80_percent': category_60_80_percent,
+            'category_80_90_percent': category_80_90_percent,
+            'category_90_100_percent': category_90_100_percent,
+            'category_100_percent': category_100_percent
         }
     except School.DoesNotExist:
         messages.error(request, "No school found for the current user.")
@@ -1810,7 +1832,7 @@ def delete_marks(request, student_id, test_id):
 
 @login_required
 def active_test_list(request):
-    tests = Test.objects.all()
+    tests = Test.objects.all().order_by('test_number')
     return render(request, 'active_test_list.html', {'tests': tests})
 
 def logout_view(request):

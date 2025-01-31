@@ -101,7 +101,16 @@
 	/* Container for the grid layout */
 	.chart-container {
 		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); /* Creates a 2-column layout */
+		{% comment %} grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); /* Creates a 2-column layout */ {% endcomment %}
+		grid-template-columns: repeat(4, 1fr);
+		gap: 20px;
+		padding: 20px;
+		border: 1px solid #000;
+	}
+	.chart-container1 {
+		display: grid;
+		{% comment %} grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); /* Creates a 2-column layout */ {% endcomment %}
+		grid-template-columns: repeat(2, 1fr);
 		gap: 20px;
 		padding: 20px;
 		border: 1px solid #000;
@@ -133,7 +142,7 @@
     {% for test_data in data %}
         <!-- Wrap each test in a container -->
         <div class="chart-box">
-            <h3>{{ test_data.test_name }} ({{ test_data.subject_name }})</h3>
+            <h4>{{ test_data.test_name }} ({{ test_data.subject_name }})</h4>
             <canvas id="pieChart{{ forloop.counter }}"></canvas>
             <script>
                 // Prepare data for the pie chart
@@ -142,7 +151,7 @@
                 
                 // Calculate total number of students
                 var totalStudents = categories[0] + categories[1] + categories[2] + categories[3] + categories[4] + categories[5];
-			
+			if (totalStudents > 0) {
 				var pieChart = new Chart(ctx, {
                     type: 'pie',
                     data: {
@@ -188,6 +197,15 @@
                         }
                     }
                 });
+			}
+			else {
+				// Optional: You can add a message or hide the chart if no students data
+				document.getElementById('pieChart{{ forloop.counter }}').style.display = 'none';
+				var chartBox = document.querySelector('.chart-box:nth-child({{ forloop.counter }})');
+				var noDataMessage = document.createElement('p');
+				noDataMessage.textContent = "No data available for this test.";
+				chartBox.appendChild(noDataMessage);
+			}
             </script>
         </div>
     {% endfor %}
@@ -200,10 +218,13 @@
 		<!-- Button to create a new test -->
 		
 	</div>
+	<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 	<h4>Test-Wise School Performance</h4>    
-	<div >
+	<div class="chart-container1">
+	
 		{% for data in result %}
-		<h3>{{ data.test_name }} - {{ data.subject_name }}</h3>
+		<div class="chart-box">
+		<h4>{{ data.test_name }} - {{ data.subject_name }}</h4>
 		<canvas id="chart_{{ data.test_name|slugify }}_{{ data.subject_name|slugify }}" width="400" height="80"></canvas>
 	
 		<script>
@@ -283,6 +304,7 @@
 				new Chart(ctx, config);
 			})();
 		</script>
+	</div>
 		{% endfor %}
 </div>
 
