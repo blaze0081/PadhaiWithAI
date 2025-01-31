@@ -3,56 +3,64 @@
 {% block content %}
     <div class="container mt-5">
         <h2 class="text-center mb-4" style="color: #007bff; font-size: 2.5em; font-weight: bold;">Weakest Students</h2>
-        
-        <!-- Form to filter the number of weakest students -->
-        <form method="get" action="" class="mb-4">
+        <form method="get">
             <div class="form-group">
-                <label for="test">Select Test</label>
-                <select name="test" id="test" class="form-control" >
-                    <option value="">All Tests</option>
-                    {% for test in all_tests %}
-                        <option value="{{ test.test_number }}" {% if test.test_number == test_number %}selected{% endif %}>Test {{ test.test_number }}</option>
+                <label for="test">Select Tests:</label>
+                <select name="test" id="test" class="form-control" multiple>
+                    <option value="" {% if not selected_test_numbers %}selected{% endif %}>All Tests</option>
+                    {% for test in tests %}
+                        <option value="{{ test.test_number }}" {% if test.test_number in selected_test_numbers %}selected{% endif %}>
+                            {{ test.subject_name }} - {{ test.test_name }}  <!-- Show subject and test name -->
+                        </option>
                     {% endfor %}
                 </select>
             </div>
-            <div  class="form-group">
-                <div class="col-md-6 offset-md-3 d-flex justify-content-between align-items-center">
-                    <label for="weakest" class="form-label">Number of Weakest:</label>
-                    <input type="number" name="weakest" value="5" class="form-control w-50">
-                    <button type="submit" class="btn btn-primary ms-2">Show</button>
-                </div>
-            </div>
+    
+            <button type="submit" class="btn btn-primary">Submit</button>
         </form>
-        <!-- Table to display weakest students -->
-        <div class="card shadow-sm p-4">
-            <table class="table table-bordered table-striped">
-                <thead class="thead-dark">
-                    <tr>
-                    <th>S.No</th>
+    
+        <hr>
+    
+        <!-- Maximum Marks -->
+        <p><strong>Maximum Marks Used for Percentage Calculation:</strong>
+            {% if selected_test_numbers %}
+                {{ selected_tests_max_marks }} (for selected tests)
+            {% else %}
+                {{ selected_tests_max_marks }} (across all tests)
+            {% endif %}
+        </p>
+    
+        <!-- Weakest Students Table -->
+        <h3>List of Weakest Students (Scoring Less Than 33%)</h3>
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Rank</th>
                     <th>Student Name</th>
                     <th>School Name</th>
-                    <th>Marks</th>
+                    <th>Block Name</th>
+                    <th>Total Marks</th>
+                    <th>Percentage</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in data %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ student.student__name }}</td>
+                        <td>{{ student.student__school__name }}</td>
+                        <td>{{ student.student__school__block__name_english }}</td>
+                        <td>{{ student.total_marks }}</td>
+                        <td>{{ student.percentage|floatformat:2 }}%</td>
                     </tr>
-                </thead>
-                <tbody>
-                    {% for student in data %}
-                        <tr>
-                            
-                            <tr>
-                                <td>{{ forloop.counter }}</td>
-                                <td>{{ student.student__name }}</td>
-                                <td>{{ student.student__school__name }}</td>
-                                <td>{{ student.avg_marks|floatformat:2 }}</td>
-                            </tr>
-                        </tr>
-                    {% empty %}
-                        <tr>
-                            <td colspan="2" class="text-center text-muted">No data available</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+                {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">No students found who scored less than 33%</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
     </div>
     <!-- Back to Dashboard Button -->
  <div class="text-center mt-4">

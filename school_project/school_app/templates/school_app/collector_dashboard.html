@@ -101,7 +101,16 @@
 	/* Container for the grid layout */
 	.chart-container {
 		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); /* Creates a 2-column layout */
+		{% comment %} grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); /* Creates a 2-column layout */ {% endcomment %}
+		grid-template-columns: repeat(4, 1fr);
+		gap: 20px;
+		padding: 20px;
+		border: 1px solid #000;
+	}
+	.chart-container1 {
+		display: grid;
+		{% comment %} grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); /* Creates a 2-column layout */ {% endcomment %}
+		grid-template-columns: repeat(2, 1fr);
 		gap: 20px;
 		padding: 20px;
 		border: 1px solid #000;
@@ -133,12 +142,17 @@
     {% for test_data in data %}
         <!-- Wrap each test in a container -->
         <div class="chart-box">
-            <h3>{{ test_data.test_name }} ({{ test_data.subject_name }})</h3>
+            <h4>{{ test_data.test_name }} ({{ test_data.subject_name }})</h4>
             <canvas id="pieChart{{ forloop.counter }}"></canvas>
             <script>
                 // Prepare data for the pie chart
                 var ctx = document.getElementById('pieChart{{ forloop.counter }}').getContext('2d');
-                var pieChart = new Chart(ctx, {
+                var categories = {{ test_data.categories|safe }};		
+                
+                // Calculate total number of students
+                var totalStudents = categories[0] + categories[1] + categories[2] + categories[3] + categories[4] + categories[5];
+			if (totalStudents > 0) {
+				var pieChart = new Chart(ctx, {
                     type: 'pie',
                     data: {
                         labels: ['0-33%', '33-60%', '60-80%', '80-90%', '90-100%', '100%'],
@@ -172,14 +186,26 @@
                             },
                             tooltip: {
                                 callbacks: {
-                                    label: function(tooltipItem) {
-                                        return tooltipItem.label + ': ' + tooltipItem.raw + ' students';
+									label: function(tooltipItem) {
+                                        var category = tooltipItem.label;
+                                        var count = tooltipItem.raw;										
+                                        var percentage = ((count / totalStudents) * 100).toFixed(2);  // Calculate percentage
+                                        return category + ': ' + count + ' students (' + percentage + '%)';
                                     }
                                 }
                             }
                         }
                     }
                 });
+			}
+			else {
+				// Optional: You can add a message or hide the chart if no students data
+				document.getElementById('pieChart{{ forloop.counter }}').style.display = 'none';
+				var chartBox = document.querySelector('.chart-box:nth-child({{ forloop.counter }})');
+				var noDataMessage = document.createElement('p');
+				noDataMessage.textContent = "No data available for this test.";
+				chartBox.appendChild(noDataMessage);
+			}
             </script>
         </div>
     {% endfor %}
@@ -192,10 +218,13 @@
 		<!-- Button to create a new test -->
 		
 	</div>
-	<h4>Test-Wise number of School Performance</h4>    
-	<div >
+	<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+	<h4>Test-Wise School Performance</h4>    
+	<div class="chart-container1">
+	
 		{% for data in result %}
-		<h3>{{ data.test_name }} - {{ data.subject_name }}</h3>
+		<div class="chart-box">
+		<h4>{{ data.test_name }} - {{ data.subject_name }}</h4>
 		<canvas id="chart_{{ data.test_name|slugify }}_{{ data.subject_name|slugify }}" width="400" height="80"></canvas>
 	
 		<script>
@@ -203,13 +232,25 @@
 			(function() {
 				var chartId = 'chart_{{ data.test_name|slugify }}_{{ data.subject_name|slugify }}';
 				var ctx = document.getElementById(chartId).getContext('2d');
+				// Make sure the template variables are passed as numbers and not strings.
+				var category_0_33 = {{ data.category_0_33|default:0 }};
+				var category_33_60 = {{ data.category_33_60|default:0 }};
+				var category_60_80 = {{ data.category_60_80|default:0 }};
+				var category_80_90 = {{ data.category_80_90|default:0 }};
+				var category_90_100 = {{ data.category_90_100|default:0 }};
+				var category_100 = {{ data.category_100|default:0 }};
+
+				// Calculate total number of students
+				var totalStudents = category_0_33 + category_33_60 + category_60_80 + category_80_90 + category_90_100 + category_100;
+				
+				// Alert the total students value
 				
 				var data = {
 					labels: ['0-33%', '33-60%', '60-80%', '80-90%', '90-100%', '100%'],
 					datasets: [{
-						label: 'Number of Schools in Each Category',
+						label: 'Schools Category',
 						data: [
-							{{ data.category_0_33 }},
+							{{ data.category_0_33 }} ,
 							{{ data.category_33_60 }},
 							{{ data.category_60_80 }},
 							{{ data.category_80_90 }},
@@ -237,21 +278,33 @@
 				};
 	
 				var config = {
-					type: 'bar',
-					data: data,
-					options: {
-						scales: {
-							y: {
-								beginAtZero: true
-							}
-						}
-					}
+                    type: 'bar',
+                    data: data,
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(tooltipItem) {
+                                        var category = tooltipItem.label;
+                                        var count = tooltipItem.raw;										
+                                        var percentage = ((count / totalStudents) * 100).toFixed(2); 
+                                        return category + ': ' + count + ' schools (' + percentage + '%)';
+                                    }
+                                }
+                            }
+                        }
+                    }
 				};
 	
 				// Initialize the chart with unique context
 				new Chart(ctx, config);
 			})();
 		</script>
+	</div>
 		{% endfor %}
 </div>
 
