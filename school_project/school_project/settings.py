@@ -207,3 +207,15 @@ DBBACKUP_CONNECTORS = {
         'ENGINE': 'dbbackup.db.sqlite.SqliteConnector',
     }
 }
+
+# Django Simple Captcha Customization
+CAPTCHA_LENGTH = 6
+CAPTCHA_FONT_SIZE = 40  # Change font size
+CAPTCHA_FONT_PATH = '/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf'  # Path to a custom font
+
+CAPTCHA_FOREGROUND_COLOR = '#FF0000'  # Red text color
+CAPTCHA_BACKGROUND_COLOR = '#F5F5F5'  # Light gray background
+
+CAPTCHA_LETTER_ROTATION = (-20, 20)  # Rotate letters slightly
+CAPTCHA_NOISE_FUNCTIONS = ('captcha.helpers.noise_arcs', 'captcha.helpers.noise_dots')  # Add noise
+CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.random_char_challenge'  # Use random text challenge
