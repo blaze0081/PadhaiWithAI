@@ -210,7 +210,7 @@ DBBACKUP_CONNECTORS = {
 
 # Django Simple Captcha Customization
 CAPTCHA_LENGTH = 6
-CAPTCHA_FONT_SIZE = 40  # Change font size
+CAPTCHA_FONT_SIZE = 36  # Change font size
 CAPTCHA_FONT_PATH = '/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf'  # Path to a custom font
 
 CAPTCHA_FOREGROUND_COLOR = '#FF0000'  # Red text color
