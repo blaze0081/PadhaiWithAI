@@ -145,7 +145,7 @@ async def async_generate_similar_questions(question: str, difficulty: str, num_q
     prompt = prompts.get(language, prompts["English"])
     
     response = await async_client.chat.completions.create(
-        model="gpt-4o",
+        model="o3-mini",
         messages=[
             {"role": "system", "content": system_message},
             {"role": "user", "content": prompt}
@@ -221,7 +221,7 @@ async def async_solve_math_problem(question: str, image_path: Optional[str] = No
     
     try:
         response = await async_client.chat.completions.create(
-            model="gpt-4o",
+            model="o3-mini",
             messages=messages,
             temperature=0.7,
             max_tokens=4096
