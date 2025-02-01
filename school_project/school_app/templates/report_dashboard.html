@@ -88,7 +88,16 @@
             <p>See schools with no test entries.</p>
             <a href="{% url 'schools_without_tests' %}">View Report</a>
         </div>
-
+        <div class="card">
+            <h3>Student Attendance</h3>
+        
+            <a href="{% url 'date_wise_attendance_summary' %}">daily Attendance summary</a>
+            <a href="{% url 'attendance_summary' %}">Student Attendance summary</a>
+            <a href="{% url 'district_wise_attendance_summary' %}">District Wise Attendance summary</a><br>
+            <a href="{% url 'block_wise_attendance_summary' %}">Block Wise Attendance summary</a>
+           
+            
+        </div>
        
         {% comment %} <div class="card">
             <h3>A</h3>
@@ -97,8 +106,8 @@
         </div> {% endcomment %}
     </div>
  <!-- Back to Dashboard Button -->
- <div class="text-center mt-4">
-    <a href="{% url 'collector_dashboard' %}" class="btn btn-secondary" style="font-size: 1.1em; padding: 5px 10px;">
+<div class="text-center mt-4">
+    <a onclick="window.history.back();" class="btn btn-secondary" style="font-size: 1.1em; padding: 10px 20px;">
         Back to Dashboard
     </a>
 </div>

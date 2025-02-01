@@ -51,6 +51,7 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.email
+
 class District(models.Model):
     name_english = models.CharField(max_length=100)
     name_hindi = models.CharField(max_length=100)
@@ -61,16 +62,17 @@ class District(models.Model):
 class Block(models.Model):
     name_english = models.CharField(max_length=100)
     name_hindi = models.CharField(max_length=100)
-    district_id = models.ForeignKey(District, on_delete=models.CASCADE)
+    district = models.ForeignKey(District, on_delete=models.CASCADE)
+    admin = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='block_admin', null=True, blank=True )
+   # created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.name_english
 class School(models.Model):
-   # Block_id= models.CharField(max_length=20, null=True, blank=True)   
     name = models.CharField(max_length=100)
     admin = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='administered_school')
     created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='created_schools', null=True)
-    created_at = models.DateTimeField(auto_now_add=True)    
+    created_at = models.DateTimeField(auto_now_add=True)
     #block = models.ForeignKey(Block, on_delete=models.CASCADE)
     block = models.ForeignKey(Block, on_delete=models.CASCADE, related_name="block_schools")
     #block_name= models.CharField(max_length=50, null=True, blank=True)
@@ -106,6 +108,8 @@ class Student(models.Model):
     def __str__(self):
         return self.name  # Ensure this returns the student's name
     
+
+    
 class Book(models.Model):
     name = models.CharField(max_length=100)
     language = models.CharField(max_length=20)
@@ -124,7 +128,7 @@ class Test(models.Model):
     test_date = models.DateField(null=True, blank=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)  # Reference to the collector who created the test
     created_at = models.DateTimeField(auto_now_add=True)
-    max_marks = models.FloatField(default=35)
+    max_marks = models.FloatField()
     def __str__(self):
         return self.test_name
     

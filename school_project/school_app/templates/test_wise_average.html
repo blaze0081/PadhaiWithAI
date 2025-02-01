@@ -5,7 +5,7 @@
 {% block content %}
 <h1>Test-Wise Average Marks and Percentages</h1>
 
-<table class="table table-striped table-bordered table-hover">
+<table class="table table-striped table-bordered table-hover" id="schoolTable">
     <thead>
         <tr>
             <th>S.No.</th>
@@ -13,7 +13,7 @@
             <th>Total Student</th>
             <th>Average Marks</th>
             <th>Percentage</th>
-            <th>category_0_and_less%</th>
+            <th>category 0 and less%</th>
             <th>Category 0-33%</th>
             <th>Category 33-60%</th>
             <th>Category 60-80%</th>
@@ -43,8 +43,18 @@
 </table>
 <!-- Back to Dashboard Button -->
 <div class="text-center mt-4">
-    <a href="{% url 'student_report' %}" class="btn btn-secondary" style="font-size: 1.1em; padding: 10px 20px;">
+    <a onclick="window.history.back();" class="btn btn-secondary" style="font-size: 1.1em; padding: 10px 20px;">
         Back to Dashboard
     </a>
 </div>
+<script>
+    $(document).ready(function() {
+        // Initialize the DataTable
+        $('#schoolTable').DataTable({
+            "paging": true,
+            "searching": true,
+            "ordering": true
+        });
+    });
+</script>
 {% endblock %}

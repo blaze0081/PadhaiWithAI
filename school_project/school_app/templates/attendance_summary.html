@@ -1,23 +1,100 @@
 {% extends 'school_app/base.html' %}
 
 {% block content %}
+<style>
+    .attendance-summary-container {
+        max-width: 100%%;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .attendance-summary-title {
+        text-align: center;
+        font-size: 2rem;
+        margin-bottom: 20px;
+    }
+    
+    .attendance-summary-info {
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    
+    .attendance-summary-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    .attendance-summary-table th, .attendance-summary-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+    
+    .attendance-summary-table th {
+        background-color: #4CAF50;
+        color: white;
+        font-weight: bold;
+    }
+    
+    .attendance-summary-table td {
+        font-size: 1rem;
+    }
+    
+    .attendance-summary-table tr:hover {
+        background-color: #f1f1f1;
+    }
+    
+    .table-responsive {
+        overflow-x: auto;
+    }
+</style>
+    <div class="attendance-summary-container">
+        <h1 class="attendance-summary-title">Attendance Summary</h1>
+        <p class="attendance-summary-info">
+            <strong>Attendance Date:</strong> {{ attendance_date }}
+        </p>
+        {% comment %} <p class="attendance-summary-info">
+            Schools Logged In Today: <strong>{{ schools_logged_in }}</strong> / <strong>{{ total_schools }}</strong>
+        </p> {% endcomment %}
 
-<h1>Attendance Summary</h1>
-<p>Schools Logged In Today: {{ schools_logged_in }} / {{ total_schools }}</p>
-<table>
-    <tr>
-        <th>School Name</th>
-        <th>Present Students</th>
-        <th>Total Students</th>
-        <th>Attendance Percentage</th>
-    </tr>
-    {% for data in attendance_data %}
-    <tr>
-        <td>{{ data.student__school__name }}</td>
-        <td>{{ data.present_count }}</td>
-        <td>{{ data.total_students }}</td>
-        <td>{{ data.present_count|divisibleby:data.total_students|floatformat:2 }}%</td>
-    </tr>
-    {% endfor %}
-</table>
+        <div class="table-responsive">
+            <table class="attendance-summary-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>School Name</th>
+                        <th>Present Students</th>
+                        <th>Total Students</th>
+                        <th>Attendance % </th>
+                    </tr>
+                </thead>
+                
+
+                 <tbody>
+        {% for summary in attendance_summary %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ summary.student__school__name }}</td>
+            <td>{{ summary.present_count }}</td>
+            <td>{{ summary.total_count }}</td>
+            <td>
+                {% if summary.total_count > 0 %}
+                    {{ summary.Percentage|floatformat:2 }}%
+                {% else %}
+                         N/A
+                {% endif %}
+
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+            </table>
+        </div>
+    </div>
+    <a href="{% url 'dashboard' %}" class="action-btn edit-btn" style="margin-left: 20px;">Back to Dashboard</a>
 {% endblock %}

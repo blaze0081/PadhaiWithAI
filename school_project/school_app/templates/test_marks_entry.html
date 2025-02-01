@@ -25,7 +25,7 @@
         <tr>
             <td>{{ record.student.name }}</td>
             <td>
-                <input type="number" name="marks_{{ record.student.id }}" value="{{ record.marks }}" max=100 class="form-control">
+                <input type="number" name="marks_{{ record.student.id }}" value="{{ record.marks }}" max="{{ test.max_marks}}" class="form-control">
             </td>
             <td>
                 <a href="{% url 'delete_marks' test.test_number record.student.id %}">Delete</a>
