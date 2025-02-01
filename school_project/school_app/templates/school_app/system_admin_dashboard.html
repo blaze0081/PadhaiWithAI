@@ -26,8 +26,8 @@
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Solve Math</h5>
-                <p class="card-text">Solve math questions</p>
-                <a href="{% url 'math_tools' %}" class="btn btn-primary">Access Math Tools</a>
+                <p class="card-text">Solve Math Questions</p>
+                <a href="{% url 'math_tools' %}" class="btn btn-success">Access Math Tools</a>
             </div>
         </div>
     </div>
@@ -45,7 +45,7 @@
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Test</h5>
-                <p class="card-text">View Test List</p>
+                <p class="card-text">View Test & Marks</p>
                 <a href="{% url 'active_test_list' %}" class="btn btn-primary">View Test</a>
             </div>
         </div>
@@ -54,16 +54,15 @@
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Attendance</h5>
-                {% comment %} <p class="card-text">Mark Attendance</p> {% endcomment %}
+            	 <p class="card-text">Manage Student Attendance</p> 
                 <a href="{% url 'submit_attendance' %}" class="btn btn-primary">Daily Attendance</a><br>
-                <a href="{% url 'attendance_summary' %}" class="btn btn-primary">Attendance Summary</a>
+                <a href="{% url 'attendance_summary' %}" class="btn btn-primary">Summary</a>
             </div>
         </div>
     </div>
 </div>
 <div class="text-end mb-4">
-	<!-- Button to create a new test -->
-	
+		
 </div>
 <div class="container">
     <h5>Previous School Results</h5>
@@ -142,7 +141,7 @@
     {% for test_data in data %}
         <!-- Wrap each test in a container -->
         <div class="chart-box">
-            <h5>{{ test_data.test_name }} ({{ test_data.subject_name }})</h5>
+            <h6>{{ test_data.test_name }} ({{ test_data.subject_name }})</h6>
             <canvas id="pieChart{{ forloop.counter }}"></canvas>
             <script>
                 // Prepare data for the pie chart
@@ -549,7 +548,7 @@
         renderCalendar(currentDate);
     </script>
 	
-<h4>Active Tests</h4>
+<h4>List of Active Tests</h4>
 <table class="table table-bordered mt-3">
     <thead>
         <tr>
