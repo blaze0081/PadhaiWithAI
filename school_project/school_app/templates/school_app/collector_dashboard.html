@@ -1,10 +1,15 @@
 {% extends 'school_app/base.html' %}
 {% block content %}
 <div>
-	<h1 style="text-align: center; font-size: 40px;">Collector Dashboard</h1>
+	<h1 style="text-align: center; font-size: 40px;">District Dashboard (Collector) </h1>
 	<br>
 </div>
-
+<style>
+	.fixed-size-btn {
+		width: 180px;
+		height: 40px;
+	}
+</style>
 <!-- Action Buttons -->
  <div class="row mt-4">
 	<div class="col-md-4">
@@ -16,7 +21,7 @@
 					<p class="card-text">Total Schools: <b> {{ total_schools }} </b></p>
 				{% endif %}		
 				
-	            <a href="{% url 'school_student_list' %}" class="btn btn-info ">School Report</a>
+	            <a href="{% url 'school_student_list' %}" class="btn btn-info  fixed-size-btn">School Report</a>
             </div>
         </div>
     </div>
@@ -31,7 +36,7 @@
 					{% endif %}
 					
 					
-                 <a href="{% url 'add_test' %}" class="btn btn-primary w-50">Schedule Exam</a>
+                 <a href="{% url 'add_test' %}" class="btn btn-primary w-50  fixed-size-btn">Schedule Test</a>
             </div>
         </div>
     </div>
@@ -44,7 +49,7 @@
 				<p class="card-text">Total Students: <b> {{ total_students }}</b></p>
 				{% endif %}	
 				
-	            <a href="{% url 'student_report' %}" class="btn btn-info ">Student Analysis</a>
+	            <a href="{% url 'student_report' %}" class="btn btn-info  fixed-size-btn" >Student Analysis</a>
             </div>
         </div>
     </div>
@@ -53,14 +58,14 @@
 	<div class="col-md-4">
         <div class="card">
             <div class="card-body" style="text-align: center;">  
-                <a href="{% url 'upload_school_users' %}" class="btn btn-success">Create School users</a>
+                <a href="{% url 'upload_school_users' %}" class="btn btn-primary  fixed-size-btn" >Create School Users</a>
             </div>
         </div>
     </div>
 	<div class="col-md-4">
         <div class="card">
             <div class="card-body" style="text-align: center;">  
-				<a href="{% url 'report_dashboard' %}" class="btn btn-info">
+				<a href="{% url 'report_dashboard' %}" class="btn btn-info  fixed-size-btn">
 					Report Dashboard
 				</a>
             </div>
@@ -69,7 +74,7 @@
 	<div class="col-md-4">
         <div class="card">
             <div class="card-body" style="text-align: center;">  
-				<a href="{% url 'change_password' %}" class="btn btn-secondary">
+				<a href="{% url 'change_password' %}" class="btn btn-primary  fixed-size-btn">
 					Change Password
 				</a>
             </div>
@@ -142,7 +147,7 @@
     {% for test_data in data %}
         <!-- Wrap each test in a container -->
         <div class="chart-box">
-            <h4>{{ test_data.test_name }} ({{ test_data.subject_name }})</h4>
+            <h6>{{ test_data.test_name }} ({{ test_data.subject_name }})</h6>
             <canvas id="pieChart{{ forloop.counter }}"></canvas>
             <script>
                 // Prepare data for the pie chart
@@ -224,7 +229,7 @@
 	
 		{% for data in result %}
 		<div class="chart-box">
-		<h4>{{ data.test_name }} - {{ data.subject_name }}</h4>
+		<h6>{{ data.test_name }} - {{ data.subject_name }}</h6>
 		<canvas id="chart_{{ data.test_name|slugify }}_{{ data.subject_name|slugify }}" width="400" height="80"></canvas>
 	
 		<script>
@@ -309,7 +314,7 @@
 </div>
 
 <div class="table-responsive">
-	<h4>Scheduled Exams</h4>
+	<h4>List of Scheduled Tests</h4>
 	<table class="table table-striped table-bordered table-hover">
 		<thead>
 			<tr>
@@ -396,7 +401,7 @@
 </style>
 
 <div class="container mt-5">
-	<h4>Registered Schools List</h4>
+	<h4>List of Registered Schools</h4>
 	<!-- Table -->
 	<table id="schoolsTable" class="table table-striped">
 		<thead>
