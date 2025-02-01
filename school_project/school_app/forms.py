@@ -16,10 +16,8 @@ class LoginForm(forms.Form):
             'placeholder': 'Password'
         })
     )
-    captcha = CaptchaField(widget=forms.TextInput(attrs={
-        'class': 'form-control captcha-border',
-        'style': 'border: 2px solid #000; border-radius: 5px; padding: 5px;'
-    }))
+    captcha = CaptchaField()
+
 class StudentForm(forms.ModelForm):
     class Meta:
         model = Student
