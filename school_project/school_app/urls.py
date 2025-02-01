@@ -1,6 +1,10 @@
 from django.urls import path
 from . import views
 from django.contrib.auth.views import LogoutView
+from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
+
 
 urlpatterns = [
     path('', views.login_view, name='login'),
@@ -17,7 +21,7 @@ urlpatterns = [
     path('analysis-dashboard/', views.analysis_dashboard, name='analysis_dashboard'),
     path('api/students/', views.get_students, name='get_students'),
     path('api/student-analysis/<int:student_id>/', views.get_student_analysis, name='get_student_analysis'),
-
+    path('captcha/', include('captcha.urls')),
 
 
     

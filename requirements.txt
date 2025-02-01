@@ -67,3 +67,4 @@ whitenoise==6.8.2
 django-storages
 dropbox
 psycopg2==2.9.10
+django-simple-captcha==0.6.0

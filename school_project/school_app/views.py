@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from .models import School, Student, Marks,Block,Attendance
-from .forms import StudentForm, MarksForm, SchoolForm, SchoolAdminRegistrationForm, TestForm, Test
+from .forms import StudentForm, MarksForm, SchoolForm, SchoolAdminRegistrationForm, TestForm, Test, LoginForm
 from django.db.models import Count 
 from .math_utils import async_solve_math_problem, async_generate_similar_questions
 import json
@@ -990,29 +990,29 @@ def is_system_admin(user):
 
 def login_view(request):
     if request.method == 'POST':
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-        user = authenticate(request, email=email, password=password)
-        if user is not None:
-            login(request, user)
-
-            # Check if the user is in the "Collector" group
-            if user.groups.filter(name='Collector').exists():
-                return redirect('collector_dashboard')
-
-            # Redirect based on other roles
-            if user.is_system_admin:
-                return redirect('system_admin_dashboard')
-            elif School.objects.filter(admin=user).exists():
-                return redirect('dashboard')
-            
-            elif request.user.is_block_user:
-               return redirect ('block_dashboard')
-            else:
-                return redirect('school_add')
-
-        messages.error(request, 'Invalid credentials')
-    return render(request, 'school_app/login.html')
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            password = form.cleaned_data['password']
+            user = authenticate(request, email=email, password=password)
+            if user is not None:
+                login(request, user)
+                # Check if the user is in the "Collector" group
+                if user.groups.filter(name='Collector').exists():
+                    return redirect('collector_dashboard')
+                # Redirect based on other roles
+                if user.is_system_admin:
+                    return redirect('system_admin_dashboard')
+                elif School.objects.filter(admin=user).exists():
+                    return redirect('dashboard')
+                elif request.user.is_block_user:
+                    return redirect('block_dashboard')
+                else:
+                    return redirect('school_add')
+            messages.error(request, 'Invalid credentials')
+    else:
+        form = LoginForm()
+    return render(request, 'school_app/login.html', {'form': form})
 
 def block_dashboard(request):
     if not request.user.is_block_user:
