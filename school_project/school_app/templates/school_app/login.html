@@ -230,7 +230,6 @@
                             <label for="{{ form.captcha.id_for_label }}" class="form-label" style="font-size: 20px;">Captcha</label>
                             <div class="captcha-border">
                                 {{ form.captcha }}
-                                <button type="button" id="refresh-captcha" style="margin-left: 10px; padding: 5px 10px; border: none; background-color: #007bff; color: white; cursor: pointer; border-radius: 5px;">🔄 Refresh</button>
                             </div>
                         </div>
                         {% if messages %}
@@ -253,7 +252,7 @@
         border: 2px solid #000; /* Black border */
         border-radius: 5px; /* Rounded corners */
         padding: 5px;
-        width: 50%;
+        width: 100%;
     }
 </style>
 
@@ -283,15 +282,6 @@
                 }
             ]
         });
-    });
-</script>
-<script>
-    document.getElementById("refresh-captcha").addEventListener("click", function () {
-        let captchaImage = document.querySelector(".captcha img");
-        if (captchaImage) {
-            let src = captchaImage.src.split("?")[0];  // Remove old query params
-            captchaImage.src = src + "?reload=" + new Date().getTime();  // Reload with a new timestamp
-        }
     });
 </script>
 {% endblock %}
