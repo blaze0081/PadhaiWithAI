@@ -228,7 +228,9 @@
                         </div>
                         <div class="mb-3 text-left">
                             <label for="{{ form.captcha.id_for_label }}" class="form-label" style="font-size: 20px;">Captcha</label>
-                            {{ form.captcha }}
+                            <div class="captcha-border">
+                                {{ form.captcha }}
+                            </div>
                         </div>
                         {% if messages %}
                             {% for message in messages %}
@@ -244,7 +246,15 @@
         </div>
     </div>
 </div>
-
+<style>
+    /* Apply border to the Captcha input box */
+    .captcha-border input {
+        border: 2px solid #000; /* Black border */
+        border-radius: 5px; /* Rounded corners */
+        padding: 5px;
+        width: 100%;
+    }
+</style>
 
 <script type="text/javascript">
     $(document).ready(function(){
