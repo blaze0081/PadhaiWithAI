@@ -3,26 +3,21 @@ from .models import Student, Marks, School, CustomUser, Test
 from captcha.fields import CaptchaField
 
 
-
 class LoginForm(forms.Form):
     email = forms.EmailField(
         widget=forms.EmailInput(attrs={
-            'class': 'form-control',  # Bootstrap class
+            'class': 'form-control',
             'placeholder': 'Login email'
         })
     )
     password = forms.CharField(
         widget=forms.PasswordInput(attrs={
-            'class': 'form-control',  # Bootstrap class
+            'class': 'form-control',
             'placeholder': 'Password'
         })
     )
-    captcha = CaptchaField(
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',  # Bootstrap class
-            'placeholder': 'Enter CAPTCHA'  # Optional placeholder for consistency
-        })
-    )
+    captcha = CaptchaField()
+
 class StudentForm(forms.ModelForm):
     class Meta:
         model = Student
