@@ -331,7 +331,7 @@ def test_wise_average_marks(request):
         )
         .values('test_name', 'avg_marks', 'percentage', 'total_students', 'category_0_and_less', 
                 'category_0_33', 'category_33_60', 'category_60_80', 'category_80_90', 'category_90_100', 'category_100')
-        .order_by('-test_name')
+        .order_by('test_number')
     )
     elif request.user.is_block_user:
        block = Block.objects.get(admin=request.user)
@@ -354,7 +354,7 @@ def test_wise_average_marks(request):
         )
         .values('test_name', 'avg_marks', 'percentage', 'total_students', 'category_0_and_less', 
                 'category_0_33', 'category_33_60', 'category_60_80', 'category_80_90', 'category_90_100', 'category_100')
-        .order_by('-percentage')
+        .order_by('test_number')
     )
 
     elif request.user.is_school_user:
@@ -378,7 +378,7 @@ def test_wise_average_marks(request):
         )
         .values('test_name', 'avg_marks', 'percentage', 'total_students', 'category_0_and_less', 
                 'category_0_33', 'category_33_60', 'category_60_80', 'category_80_90', 'category_90_100', 'category_100')
-        .order_by('-percentage')
+        .order_by('test_number')
     )
 
     context = {'data': data}
