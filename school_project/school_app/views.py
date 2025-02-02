@@ -235,10 +235,10 @@ def test_results_analysis(request):
 
     if not selected_test_numbers:
         # If no tests are selected, show results for all tests
-        school_tests = Test.objects.filter(marks__student__school__in=schools).distinct().order_by('test_name')
+        school_tests = Test.objects.filter(marks__student__school__in=schools).distinct().order_by('test_number')
     else:
         # If specific tests are selected, show results only for those tests
-        school_tests = Test.objects.filter(test_number__in=selected_test_numbers).distinct().order_by('test_name')
+        school_tests = Test.objects.filter(test_number__in=selected_test_numbers).distinct().order_by('test_number')
 
     results = []
     
