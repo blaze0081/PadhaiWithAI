@@ -18,6 +18,18 @@
                         {% endif %}
                     </a>
                 </th>
+                 <th>
+                    <a href="?sort_by=marks&order={% if current_sort_by == 'marks' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                        Percentage
+                        {% if current_sort_by == 'marks' %}
+                            {% if current_order == 'asc' %}
+                                ▲
+                            {% else %}
+                                ▼
+                            {% endif %}
+                        {% endif %}
+                    </a>
+                </th>
                 <th>
                     <a href="?sort_by=marks&order={% if current_sort_by == 'marks' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
                         Marks
@@ -49,6 +61,7 @@
             <tr>
                 <td>{{ forloop.counter }}</td>
                 <td>{{ result.student.name }}</td>
+                <td>{{ result.percentage|floatformat:2 }}</td>
                 <td>{{ result.marks }}</td>
                 <td>{{ result.date }}</td>
             </tr>
