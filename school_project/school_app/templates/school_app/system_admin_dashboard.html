@@ -70,18 +70,19 @@
     {% if error %}
         <p class="error">{{ error }}</p>
     {% else %}
-        <table class="table table-bordered mt-3">
+         <table class="table table-bordered mt-3">
             <thead>
                 <tr>
                     <th>Session Year</th>
                     <th>Total Students</th>
-                    <th>Passed Students</th>
-                    <th>First Division Students</th>
-                    <th>Overall Exam Result</th>
-                    <th>Math Exam Result</th>
-                    <th>Math Above 80%</th>
-                    <th>Math Above 90%</th>
-                    <th>Math 100%</th>
+                                     
+                    <th>Maths Result %</th>
+                    <th>Below 33%</th>
+                    <th>33-60%</th>
+                    <th>60-80%</th>
+                    <th>80-90%</th>
+                    <th>90-100%</th>
+                    <th>100%</th>
                 </tr>
             </thead>
             <tbody>
@@ -89,13 +90,14 @@
                     <tr>
                         <td>{{ row.session_year }}</td>
                         <td>{{ row.total_students }}</td>
-                        <td>{{ row.passed_students }}</td>
-                        <td>{{ row.first_division_students }}</td>
-                        <td>{{ row.overall_exam_result }}</td>
+                       
                         <td>{{ row.math_exam_result }}</td>
-                        <td>{{ row.math_above_80 }}</td>
-                        <td>{{ row.math_above_90 }}</td>
-                        <td>{{ row.math_100_percent }}</td>
+                        <td>{{ row.below33 }}</td>
+                        <td>{{ row.maths_33_60 }}</td>
+                        <td>{{ row.maths_60_80 }}</td>
+                        <td>{{ row.maths_80_90 }}</td>
+                        <td>{{ row.maths_90_100 }}</td>
+                        <td>{{ row.maths_100 }}</td>
                     </tr>
                 {% endfor %}
             </tbody>
