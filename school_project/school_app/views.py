@@ -1579,7 +1579,13 @@ def dashboard(request):
             'math_exam_result': row[8],
             'math_above_80': row[9],
             'math_above_90': row[10],
-            'math_100_percent': row[11]
+            'math_100_percent': row[11],
+            'below33': row[12],
+            'maths_33_60': row[13],
+            'maths_60_80': row[14],
+            'maths_80_90': row[15],
+            'maths_90_100': row[16],
+            'maths_100': row[17],
         }
         for row in result
     ]
