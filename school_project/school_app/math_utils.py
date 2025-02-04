@@ -119,21 +119,28 @@ def calculate_question_distribution(num_selected: int, num_to_generate: int) -> 
             
         return distribution
 
-async def async_generate_similar_questions(questions: list[dict], difficulty: str, num_questions: int, 
+async def async_generate_similar_questions(question_data: Union[str, list, dict], difficulty: str, num_questions: int, 
                                          language: str, question_type: str) -> str:
     """
-    Generate similar mathematics questions with specified parameters and clear grouping.
+    Generate similar mathematics questions with specified parameters.
     
     Args:
-        questions: List of original questions
+        question_data: Either a question string, list of questions, or question dict
         difficulty: Desired difficulty level
-        num_questions: Total number of questions to generate
+        num_questions: Number of questions to generate
         language: Language for questions and solutions
         question_type: Type of questions to generate
     """
     system_message = get_system_message_generate(language, difficulty, question_type)
     
-    # Calculate distribution of questions to generate
+    # Convert input to list of questions
+    if isinstance(question_data, str):
+        questions = [{"question": question_data}]
+    elif isinstance(question_data, dict):
+        questions = [question_data]
+    else:
+        questions = question_data if isinstance(question_data, list) else [{"question": str(question_data)}]
+    
     distribution = calculate_question_distribution(len(questions), num_questions)
     
     all_content = []
