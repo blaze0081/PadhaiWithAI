@@ -94,158 +94,67 @@ def get_system_message_generate(language: str, difficulty: str, question_type: s
     
     return system_messages.get(language, system_messages["English"])
 
-def calculate_question_distribution(num_selected: int, num_to_generate: int) -> list[int]:
-    """
-    Calculate how many variations to generate from each selected question.
-    
-    Args:
-        num_selected: Number of questions selected by user
-        num_to_generate: Total number of questions to generate
-        
-    Returns:
-        List of integers representing how many variations to generate from each question
-    """
-    if num_to_generate <= num_selected:
-        # Generate questions from first n selected questions
-        return [1] * num_to_generate + [0] * (num_selected - num_to_generate)
-    else:
-        # Base distribution - at least one question from each selected
-        distribution = [1] * num_selected
-        remaining = num_to_generate - num_selected
-        
-        # Distribute remaining questions starting from the first selected question
-        for i in range(remaining):
-            distribution[i % num_selected] += 1
-            
-        return distribution
-
-async def async_generate_similar_questions(question_data: Union[str, list, dict], difficulty: str, num_questions: int, 
-                                         language: str, question_type: str) -> str:
+async def async_generate_similar_questions(question: str, difficulty: str, num_questions: int, 
+                            language: str, question_type: str) -> str:
     """
     Generate similar mathematics questions with specified parameters.
     
     Args:
-        question_data: Either a question string, list of questions, or question dict
+        question: Original question to base variations on
         difficulty: Desired difficulty level
         num_questions: Number of questions to generate
         language: Language for questions and solutions
         question_type: Type of questions to generate
+    
+    Returns:
+        Formatted string containing generated questions and solutions
     """
+    # client = init_openai()
+    
     system_message = get_system_message_generate(language, difficulty, question_type)
     
-    # Convert input to list of questions
-    if isinstance(question_data, str):
-        questions = [{"question": question_data}]
-    elif isinstance(question_data, dict):
-        questions = [question_data]
-    else:
-        questions = question_data if isinstance(question_data, list) else [{"question": str(question_data)}]
+    # Create language-specific prompts
+    prompts = {
+                "Hindi": f"""इस उदाहरण प्रश्न के आधार पर:
+                उदाहरण: {question}: {num_questions} नए {difficulty} स्तर के प्रश्नों को निर्दिष्ट प्रारूप '{question_type}' में बनाएं।
+                यदि मूल प्रश्न से कठिनाई स्तर बदल रहा है, तो समान गणितीय अवधारणा का उपयोग करते हुए अधिक जटिल संख्याएँ या परिस्थितियाँ प्रयोग करें।
+                उत्तर को इस प्रकार संरचित करें:
+                प्रश्न:
+                1. [पहला प्रश्न]
+                2. [दूसरा प्रश्न]
+                ...
+                उत्तर:
+                1. [पहले प्रश्न के लिए आसान भाषा में हर कदम का विस्तार से हल, जिसमें अवधारणाओं को समझाने के लिए उदाहरण और उल्टा उदाहरण भी दिए गए हों।]
+                2. [दूसरे प्रश्न के लिए आसान भाषा में हर कदम का विस्तार से हल, जिसमें अवधारणाओं को समझाने के लिए उदाहरण और उल्टा उदाहरण भी दिए गए हों।]
+                ...""",
+
+                                        "English": f"""Based on this example question:
+                Example: {question}:Generate {num_questions} new {difficulty} level variations.Create the questions in the specified format '{question_type}.
+                If changing difficulty from original, use more complex numbers or situations while maintaining the same mathematical concept.
+                Structure the response as follows:
+                Questions:
+                1. [First question]
+                2. [Second question]
+                ...
+                Answers:
+                1. [Step-by-step detailed solution in simplest possible language alongwith explanation of underlying concepts using both examples and counter-examples for first question]
+                2. [Step-by-step detailed solution in simplest possible language alongwith explanation of underlying concepts using both examples and counter-examples for second question]
+                ..."""
+                }
     
-    distribution = calculate_question_distribution(len(questions), num_questions)
+    prompt = prompts.get(language, prompts["English"])
     
-    all_content = []
+    response = await async_client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "system", "content": system_message},
+            {"role": "user", "content": prompt}
+        ],
+        temperature=0.7
+    )
     
-    # Add original questions section
-    original_questions = []
-    for i, q in enumerate(questions, 1):
-        original_questions.append(f"""
-**Original Question {i}:**
-{q['question']}
-""")
-    
-    all_content.append("# Original Questions\n\n" + "\n".join(original_questions))
-    
-    # Generate variations for each question based on distribution
-    generated_questions = []
-    generated_solutions = []
-    
-    for orig_idx, (question, num_to_generate) in enumerate(zip(questions, distribution), 1):
-        if num_to_generate == 0:
-            continue
-            
-        # Enhanced prompts with clear structure requirements
-        prompt_template = {
-            "Hindi": f"""मूल प्रश्न {orig_idx} के आधार पर बिल्कुल {num_to_generate} नए प्रश्न बनाएं:
-                
-                मूल प्रश्न:
-                {question['question']}
-                
-                कृपया प्रत्येक प्रश्न को इस प्रारूप में लिखें:
-                
-                प्रश्न {orig_idx}.1:
-                [प्रश्न]
-                
-                प्रश्न {orig_idx}.2:
-                [प्रश्न]
-                
-                (इसी तरह...)
-                
-                और फिर उनके समाधान इस प्रारूप में:
-                
-                समाधान {orig_idx}.1:
-                [विस्तृत समाधान]
-                
-                समाधान {orig_idx}.2:
-                [विस्तृत समाधान]""",
-                
-            "English": f"""Based on Original Question {orig_idx}, generate exactly {num_to_generate} variations:
-                
-                Original Question:
-                {question['question']}
-                
-                Please format each question as:
-                
-                Question {orig_idx}.1:
-                [Question]
-                
-                Question {orig_idx}.2:
-                [Question]
-                
-                (And so on...)
-                
-                Then provide solutions as:
-                
-                Solution {orig_idx}.1:
-                [Detailed solution]
-                
-                Solution {orig_idx}.2:
-                [Detailed solution]"""
-        }
-        
-        prompt = prompt_template.get(language, prompt_template["English"])
-        
-        try:
-            response = await async_client.chat.completions.create(
-                model="gpt-4o",
-                messages=[
-                    {"role": "system", "content": system_message},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.7
-            )
-            
-            content = response.choices[0].message.content
-            
-            # Split questions and solutions
-            parts = content.split("Solution")
-            questions_part = parts[0]
-            solutions_part = "Solution" + "Solution".join(parts[1:])
-            
-            # Add to respective sections
-            generated_questions.append(questions_part.strip())
-            generated_solutions.append(solutions_part.strip())
-            
-        except Exception as e:
-            print(f"Error generating variations for question {orig_idx}: {e}")
-            continue
-    
-    # Combine all sections
-    if generated_questions:
-        all_content.append("\n# Generated Questions\n\n" + "\n".join(generated_questions))
-    if generated_solutions:
-        all_content.append("\n# Solutions\n\n" + "\n".join(generated_solutions))
-    
-    return "\n\n".join(all_content)
+    generated_content = response.choices[0].message.content
+    return generated_content
 
 
 def encode_image(image_path):
