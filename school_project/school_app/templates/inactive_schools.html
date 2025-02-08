@@ -6,22 +6,30 @@
 <h2>Schools Not Logged In/Inactive Schools</h2>
 <a href="{% url 'report_dashboard' %}" align="right">Back to Report Dashboard</a>
 <table class="table table-bordered table-striped">
-  <tr>
-    <th>S.No</th>
-    <th>School Name</th>
-    <th>Admin Email</th>
-  </tr>
-  {% for school in schools %}
+  <thead>
     <tr>
-      <td>{{ forloop.counter }}</td> <!-- Display Serial Number -->
-      <td>{{ school.name }}</td>
-      <td>{{ school.admin__email }}</td>
+        <th>S.No.</th>
+        <th>School Name</th>
+        <th>Block Name</th>
+        <th>Admin Email</th>
+        <th>Last Login Date</th>
     </tr>
-  {% empty %}
+</thead>
+<tbody>
+    {% for school in schools %}
     <tr>
-      <td colspan="2">No inactive schools found.</td>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ school.name }}</td>
+        <td>{{ school.block__name_english }}</td>
+        <td>{{ school.admin__email }}</td>
+        <td>{{ school.last_login_date }}</td>
     </tr>
-  {% endfor %}
+    {% empty %}
+    <tr>
+        <td colspan="5">No inactive schools found.</td>
+    </tr>
+    {% endfor %}
+</tbody>
 </table>
 <a href="{% url 'report_dashboard' %}">Back to Report Dashboard</a>
 
