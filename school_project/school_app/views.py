@@ -519,14 +519,33 @@ def schools_without_students(request):
     return render(request, 'schools_without_students.html', context)
 #2
 @login_required
+
 def inactive_schools(request):
     today = timezone.now().date()  # Get today's date
+    user = request.user  # Logged-in user
 
+    # Base QuerySet: Schools where admin has logged in at least once but NOT today
     schools = School.objects.filter(
-        admin__last_login__isnull=False  # Ensure that the admin has logged in at least once
+        admin__last_login__isnull=False  # Admin must have logged in at least once
     ).exclude(
         admin__last_login__date=today  # Exclude admins who logged in today
-    ).values('id', 'name', 'admin__email')  # Retrieve the required fields
+    ).select_related('admin', 'block').annotate(
+        last_login_date=F('admin__last_login')  # Get last login date
+    ).order_by(F('last_login_date').desc(nulls_last=True))
+
+    # Apply filters based on user role
+    if user.is_district_user:
+        # District user sees all inactive schools
+        schools = schools.values('id', 'name', 'admin__email', 'block__name_english', 'last_login_date')
+    
+    elif user.is_block_user:
+        # Block user sees only schools in their block
+        block = Block.objects.get(admin=request.user)
+        schools = schools.filter(block=block).values('id', 'name', 'admin__email', 'block__name_english', 'last_login_date')
+    
+    else:
+        # School user should only see their own school (if applicable)
+        schools = schools.filter(admin=user).values('id', 'name', 'admin__email', 'block__name_english', 'last_login_date')
 
     context = {'schools': schools}
     return render(request, 'inactive_schools.html', context)
