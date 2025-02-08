@@ -531,7 +531,7 @@ def inactive_schools(request):
         admin__last_login__date=today  # Exclude admins who logged in today
     ).select_related('admin', 'block').annotate(
         last_login_date=F('admin__last_login')  # Get last login date
-    ).order_by(F('last_login_date').desc(nulls_last=True))
+    ).order_by(F('last_login_date').asc(nulls_last=True))
 
     # Apply filters based on user role
     if user.is_district_user:
