@@ -1170,7 +1170,7 @@ def collector_dashboard(request):
     # Fetch tests created by the collector
     if not request.user.groups.filter(name='Collector').exists():
         return HttpResponseForbidden("You are not authorized to access this page.")
-    tests = Test.objects.all()
+    tests = Test.objects.all().order_by('test_number')
     # tests = Test.objects.filter(created_by=request.user)
 
     # Fetch all schools (You can add filters here if necessary)
