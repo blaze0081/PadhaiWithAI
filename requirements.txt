@@ -1,4 +1,4 @@
-﻿annotated-types==0.7.0
+annotated-types==0.7.0
 anyio==4.7.0
 asgiref==3.8.1
 beautifulsoup4==4.12.3
@@ -9,7 +9,7 @@ charset-normalizer==3.4.1
 colorama==0.4.6
 crispy-bootstrap4==2024.1
 distro==1.9.0
-Django==5.0
+Django==5.0.6
 django-crispy-forms==2.1
 django-dbbackup==4.2.1
 django-environ==0.11.2

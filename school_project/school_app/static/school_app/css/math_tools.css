@@ -48,6 +48,123 @@
     font-size: 0.9rem;
 }
 
+/*
+=======================================================================
+    NEW STYLES FOR SOLUTION RENDERING - ADDED BY CASCADE
+======================================================================= 
+*/
+
+/* Main container for the rendered solution from the template */
+.solution-content {
+    background-color: #ffffff; /* White background for a clean look */
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    padding: 2rem;
+    font-family: 'Georgia', 'Times New Roman', serif; /* Serif font for readability */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+/* This is the container div for the formatted solution */
+.solution-content {
+    color: #212529;
+}
+
+/* Styling for headers (e.g., "Step 1", "Explanation") */
+.solution-content h1,
+.solution-content h2,
+.solution-content h3,
+.solution-content h4,
+.solution-content h5,
+.solution-content h6 {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: #0056b3; /* A strong, professional blue */
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+/* Styling for paragraphs */
+.solution-content p {
+    line-height: 1.8;
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+}
+
+/* Make bold text stand out more */
+.solution-content strong,
+.solution-content b {
+    color: #000;
+}
+
+/* Special styling for the final answer to make it pop */
+.solution-content p:last-child strong,
+.solution-content p:last-child b {
+    display: block;
+    background-color: #d1ecf1; /* Light cyan background */
+    color: #0c5460; /* Dark cyan text */
+    padding: 1rem;
+    border-radius: 5px;
+    margin-top: 1.5rem;
+    border: 1px solid #bee5eb;
+    text-align: center;
+    font-size: 1.2rem;
+}
+
+/* Styling for lists (ordered and unordered) */
+.solution-content ul,
+.solution-content ol {
+    padding-left: 2rem;
+    margin-bottom: 1rem;
+}
+
+.solution-content li {
+    margin-bottom: 0.5rem;
+    line-height: 1.8;
+}
+
+/* Styling for inline code and code blocks */
+.solution-content code {
+    background-color: #f1f3f5;
+    padding: 0.2em 0.4em;
+    margin: 0;
+    font-size: 90%;
+    border-radius: 3px;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+}
+
+.solution-content pre {
+    background: #f1f3f5;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    padding: 1rem;
+    overflow-x: auto;
+}
+
+.solution-content pre code {
+    background: none;
+    padding: 0;
+    font-size: 100%;
+}
+
+/* Styling for blockquotes */
+.solution-content blockquote {
+    border-left: 5px solid #007bff;
+    padding-left: 1.5rem;
+    margin-left: 0;
+    color: #495057;
+    font-style: italic;
+}
+
+/* Ensure MathJax-rendered content has appropriate styling */
+.MathJax {
+    font-size: 1.1em !important;
+}
+
+.mjx-container[jax="SVG"] {
+    padding: 0.5em 0;
+}
+
 .remove-question {
     padding: 0 6px;
     font-size: 14px;

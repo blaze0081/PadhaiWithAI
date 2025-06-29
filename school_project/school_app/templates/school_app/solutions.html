@@ -5,8 +5,8 @@
 <script>
     window.MathJax = {
         tex: {
-            inlineMath: [['\\(', '\\)']],
-            displayMath: [['\\[', '\\]']],
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
             processEscapes: true,
             tags: 'ams'
         },
@@ -85,7 +85,7 @@
                                 </div>
                                 <div class="solution">
                                     <h6 class="text-muted">Solution:</h6>
-                                    <div class="solution-content p-3">
+                                    <div class="solution-content">
                                         {{ solution.solution|safe }}
                                     </div>
                                 </div>

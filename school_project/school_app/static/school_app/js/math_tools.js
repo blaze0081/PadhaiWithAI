@@ -105,9 +105,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.question-checkbox').forEach(checkbox => {
         console.log('Found question checkbox');
         checkbox.addEventListener('change', function() {
-            const questionText = this.nextElementSibling.textContent.trim();
-            console.log('Question toggled:', questionText);
-            toggleQuestion(this, questionText);
+            toggleQuestion(this);
         });
     });
 

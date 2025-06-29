@@ -1,52 +1,62 @@
 import re
 import markdown
-from bs4 import BeautifulSoup
 
 class SolutionFormatter:
+    """
+    Handles the formatting of questions and solutions from raw text/markdown to HTML.
+    This version isolates all standard LaTeX math delimiters before markdown processing
+    to prevent syntax conflicts and ensure correct rendering by MathJax.
+    """
+
     @staticmethod
-    def format_solution(solution_text):
-        """Format the solution text with proper markdown and LaTeX formatting."""
-        # Split into steps based on double asterisks
-        steps = re.split(r'\*\*(.*?)\*\*', solution_text)
-        
-        formatted_steps = []
-        for i, step in enumerate(steps):
-            if i % 2 == 0:  # Content between headers
-                if step.strip():
-                    # Process mathematical expressions
-                    step = SolutionFormatter._format_math(step)
-                    formatted_steps.append(f'<div class="step-content">{step}</div>')
-            else:  # Headers
-                formatted_steps.append(f'<h4 class="step-title">{step}</h4>')
-        
-        # Join all steps and convert markdown to HTML
-        formatted_solution = '\n'.join(formatted_steps)
-        html_content = markdown.markdown(formatted_solution)
-        
-        # Wrap in a structured solution div
-        return f'<div class="structured-solution">{html_content}</div>'
-    
-    @staticmethod
-    def _format_math(text):
-        """Format mathematical expressions."""
-        # Replace inline math delimiters
-        text = re.sub(r'(?<!\\)\$(.+?)(?<!\\)\$', r'\\(\1\\)', text)
-        
-        # Format fractions
-        text = re.sub(r'(\d+)/(\d+)', r'\\frac{\1}{\2}', text)
-        
-        # Format subscripts (e.g., a1 -> a_1)
-        text = re.sub(r'([a-zA-Z])(\d+)', r'\1_\2', text)
-        
-        return text
-    
-    @staticmethod
-    def format_question(question_text):
-        """Format the question text."""
-        # Process mathematical expressions
-        question = SolutionFormatter._format_math(question_text)
-        
-        # Convert markdown to HTML
-        html_content = markdown.markdown(question)
-        
+    def _format_content(text: str) -> str:
+
+        """
+        A robust method to convert mixed Markdown and LaTeX text to HTML.
+        It isolates math expressions, processes the Markdown, and then restores the math.
+        """
+        math_expressions = []
+
+        def store_math(match):
+            """Stores the math expression and returns an HTML comment placeholder."""
+            index = len(math_expressions)
+            math_expressions.append(match.group(0))
+            return f'<!--MATH_PLACEHOLDER_{index}-->'
+
+        # This robust pattern finds all standard LaTeX delimiters.
+        pattern = re.compile(
+            r'('            # Start capturing group for all math patterns
+            r'(?:\$\$.*?\$\$)|'  # Match $$...$$
+            r'(?:\\\[.*?\\\])|'  # Match \[...\]
+            r'(?:\$[^\$\n]+\$)|'  # Match $...$ (safer, non-greedy version)
+            r'(?:\\\(.*?\\\))'   # Match \(...\)
+            r')',             # End capturing group
+            re.DOTALL
+        )
+
+        # Replace math expressions with HTML comment placeholders
+        text_with_placeholders = pattern.sub(store_math, text)
+
+        # Convert the full text to HTML. Markdown processor ignores comments.
+        html_content = markdown.markdown(text_with_placeholders, extensions=['extra', 'sane_lists'])
+
+        # Restore the original math expressions
+        for i, math_expr in enumerate(math_expressions):
+            placeholder = f'<!--MATH_PLACEHOLDER_{i}-->'
+            html_content = html_content.replace(placeholder, math_expr)
+
         return html_content
+
+    @staticmethod
+    def format_solution(solution_text: str) -> str:
+        """
+        Formats the raw solution text into clean HTML for rendering.
+        """
+        return SolutionFormatter._format_content(solution_text)
+
+    @staticmethod
+    def format_question(question_text: str) -> str:
+        """
+        Formats the raw question text into clean HTML for rendering.
+        """
+        return SolutionFormatter._format_content(question_text)

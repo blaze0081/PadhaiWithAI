@@ -178,7 +178,7 @@ async def async_solve_math_problem(question: str, image_path: Optional[str] = No
         {
             "role": "system", 
             "content": """You are an experienced mathematics teacher. Solve the questions given, following these guidelines:
-                1. Include step-by-step solutions
+                1. Include step-by-step solutions, but do not mention step number.
                 2. Use LaTeX formatting for mathematical expressions (use $ for inline math and $$ for display math)
                 3. Show complete solution with final answers written as Final Answer: <answer>
                 4. Ensure that the last step, with the final value of the variable, is displayed at the end of the solution. The value should be in numbers, do not write an unsolved equation as the final value
@@ -226,6 +226,7 @@ async def async_solve_math_problem(question: str, image_path: Optional[str] = No
             temperature=0.7,
             max_tokens=4096
         )
+        print(response.choices[0].message.content)
         return response.choices[0].message.content
     except Exception as e:
         print(f"Error calling OpenAI API: {e}")
