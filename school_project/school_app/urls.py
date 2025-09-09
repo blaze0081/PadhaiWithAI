@@ -28,6 +28,7 @@ urlpatterns = [
     # Math Tools URLs
     path('math-tools/', views.math_tools, name='math_tools'),
     path('math-tools/solve/', views.solve_math, name='solve_math'),
+    path('math-tools/solve-again/', views.solve_again, name='solve_again'),
     path('math-tools/generate/', views.generate_math, name='generate_math'),
     path('math-tools/load-questions/', views.load_questions, name='load_questions'),
     

@@ -2139,6 +2139,68 @@ def solve_math(request):
     
     return redirect('math_tools')
 
+@login_required
+@require_http_methods(["POST"])
+def solve_again(request):
+    """
+    View function to re-solve a single math question.
+    """
+    if request.method == 'POST':
+        try:
+            question = request.POST.get('question')
+            img_filename = request.POST.get('img')
+            book_id = request.session.get('selected_book')
+
+            if not question:
+                messages.error(request, 'No question provided to solve again.')
+                return redirect('math_tools')
+
+            language = get_book_language(book_id)
+            raw_solution = ''
+
+            if img_filename:
+                img_path = os.path.join(
+                    settings.BASE_DIR,
+                    'school_app',
+                    'static',
+                    'school_app',
+                    'images',
+                    img_filename
+                )
+                if os.path.exists(img_path):
+                    raw_solution = async_to_sync(async_solve_math_problem)(
+                        question=question,
+                        image_path=img_path,
+                        language=language
+                    )
+                else:
+                    raw_solution = async_to_sync(async_solve_math_problem)(question=question, language=language)
+            else:
+                raw_solution = async_to_sync(async_solve_math_problem)(question=question, language=language)
+
+            formatted_solution = SolutionFormatter.format_solution(raw_solution)
+
+            solutions = [{
+                'question': question,
+                'img': img_filename,
+                'solution': formatted_solution
+            }]
+
+            context = {
+                'solutions': solutions,
+                'language': language,
+                'original_book': book_id,
+                'original_chapter': request.session.get('selected_chapter')
+            }
+
+            return render(request, 'school_app/solutions.html', context)
+
+        except Exception as e:
+            messages.error(request, f"An error occurred while trying to solve the question again: {str(e)}")
+            return redirect('math_tools')
+
+    return redirect('math_tools')
+
 
 @login_required
 def generate_math(request):

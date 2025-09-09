@@ -89,6 +89,14 @@
                                         {{ solution.solution|safe }}
                                     </div>
                                 </div>
+                                <div class="mt-3">
+                                    <form action="{% url 'solve_again' %}" method="post">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="question" value="{{ solution.question }}">
+                                        <input type="hidden" name="img" value="{{ solution.img|default:'' }}">
+                                        <button type="submit" class="btn btn-secondary btn-sm">Solve Again</button>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     {% endfor %}
