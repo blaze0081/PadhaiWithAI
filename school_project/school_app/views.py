@@ -2455,3 +2455,32 @@ def get_student_analysis(request, student_id):
     except Exception as e:
         print(f"Error in get_student_analysis: {str(e)}")  # Debug print
         return JsonResponse({'error': str(e)}, status=500)
+
+
+
+# 17102025 For testing Sarvam API
+from sarvamai import SarvamAI
+from sarvamai.core.api_error import ApiError
+def ask_pai(request):
+    answer = None
+    question = None
+
+    if request.method == "POST":
+        question = request.POST.get("question")
+        api_key = os.getenv("SARVAM_API_KEY", "sk_hrlgmheh_oXiiFZN2CuzfjKSCVdqmfiDa")
+        client = SarvamAI(api_subscription_key=api_key)
+
+        messages = [
+            {"role": "system", "content": "You are a helpful tutor. Answer clearly."},
+            {"role": "user", "content": question},
+        ]
+
+        try:
+            response = client.chat.completions(messages=messages, temperature=0.2, max_tokens=4096, top_p=0.5,)
+            answer = response.choices[0].message.content
+        except ApiError as e:
+            answer = f"API Error {e.status_code}: {e.body}"
+        except Exception as e:
+            answer = f"Error: {str(e)}"
+
+    return render(request, "ask_pai.html", {"question": question, "answer": answer})
