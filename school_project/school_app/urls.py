@@ -98,5 +98,7 @@ urlpatterns = [
     path('attendance/school-daily-summary/', views.school_daily_attendance_summary, name='school_daily_attendance_summary'),
     path('block-attendance-report/', views.block_attendance_report, name='block_attendance_report'),
     path('block-dashboard/', views.block_dashboard, name='block_dashboard'),
+     #17102025
+    path("ask-pai/", views.ask_pai, name="ask-pai"),
 ]
 
