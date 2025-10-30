@@ -2457,13 +2457,18 @@ def get_student_analysis(request, student_id):
         return JsonResponse({'error': str(e)}, status=500)
 
 
-
-# 17102025 For testing Sarvam API
+# 30102025 For testing Sarvam API
+from django.shortcuts import render
+from django.db import connection
+import os
 from sarvamai import SarvamAI
 from sarvamai.core.api_error import ApiError
+
 def ask_pai(request):
     answer = None
     question = None
+    use_model="SARVAM"
+    school_id="ask-pai"
     if request.method == "POST":
         question = request.POST.get("question")
         api_key = os.getenv("SARVAM_API_KEY", "sk_hrlgmheh_oXiiFZN2CuzfjKSCVdqmfiDa")
@@ -2481,5 +2486,17 @@ def ask_pai(request):
             answer = f"API Error {e.status_code}: {e.body}"
         except Exception as e:
             answer = f"Error: {str(e)}"
+        # ✅ Save to chat_history table directly
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    INSERT INTO chat_history (question, answer,use_model,  school_id)
+                    VALUES (%s, %s, %s, %s)
+                    """,
+                    [question, answer, use_model, school_id]
+                )
+        except Exception as db_error:
+            answer = f"Database Error: {str(db_error)}"
 
     return render(request, "ask_pai.html", {"question": question, "answer": answer})
