@@ -2466,7 +2466,7 @@ from sarvamai.core.api_error import ApiError
 
 def ask_pai(request):
     answer = None
-    question = "Type your question here..."
+    question = ""
     use_model="SARVAM"
     school_id="ask-pai"
     if request.method == "POST":
