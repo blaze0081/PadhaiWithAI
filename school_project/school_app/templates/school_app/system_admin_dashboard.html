@@ -27,7 +27,9 @@
             <div class="card-body">
                 <h5 class="card-title">Solve Math</h5>
                 <p class="card-text">Solve Math Questions</p>
-                <a href="{% url 'math_tools' %}" class="btn btn-success">Access Math Tools</a>
+                
+				<a href="{% url 'math_tools' %}?model=gpt" class="btn btn-success">Access Math Tools (C)</a>
+                <a href="{% url 'math_tools' %}?model=sarvam" class="btn btn-success">Access Math Tools(S)</a>
             </div>
         </div>
     </div>
@@ -138,6 +140,7 @@
 		}
 	}
 </style>
+{% if data and data|length > 0 %}
 <h4>Visualizing Student Performance: Test Categories and Average Marks</h4>
 <div class="chart-container">
     {% for test_data in data %}
@@ -201,10 +204,12 @@
         </div>
     {% endfor %}
 </div>
+{% endif %}
 <div class="text-end mb-4">
 	<!-- Button to create a new test -->
 	
 </div>
+{% if labels and labels|length > 0 %}
 <h4>Visualizing School Student Performance: Test Categories and Average Marks</h4>
 <div class="chart-container">
 <canvas id="performanceChart" width="00" height="200"></canvas>
@@ -329,6 +334,7 @@
     });
 </script>
 </div>
+{% endif %}
 <style>
         /* ✅ General Styles */
         .calendar-container {
@@ -511,6 +517,29 @@
 	        { start: '2025-02-07', end: '2025-02-08', title: '-<b> अध्याय  06,08,09,12</b><br>06 - त्रिभुज <br>08 - त्रिकोणमिति का परिचय <br>09 - त्रिकोणमिति का अनुप्रयोग <br>12 - पृष्ठीय क्षेत्रफल एवं आयतन' },
             { start: '2025-02-10', end: '2025-02-14', title: '- <b>अध्याय  06,08,09,12</b><br>06 - त्रिभुज <br>08 - त्रिकोणमिति का परिचय <br>09 - त्रिकोणमिति का अनुप्रयोग <br>12 - पृष्ठीय क्षेत्रफल एवं आयतन' },	    
             { start: '2025-02-15', end: '2025-02-15', title: '<p style="color: red;">- अध्याय 06,08,09 एवं 12 का मूल्यांकन (पंचम)</p>' },
+			//2025-26
+        { start: '2025-12-03', end: '2025-12-06', title: '- <b>अध्याय 01 एवं 03</b><br>01-वास्तविक संख्याएँ <br>03–दो चर वाले रैखिक समीकरण ' }, 
+        { start: '2025-12-08', end: '2025-12-08', title: '<p style="color: red;">-<b> अध्याय 01 एवं 03 का मूल्यांकन (प्रथम)</b><br>-अभिभावक-शिक्षक मीटिंग में लक्ष्य 2026 की जानकारी </p>' },
+        
+        { start: '2025-12-09', end: '2025-12-13', title: '- <b>अध्याय 02,05</b> <br>02 - बहुपद<br>05 – समान्तर श्रेणी' },       
+        { start: '2025-12-15', end: '2025-12-15', title: '<p style="color: red;">-अध्याय 02 एवं 05 का मूल्यांकन (द्वितीय)</p>' },
+
+        { start: '2025-12-16', end: '2025-12-20', title: '<b>अध्याय 04, 07,14</b> <br>04- द्विघात समीकरण <br>07- निर्देशांक ज्यामिति<br>14-प्रायिकता' },
+        { start: '2025-12-22', end: '2025-12-22', title: '<b>अध्याय 04, 07,14</b> <br>04- द्विघात समीकरण <br>07- निर्देशांक ज्यामिति<br>14-प्रायिकता' },
+        { start: '2025-12-23', end: '2025-01-23', title: '<p style="color: red;">- अध्याय 04, 07, 14 का मूल्यांकन (तृतीय)</p>' },
+       
+        { start: '2026-01-06', end: '2026-01-10', title: '- <b>अध्याय 10,11,13</b><br>10 - वृत <br>11 - वृतों से संबंधित क्षेत्रफल <br>13 - सांख्यिकी' },
+        { start: '2026-01-12', end: '2026-01-15', title: '- <b>अध्याय 10,11,13</b><br>10 - वृत <br>11 - वृतों से संबंधित क्षेत्रफल <br>13 - सांख्यिकी' },        
+        { start: '2026-01-16', end: '2026-01-16', title: '<p style="color: red;">- अध्याय 10, 11, 13 का मूल्यांकन (चतुर्थ)</p>' },
+
+        { start: '2026-01-17', end: '2026-01-17', title: '-<b> अध्याय  08,09</b><br>08 - त्रिकोणमिति का परिचय <br>09 - त्रिकोणमिति का अनुप्रयोग ' },
+        { start: '2026-01-19', end: '2026-01-23', title: '-<b> अध्याय  08,09</b><br>08 - त्रिकोणमिति का परिचय <br>09 - त्रिकोणमिति का अनुप्रयोग ' },   
+        
+        { start: '2026-01-24', end: '2026-01-24', title: '<p style="color: red;">- अध्याय 08,09  का मूल्यांकन (पंचम)</p>' },
+
+        { start: '2026-01-27', end: '2026-01-31', title: '- <b>अध्याय  06,12</b><br>06 - त्रिभुज <br>12 - पृष्ठीय क्षेत्रफल एवं आयतन' },
+        { start: '2026-02-02', end: '2026-02-02', title: '<p style="color: red;">- अध्याय 06,12  का मूल्यांकन (षष्टम)</p>' },	 
+        { start: '2026-02-05', end: '2026-02-05', title: '<p style="color: red;">प्रीबोर्ड परीक्षा (सम्पूर्ण पाठ्यक्रम)</p>' },
         ];
 
         let currentDate = new Date();
