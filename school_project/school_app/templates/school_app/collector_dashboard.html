@@ -142,6 +142,7 @@
 		}
 	}
 </style>
+{% if data and data|length > 0 %}
 <h4>Visualizing Student Performance: Test Categories and Average Marks</h4>
 <div class="chart-container">
     {% for test_data in data %}
@@ -215,6 +216,7 @@
         </div>
     {% endfor %}
 </div>
+{% endif %}
 	<div class="text-end mb-4">
 		<!-- Button to create a new test -->
 		
@@ -224,6 +226,7 @@
 		
 	</div>
 	<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+{% if result and result|length > 0 %}
 	<h4>Test-Wise School Performance</h4>    
 	<div class="chart-container1">
 	
@@ -312,7 +315,7 @@
 	</div>
 		{% endfor %}
 </div>
-
+{% endif %}
 <div class="table-responsive">
 	<h4>List of Scheduled Tests</h4>
 	<table class="table table-striped table-bordered table-hover">
@@ -441,3 +444,4 @@
 		});
 	});
 </script>{% endblock %}
+
