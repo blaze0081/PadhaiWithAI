@@ -2471,10 +2471,7 @@ def ask_pai(request):
     school_id="ask-pai"
     if request.method == "POST":
         question = request.POST.get("question")
-		if not question:
-            answer = "Please enter your question before submitting."
-            return render(request, "ask_pai.html", {"question": question, "answer": answer})
-        api_key = os.getenv("SARVAM_API_KEY", "sk_hrlgmheh_oXiiFZN2CuzfjKSCVdqmfiDa")
+		api_key = os.getenv("SARVAM_API_KEY", "sk_hrlgmheh_oXiiFZN2CuzfjKSCVdqmfiDa")
         client = SarvamAI(api_subscription_key=api_key)
 
         messages = [
