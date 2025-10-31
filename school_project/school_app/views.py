@@ -2470,7 +2470,7 @@ def ask_pai(request):
     use_model="SARVAM"
     school_id="ask-pai"
     if request.method == "POST":
-        question = request.POST.get("question").strip()
+        question = request.POST.get("question")
 		if not question:
             answer = "Please enter your question before submitting."
             return render(request, "ask_pai.html", {"question": question, "answer": answer})
