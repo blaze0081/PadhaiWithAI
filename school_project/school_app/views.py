@@ -2470,8 +2470,8 @@ def ask_pai(request):
     use_model="SARVAM"
     school_id="ask-pai"
     if request.method == "POST":
-        question = request.POST.get("question")
-		if not question.strip():
+        question = request.POST.get("question").strip()
+		if not question:
             answer = "Please enter your question before submitting."
             return render(request, "ask_pai.html", {"question": question, "answer": answer})
         api_key = os.getenv("SARVAM_API_KEY", "sk_hrlgmheh_oXiiFZN2CuzfjKSCVdqmfiDa")
