@@ -108,6 +108,7 @@
 		}
 	}
 </style>
+{% if data and data|length > 0 %}
 <h4>Visualizing Student Performance: Test Categories and Average Marks</h4>
 <div class="chart-container">
     {% for test_data in data %}
@@ -171,6 +172,7 @@
         </div>
     {% endfor %}
 </div>
+{% endif %}
 	<div class="text-end mb-4">
 		<!-- Button to create a new test -->
 		
@@ -179,6 +181,7 @@
 		<!-- Button to create a new test -->
 		
 	</div>
+{% if result and result|length > 0 %}
 	<h4>Test-Wise School Performance</h4>    
 	<div class="chart-container1">
 		{% for data in result %}
@@ -262,7 +265,7 @@
     </div>
 		{% endfor %}
 </div>
-
+{% endif %}
 <div class="table-responsive">
 	<h4>List of Scheduled Tests</h4>
 	<table class="table table-striped table-bordered table-hover">
