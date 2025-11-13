@@ -2101,18 +2101,18 @@ def solve_math(request):
                         )
                         
                         if os.path.exists(img_path):
-                            raw_solution = async_to_sync(async_solve_math_problem)(
+                            raw_solution = async_to_sync(async_solve_math_problem)(request,
                                 question=question,
                                 image_path=img_path,
                                 language=language
                             )
                         else:
-                            raw_solution = async_to_sync(async_solve_math_problem)(question=question, language=language)
+                            raw_solution = async_to_sync(async_solve_math_problem)(request,question=question, language=language)
                     else:
-                        raw_solution = async_to_sync(async_solve_math_problem)(question=question, language=language)
+                        raw_solution = async_to_sync(async_solve_math_problem)(request,question=question, language=language)
                 else:
                     question = question_data
-                    raw_solution = async_to_sync(async_solve_math_problem)(question=question, language=language)
+                    raw_solution = async_to_sync(async_solve_math_problem)(request,question=question, language=language)
                 
                 # Format the solution using the SolutionFormatter
                 formatted_solution = SolutionFormatter.format_solution(raw_solution)
@@ -2179,15 +2179,15 @@ def solve_again(request):
                     img_filename
                 )
                 if os.path.exists(img_path):
-                    raw_solution = async_to_sync(async_solve_math_problem)(
+                    raw_solution = async_to_sync(async_solve_math_problem)(request,
                         question=question,
                         image_path=img_path,
                         language=language
                     )
                 else:
-                    raw_solution = async_to_sync(async_solve_math_problem)(question=question, language=language)
+                    raw_solution = async_to_sync(async_solve_math_problem)(request,question=question, language=language)
             else:
-                raw_solution = async_to_sync(async_solve_math_problem)(question=question, language=language)
+                raw_solution = async_to_sync(async_solve_math_problem)(request,question=question, language=language)
 
             formatted_solution = SolutionFormatter.format_solution(raw_solution)
 
