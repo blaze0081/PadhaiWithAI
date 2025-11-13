@@ -1952,10 +1952,19 @@ def get_book_chapters(book_id):
 
 @login_required
 def math_tools(request):
+	# 1️⃣ Try to get model_type from GET
+    model_type = request.GET.get("model")
+    # 2️⃣ If not in GET, use session value (previously stored)
+    if not model_type:
+        model_type = request.session.get("model_type", "sarvam")
+
+    # 3️⃣ Save it back to session (so it persists)
+    request.session["model_type"] = model_type 
     context = {
         'books': get_available_books(),
         'selected_book': request.session.get('selected_book'),
-        'selected_chapter': request.session.get('selected_chapter')
+        'selected_chapter': request.session.get('selected_chapter'),
+		'model_type': model_type
     }
     
     # If a book is selected, load its chapters
@@ -1969,7 +1978,7 @@ def load_questions(request):
     if request.method == 'POST':
         book_id = request.POST.get('book')
         chapter_id = request.POST.get('chapter')
-        
+        model_type = request.session["model_type"]
         if not book_id or not chapter_id:
             messages.error(request, 'Please select both book and chapter')
             return redirect('math_tools')
@@ -1986,6 +1995,7 @@ def load_questions(request):
             'selected_book': book_id,
             'chapters': get_book_chapters(book_id),
             'selected_chapter': chapter_id,
+			 'model_type': model_type
         }
         
         if content:
@@ -2042,7 +2052,7 @@ def solve_math(request):
             # Get questions and book ID from POST data
             questions_json = request.POST.get('questions')
             book_id = request.session.get('selected_book')
-            
+            model_type = request.session["model_type"]
             if not questions_json:
                 messages.error(request, 'No questions selected')
                 return redirect('math_tools')
@@ -2123,7 +2133,8 @@ def solve_math(request):
                 'solutions': solutions,
                 'language': language,
                 'original_book': book_id,
-                'original_chapter': request.session.get('selected_chapter')
+                'original_chapter': request.session.get('selected_chapter'),
+				'model_type':model_type
             }
 
             return render(request, 'school_app/solutions.html', context)
@@ -2150,7 +2161,7 @@ def solve_again(request):
             question = request.POST.get('question')
             img_filename = request.POST.get('img')
             book_id = request.session.get('selected_book')
-
+			model_type = request.session["model_type"]
             if not question:
                 messages.error(request, 'No question provided to solve again.')
                 return redirect('math_tools')
@@ -2190,7 +2201,8 @@ def solve_again(request):
                 'solutions': solutions,
                 'language': language,
                 'original_book': book_id,
-                'original_chapter': request.session.get('selected_chapter')
+                'original_chapter': request.session.get('selected_chapter'),
+				'model_type':model_type
             }
 
             return render(request, 'school_app/solutions.html', context)
@@ -2211,7 +2223,7 @@ def generate_math(request):
         # Get questions from POST data
         questions_json = request.POST.get('questions')
         book_id = request.session.get('selected_book')
-        
+        model_type = request.session["model_type"]
         if not questions_json:
             messages.error(request, 'No questions selected')
             return redirect('math_tools')
@@ -2281,7 +2293,8 @@ def generate_math(request):
                 'question_type': question_type,
                 'difficulty': difficulty,
                 'num_questions': num_questions,
-                'questions_json': questions_json
+                'questions_json': questions_json,
+				'model_type': model_type
             }
 
             return render(request, 'school_app/math_tools.html', context)
