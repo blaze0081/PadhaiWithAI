@@ -5,12 +5,11 @@ from dotenv import load_dotenv
 from typing import Optional, Union
 import base64
 from asgiref.sync import sync_to_async
-
+from sarvamai import SarvamAI
 load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
 
 async_client = AsyncOpenAI(api_key=api_key)
-
 
 def init_openai():
     return OpenAI(api_key=api_key)
@@ -94,7 +93,7 @@ def get_system_message_generate(language: str, difficulty: str, question_type: s
     
     return system_messages.get(language, system_messages["English"])
 
-async def async_generate_similar_questions(question: str, difficulty: str, num_questions: int, 
+async def async_generate_similar_questions(request,question: str, difficulty: str, num_questions: int, 
                             language: str, question_type: str) -> str:
     """
     Generate similar mathematics questions with specified parameters.
@@ -110,9 +109,11 @@ async def async_generate_similar_questions(question: str, difficulty: str, num_q
         Formatted string containing generated questions and solutions
     """
     # client = init_openai()
-    
+    #model_type = "sarvam"  # default to SarvamAI
     system_message = get_system_message_generate(language, difficulty, question_type)
     
+    model_type = request.session.get("model_type", "sarvam")
+    print("Using model:", model_type)
     # Create language-specific prompts
     prompts = {
                 "Hindi": f"""इस उदाहरण प्रश्न के आधार पर:
@@ -143,16 +144,29 @@ async def async_generate_similar_questions(question: str, difficulty: str, num_q
                 }
     
     prompt = prompts.get(language, prompts["English"])
+    if model_type == "gpt":
+        response = await async_client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": system_message},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7
+        )
+    elif model_type == "sarvam":
     
-    response = await async_client.chat.completions.create(
-        model="gpt-4o",
+        client = SarvamAI(api_subscription_key="sk_hrlgmheh_oXiiFZN2CuzfjKSCVdqmfiDa")
+        response = client.chat.completions(
         messages=[
             {"role": "system", "content": system_message},
-            {"role": "user", "content": prompt}
+            {"role": "user", "content": prompt},
+            # {"role": "assistant", "content": "Indian classical music is one of the oldest musical traditions in the world..."},
+            # {"role": "user", "content": "What are the two main styles?"}
         ],
-        temperature=0.7
-    )
-    
+        temperature=0.2,
+        max_tokens=4096
+      )
+#print(response.choices[0].message.content)
     generated_content = response.choices[0].message.content
     return generated_content
 
@@ -162,8 +176,11 @@ def encode_image(image_path):
     with open(image_path, "rb") as image_file:
         return base64.b64encode(image_file.read()).decode('utf-8')
 
+from django.shortcuts import render
+from django.db import connection
+import os
 
-async def async_solve_math_problem(question: str, image_path: Optional[str] = None, language: str = "English") -> str:
+async def async_solve_math_problem(request,question: str, image_path: Optional[str] = None, language: str = "English") -> str:
     """
     Solve a given mathematics problem with detailed explanation.
     
@@ -173,12 +190,17 @@ async def async_solve_math_problem(question: str, image_path: Optional[str] = No
         language: Language for the solution (default: "English")
     """
     # client = init_openai()
-    
+   
+    #model_type = get_model_type(request)
+    #print("Using model:", model_type)
+
+    model_type = request.session.get("model_type", "sarvam")
+    print("Using model:", model_type)
     messages = [
         {
             "role": "system", 
             "content": """You are an experienced mathematics teacher. Solve the questions given, following these guidelines:
-                1. Include step-by-step solutions, but do not mention step number.
+                1. Include step-by-step solutions
                 2. Use LaTeX formatting for mathematical expressions (use $ for inline math and $$ for display math)
                 3. Show complete solution with final answers written as Final Answer: <answer>
                 4. Ensure that the last step, with the final value of the variable, is displayed at the end of the solution. The value should be in numbers, do not write an unsolved equation as the final value
@@ -190,9 +212,12 @@ async def async_solve_math_problem(question: str, image_path: Optional[str] = No
                 10. If an image is provided, analyze it carefully as it may contain important visual information needed to solve the problem"""
         }
     ]
-
+   # print (messages)
     # Add the question content
+    
+       
     user_content = f"Please solve this mathematics question step by step in {language}: {question}"
+    #print(user_content)
     print(f"Looking for image at: {image_path}")
     if image_path:
         try:
@@ -220,14 +245,39 @@ async def async_solve_math_problem(question: str, image_path: Optional[str] = No
         messages.append({"role": "user", "content": user_content})
     
     try:
-        response = await async_client.chat.completions.create(
-            model="gpt-4o",
+        if model_type == "gpt":
+            response = await async_client.chat.completions.creaate(
+                model="gpt-4o",
+                messages=messages,
+                temperature=0.7,
+                max_tokens=4096
+            )
+            return response.choices[0].message.content
+        elif model_type == "sarvam":
+            client = SarvamAI(api_subscription_key="sk_hrlgmheh_oXiiFZN2CuzfjKSCVdqmfiDa")
+            response = client.chat.completions(
             messages=messages,
-            temperature=0.7,
-            max_tokens=4096
-        )
-        print(response.choices[0].message.content)
-        return response.choices[0].message.content
+            temperature=0.2,
+            max_tokens=4096,
+            top_p=0.5,
+          #  wiki_grounding=True,
+            #seed=12345
+            #reasoning_effort="high"
+            )
+            return response.choices[0].message.content
+        else:
+           return "error: Invalid model type.status=400"
+
     except Exception as e:
         print(f"Error calling OpenAI API: {e}")
         return f"Error solving problem: {str(e)}"
+
+   
+#reasoning_effort="high"
+
+# top_p value	Behavior
+# 0.1	Very focused, only top 10% words used
+# 0.3	Controlled diversity
+# 0.5	Balanced creativity and accuracy
+# 0.8 - 1.0	Very creative, open-ended responses
+# 1.0 (default)	Full probability space used
