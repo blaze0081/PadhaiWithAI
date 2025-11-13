@@ -1978,7 +1978,7 @@ def load_questions(request):
     if request.method == 'POST':
         book_id = request.POST.get('book')
         chapter_id = request.POST.get('chapter')
-		model_type = request.session["model_type"]
+        model_type = request.session["model_type"]
         if not book_id or not chapter_id:
             messages.error(request, 'Please select both book and chapter')
             return redirect('math_tools')
@@ -2161,7 +2161,7 @@ def solve_again(request):
             question = request.POST.get('question')
             img_filename = request.POST.get('img')
             book_id = request.session.get('selected_book')
-			model_type = request.session["model_type"]
+            model_type = request.session["model_type"]
             if not question:
                 messages.error(request, 'No question provided to solve again.')
                 return redirect('math_tools')
