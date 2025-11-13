@@ -1978,7 +1978,7 @@ def load_questions(request):
     if request.method == 'POST':
         book_id = request.POST.get('book')
         chapter_id = request.POST.get('chapter')
-        model_type = request.session["model_type"]
+		model_type = request.session["model_type"]
         if not book_id or not chapter_id:
             messages.error(request, 'Please select both book and chapter')
             return redirect('math_tools')
@@ -1995,7 +1995,7 @@ def load_questions(request):
             'selected_book': book_id,
             'chapters': get_book_chapters(book_id),
             'selected_chapter': chapter_id,
-			 'model_type': model_type
+			'model_type': model_type
         }
         
         if content:
