@@ -2268,7 +2268,7 @@ def generate_math(request):
             # Generate questions using the book's language
             for i, (question, count) in enumerate(zip(questions, distribution)):
                 try:
-                    generated_content = async_to_sync(async_generate_similar_questions)(
+                    generated_content = async_to_sync(async_generate_similar_questions)(request,
                         question=question,
                         difficulty=difficulty,
                         num_questions=count,
