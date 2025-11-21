@@ -8,6 +8,7 @@ from asgiref.sync import sync_to_async
 from sarvamai import SarvamAI
 load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
+sarvam_key = os.getenv("SARVAM_API_KEY")
 
 async_client = AsyncOpenAI(api_key=api_key)
 
@@ -155,7 +156,7 @@ async def async_generate_similar_questions(request,question: str, difficulty: st
         )
     elif model_type == "sarvam":
     
-        client = SarvamAI(api_subscription_key="sk_hrlgmheh_oXiiFZN2CuzfjKSCVdqmfiDa")
+        client = SarvamAI(api_subscription_key=sarvam_key)
         response = client.chat.completions(
         messages=[
             {"role": "system", "content": system_message},
@@ -246,7 +247,7 @@ async def async_solve_math_problem(request,question: str, image_path: Optional[s
     
     try:
         if model_type == "gpt":
-            response = await async_client.chat.completions.creaate(
+            response = await async_client.chat.completions.create(
                 model="gpt-4o",
                 messages=messages,
                 temperature=0.7,
@@ -254,7 +255,7 @@ async def async_solve_math_problem(request,question: str, image_path: Optional[s
             )
             return response.choices[0].message.content
         elif model_type == "sarvam":
-            client = SarvamAI(api_subscription_key="sk_hrlgmheh_oXiiFZN2CuzfjKSCVdqmfiDa")
+            client = SarvamAI(api_subscription_key=sarvam_key)
             response = client.chat.completions(
             messages=messages,
             temperature=0.2,
