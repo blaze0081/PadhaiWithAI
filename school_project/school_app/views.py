@@ -682,23 +682,45 @@ def weakest_students(request):
 
 @login_required
 def upload_school_users(request):
-    if request.user.groups.filter(name='Collector').exists():      
-    
-        if request.method == 'POST' and request.FILES['excel_file']:
+    # You can also change this to request.user.is_district_user if you shifted from groups
+    if request.user.groups.filter(name='Collector').exists():
+
+        if request.method == 'POST' and request.FILES.get('excel_file'):
             excel_file = request.FILES['excel_file']
-            successfully_created = 0  # Counter to track how many users are successfully created
+            successfully_created = 0  # Counter
+
             try:
-                # Load Excel data into pandas DataFrame
+                # Load Excel data
                 df = pd.read_excel(excel_file, engine='openpyxl')
-                
-                # Iterate through each row and create users
+
+                # Optional: check required columns
+                required_cols = {'email', 'username', 'password', 'school_name', 'nic_code', 'block_id'}
+                if not required_cols.issubset(set(df.columns)):
+                    messages.error(request, "Excel must contain columns: email, username, password, school_name, nic_code, block_id")
+                    return redirect('upload_school_users')
+
                 for index, row in df.iterrows():
-                    email = row['email']
-                    username = row['username']
-                    password = row['password']
-                    is_admin =  0  # Default to False if not specified
+                    email = str(row['email']).strip()
+                    username = str(row['username']).strip()
+                    password = str(row['password']).strip()
+                    school_name = str(row['school_name']).strip()
+                    nic_code = str(row['nic_code']).strip() if not pd.isna(row['nic_code']) else ''
+                    block_id = row['block_id']
+
+                    # Skip if email or block_id is missing
+                    if not email or pd.isna(block_id):
+                        messages.warning(request, f"Row {index+2}: Missing email or block_id. Skipped.")
+                        continue
 
                     try:
+                        # Get Block from block_id
+                        try:
+                            block = Block.objects.get(id=block_id)
+                        except Block.DoesNotExist:
+                            messages.warning(request, f"Row {index+2}: Block with ID {block_id} not found. Skipped.")
+                            continue
+
+                        # Get or create user
                         if CustomUser.objects.filter(email=email).exists():
                             user1 = CustomUser.objects.get(email=email)
                         else:
@@ -706,41 +728,53 @@ def upload_school_users(request):
                                 email=email,
                                 username=username,
                                 password=password,
-                                is_system_admin=is_admin
-                            )
-                        user1.save()
-                        admin_user = CustomUser.objects.get(email=email)
-                    # Create or update the School instance
-                        school = School.objects.create(
-                                name=row['school_name'],
-                                admin=admin_user,  # Assign the CustomUser instance to the admin field
-                                created_by = request.user # Example if you want to set 'created_by' as the admin
+                                is_system_admin=False,
+                                is_school_user=True,   # mark as school user
+                                is_block_user=False,
+                                is_district_user=False
                             )
 
-                        school.save()
-                        # Increment the successful creation counter
+                        # Create or get School
+                        school, created = School.objects.get_or_create(
+                            admin=user1,
+                            defaults={
+                                'name': school_name,
+                                'created_by': request.user,
+                                'block': block,
+                                'nic_code': nic_code
+                            }
+                        )
+
+                        # If school already existed, optionally update fields
+                        if not created:
+                            school.name = school_name
+                            school.block = block
+                            school.nic_code = nic_code
+                            school.save()
+
                         successfully_created += 1
+
                     except IntegrityError as e:
-                        messages.error(request, f"Error creating user {email}: {e}")
-                        continue  # Skip to the next user if error occurs
-                    
-                # Show a success message with the number of successfully created users
+                        messages.error(request, f"Row {index+2}: Error creating user/school for {email}: {e}")
+                        continue
+
                 if successfully_created > 0:
-                    messages.success(request, f"{successfully_created} users uploaded and created successfully.")
+                    messages.success(request, f"{successfully_created} school users uploaded/updated successfully.")
                 else:
-                    messages.warning(request, "No users were created. Please check the file and try again.")
-                return redirect('collector_dashboard')  # Replace with appropriate redirect path
+                    messages.warning(request, "No users were created. Please check the Excel file and try again.")
+
+                return redirect('collector_dashboard')
 
             except Exception as e:
                 messages.error(request, f"Error processing file: {str(e)}")
-                return redirect('upload_school_users')  # Redirect back to upload form if error occurs
-        
+                return redirect('upload_school_users')
+
         else:
             form = ExcelFileUploadForm()
-        
+
         return render(request, 'upload_users.html', {'form': form})
+
     else:
-        # If the user is not a collector, return an error message or redirect
         return HttpResponseForbidden("You are not authorized to access this page.")
 
 
@@ -1331,24 +1365,43 @@ def student_ranking(request):
         'selected_test': selected_test
     })
 @login_required
+@login_required
 def student_report(request):
-   
-    # if not request.user.groups.filter(name='Collector').exists():
-    #     return HttpResponseForbidden("You are not authorized to access this page.")
-    # if not request.user.groups.filter(name='Collector').exists():
-    #     return HttpResponseForbidden("You are not authorized to access this page.")
-   
-    if request.user.is_district_user:
-         total_students = Student.objects.count()
-    else:
-        block = Block.objects.get(admin=request.user)
-        schools = School.objects.all().filter(block=block)
-        # Count students from all schools within the block
-        students = Student.objects.filter(school__in=schools)
-        total_students = students.count()
 
-    #total_students = Student.objects.count()
-    return render(request, 'student_report.html', {'total_students': total_students})
+    # ---- District User ----
+    if request.user.is_district_user:
+        try:
+            district = District.objects.get(admin=request.user)
+        except District.DoesNotExist:
+            return HttpResponseForbidden("District not assigned to this user.")
+
+        # Get all blocks in this district
+        blocks = Block.objects.filter(district=district)
+        # Get all schools from these blocks
+        schools = School.objects.filter(block__in=blocks)
+        # Students belonging only to these schools
+        total_students = Student.objects.filter(school__in=schools).count()
+    # ---- Block User ----
+    elif request.user.is_block_user:
+        try:
+            block = Block.objects.get(admin=request.user)
+        except Block.DoesNotExist:
+            return HttpResponseForbidden("Block not assigned to this user.")
+
+        schools = School.objects.filter(block=block)
+        total_students = Student.objects.filter(school__in=schools).count()
+    # ---- School User (optional) ----
+    else:
+        try:
+            school = School.objects.get(admin=request.user)
+        except School.DoesNotExist:
+            return HttpResponseForbidden("School not assigned to this user.")
+
+        total_students = Student.objects.filter(school=school).count()
+
+    return render(request, 'student_report.html', {
+        'total_students': total_students
+    })
 
 
 @login_required
@@ -1744,9 +1797,28 @@ def logout_view(request):
 #31/12/2024
 @login_required
 def school_student_list(request):
-    if request.user.is_block_user:
-        block = Block.objects.get(admin=request.user)
-        schools = School.objects.all().filter(block=block)
+    # --- CASE 1: District User ---
+    if request.user.is_district_user:
+        try:
+            # Find district of this district admin
+            district = District.objects.get(admin=request.user)
+        except District.DoesNotExist:
+            return HttpResponseForbidden("District not assigned.")
+
+        # Get all blocks in this district
+        blocks = Block.objects.filter(district=district)
+
+        # Get all schools belonging to those blocks
+        schools = School.objects.filter(block__in=blocks)
+
+    # --- CASE 2: Block User ---
+    elif request.user.is_block_user:
+        try:
+            block = Block.objects.get(admin=request.user)
+        except Block.DoesNotExist:
+            return HttpResponseForbidden("Block not assigned.")
+
+        schools = School.objects.filter(block=block)
     else:
         schools = School.objects.all()
     
