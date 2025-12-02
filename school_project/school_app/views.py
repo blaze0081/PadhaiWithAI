@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
-from .models import School, Student, Marks,Block,Attendance
+from .models import School, Student, Marks,Block,Attendance,District
 from .forms import StudentForm, MarksForm, SchoolForm, SchoolAdminRegistrationForm, TestForm, Test, LoginForm
 from django.db.models import Count 
 from .math_utils import async_solve_math_problem, async_generate_similar_questions
@@ -1170,11 +1170,21 @@ def collector_dashboard(request):
     # Fetch tests created by the collector
     if not request.user.groups.filter(name='Collector').exists():
         return HttpResponseForbidden("You are not authorized to access this page.")
-    tests = Test.objects.all().order_by('test_number')
+    #tests = Test.objects.all().order_by('test_number')
+    tests = Test.objects.filter(created_by=request.user).order_by('test_number')
     # tests = Test.objects.filter(created_by=request.user)
 
     # Fetch all schools (You can add filters here if necessary)
-    schools = School.objects.all()
+    try:
+        district = District.objects.get(admin=request.user)
+    except District.DoesNotExist:
+        return render(request, '403.html')
+    district_name=district.name_english
+    print(district_name)
+    blocks = Block.objects.filter(district=district)
+    schools = School.objects.filter(block__in=blocks)
+    students = Student.objects.filter(school__in=schools)
+    #schools = School.objects.all()
     live_sessions = Session.objects.filter(expire_date__gte=timezone.now())
 
     data = (
@@ -1248,8 +1258,10 @@ def collector_dashboard(request):
         'total_tests': Test.objects.count(),
         'get_active_users': live_sessions.count(),
         'data': data,
-        'result': result_data
+        'result': result_data,
+        'district_name': district_name
     })
+
 
 @login_required
 # def view_test_results(request, test_number):
