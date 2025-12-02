@@ -39,176 +39,6 @@ from django.utils.dateparse import parse_date
 from django.db.models import Avg, F, ExpressionWrapper, FloatField,Sum
 from django.db.models import Count, Case, When, IntegerField,Value
 from django.db import connection
-#21012025
-
-@login_required
-def block_attendance_report(request):
-    
-    if request.user.is_district_user:
-     blocks = Block.objects.all()
-    elif request.user.is_block_user:
-     blocks = Block.objects.get(admin=request.user)
-    report = []
-
-    for block in blocks:
-        #schools = School.objects.get(block=block)
-        schools = block.schools.all()
-        total_students = 0
-        total_present = 0
-        total_absent = 0
-
-        for school in schools:
-            total_students += school.student_set.count()
-            attendance_records = Attendance.objects.filter(student__school=school)
-            total_present += attendance_records.filter(is_present=True).count()
-            total_absent += attendance_records.filter(is_present=False).count()
-
-        # Calculate attendance percentage
-        percentage = (total_present / total_students * 100) if total_students > 0 else 0
-
-        # Append block data to the report
-        report.append({
-            "block_name": block.name_english,
-            "total_students": total_students,
-            "total_present": total_present,
-            "total_absent": total_absent,
-            "percentage": f"{percentage:.2f}%",
-        })
-
-    return render(request, "block_attendance_report.html", {"report": report})
-
-@login_required
-def school_daily_attendance_summary(request):
-    # Fetch attendance data grouped by school and date
-    attendance_summary = (
-        Attendance.objects.values('student__school__name', 'date')
-        .annotate(
-            total_students=Count('student'),
-            present_students=Count('student', filter=Q(is_present=True)),
-            absent_students=Count('student', filter=Q(is_present=False)),
-        )
-        .order_by('date', 'student__school__name')
-    )
-
-    # Restructure data for the template
-    summary_by_school_and_date = {}
-    for record in attendance_summary:
-        school_name = record['student__school__name']
-        date = record['date']
-        if date not in summary_by_school_and_date:
-            summary_by_school_and_date[date] = []
-        summary_by_school_and_date[date].append({
-            'school_name': school_name,
-            'total_students': record['total_students'],
-            'present_students': record['present_students'],
-            'absent_students': record['absent_students'],
-        })
-
-    return render(request, 'school_daily_attendance_summary.html', {
-        'summary_by_school_and_date': summary_by_school_and_date
-    })
-#1401025 Sushil Agrawal
-@login_required
-def block_wise_attendance_summary(request):
-    # Get filter inputs
-    start_date = parse_date(request.GET.get('start_date', ''))
-    end_date = parse_date(request.GET.get('end_date', ''))
-
-    # Fetch attendance data with optional date filtering
-    attendance_queryset = Attendance.objects.all()
-    if start_date and end_date:
-        attendance_queryset = attendance_queryset.filter(date__range=(start_date, end_date))
-
-    attendance_summary = (
-        attendance_queryset.values('student__school__block__name_english', 'date')
-        .annotate(
-            total_students=Count('student'),
-            present_students=Count('student', filter=Q(is_present=True)),
-            absent_students=Count('student', filter=Q(is_present=False)),
-        )
-        .order_by('date', 'student__school__block__name_english')
-    )
-
-    # Restructure data for the template
-    summary_by_block_and_date = {}
-    for record in attendance_summary:
-        block_name = record['student__school__block__name_english']
-        date = record['date']
-        if date not in summary_by_block_and_date:
-            summary_by_block_and_date[date] = []
-        summary_by_block_and_date[date].append({
-            'block_name': block_name,
-            'total_students': record['total_students'],
-            'present_students': record['present_students'],
-            'absent_students': record['absent_students'],
-        })
-
-    return render(request, 'block_wise_attendance_summary.html', {
-        'summary_by_block_and_date': summary_by_block_and_date,
-        'start_date': start_date,
-        'end_date': end_date
-    })
-@login_required
-def district_wise_attendance_summary(request):
-    # Fetch attendance data grouped by district and date
-    attendance_summary = (
-        Attendance.objects.values('student__school__block__name_english', 'date')
-        .annotate(
-            total_students=Count('student'),
-            present_students=Count('student', filter=Q(is_present=True)),
-            absent_students=Count('student', filter=Q(is_present=False)),
-        )
-        .order_by('date', 'student__school__block__name_english')
-    )
-
-    # Restructure data for template
-    summary_by_district_and_date = {}
-    for record in attendance_summary:
-        district_name = record['student__school__block__name_english']
-        date = record['date']
-        if date not in summary_by_district_and_date:
-            summary_by_district_and_date[date] = []
-        summary_by_district_and_date[date].append({
-            'district_name': district_name,
-            'total_students': record['total_students'],
-            'present_students': record['present_students'],
-            'absent_students': record['absent_students'],
-        })
-
-    return render(request, 'district_wise_attendance_summary.html', {
-        'summary_by_district_and_date': summary_by_district_and_date
-    })
-@login_required
-def date_wise_attendance_summary(request):
-    # Fetch attendance data grouped by school and date
-    attendance_summary = (
-        Attendance.objects.values('student__school__name', 'date')
-        .annotate(
-            total_students=Count('student'),
-            present_students=Count('student', filter=Q(is_present=True)),
-            absent_students=Count('student', filter=Q(is_present=False)),
-        )
-        .order_by('date', 'student__school__name')
-    )
-
-    # Restructure data for easy use in the template
-    summary_by_date = {}
-    for record in attendance_summary:
-        school_name = record['student__school__name']
-        date = record['date']
-        if date not in summary_by_date:
-            summary_by_date[date] = []
-        summary_by_date[date].append({
-            'school_name': school_name,
-            'total_students': record['total_students'],
-            'present_students': record['present_students'],
-            'absent_students': record['absent_students'],
-        })
-
-    return render(request, 'date_wise_attendance_summary.html', {'summary_by_date': summary_by_date})
-#1201025 Sushil Agrawal
-# View to calculate test results by percentage ranges
-
 @login_required
 def test_results_analysis(request):
     # Determine filter based on user type
@@ -384,81 +214,7 @@ def test_wise_average_marks(request):
     context = {'data': data}
     return render(request, 'test_wise_average.html', context)
 
-@login_required
-def submit_attendance(request):
-    if request.user.is_school_user:
-        try:
-            school = School.objects.get(admin=request.user)
-            students = Student.objects.filter(school=school)
-        except School.DoesNotExist:
-            return redirect('error_page')
 
-        if request.method == 'POST':
-            selected_students = request.POST.getlist('absent_students')
-            for student in students:
-                is_present = str(student.id) not in selected_students
-                try:
-                    # Use filter() and update() instead of update_or_create() to avoid duplicates
-                    attendance, created = Attendance.objects.get_or_create(
-                        student=student,
-                        date=timezone.now().date(),
-                        defaults={'is_present': is_present}
-                    )
-                    if not created:
-                        attendance.is_present = is_present
-                        attendance.save()
-                except IntegrityError:
-                    # Log error and handle it gracefully
-                    print(f"Duplicate attendance record for student {student.id} on {timezone.now().date()}")
-            return redirect('attendance_summary')
-
-        context = {'students': students}
-        return render(request, 'attendance_submit.html', context)
-
-    return redirect('system_admin_dashboard')
-@login_required
-def attendance_summary(request):
-    user = request.user
-    today = date.today()
-    attendance = []
-
-    if user.is_district_user:
-        # District-level summary
-        attendance = Attendance.objects.filter(date=today).values(
-            'student__school__name'
-        ).annotate(
-            present_count=Count('is_present', filter=F('is_present')),
-            total_count=Count('student'),
-            Percentage=Count('is_present', filter=F('is_present'))*100/Count('student'),
-        )
-
-    elif user.is_block_user:
-        # Block-level summary
-        attendance = Attendance.objects.filter(
-            date=today, student__school__created_by=user
-        ).values('student__school__name').annotate(
-            present_count=Count('is_present', filter=F('is_present')),
-            total_count=Count('student'),
-            Percentage=Count('is_present', filter=F('is_present'))*100/Count('student'),
-        )
-
-    elif user.is_school_user:
-        # School-level summary
-        try:
-            school = School.objects.get(admin=request.user)
-            #students = Student.objects.filter(school=school)
-            attendance = Attendance.objects.filter(
-                date=today, student__school=school
-            ).values('student__school__name').annotate(
-                present_count=Count('is_present', filter=F('is_present')),
-                total_count=Count('student'),
-                Percentage=Count('is_present', filter=F('is_present'))*100/Count('student'),
-            )
-        except School.DoesNotExist:
-            return render(request, 'error_page.html', {'message': 'School not found.'})
-
-    context = {'attendance_summary': attendance,  'attendance_date': today,}
-    return render(request, 'attendance_summary.html', context)
 #11/01/2025
 @login_required
 def update_block_name_from_excel(request):
@@ -1046,22 +802,7 @@ def block_dashboard(request):
         return render(request, '403.html') 
     data = get_block_data(block)  # Assume `block` is an instance of the Block model
     
-    # data= (
-    #     Test.objects.annotate(
-    #         avg_marks=Avg('marks__marks'),
-    #         percentage=ExpressionWrapper(
-    #             F('avg_marks') * 100 / F('max_marks'),               
-    #             output_field=FloatField()),
-    #             category_0_33=Count(Case(When(marks__marks__lt=F('max_marks') * 0.33, then=1), output_field=IntegerField())),
-    #             category_33_60=Count(Case(When(marks__marks__gte=F('max_marks') * 0.33, marks__marks__lt=F('max_marks')* 0.60, then=1), output_field=IntegerField())),
-    #             category_60_80=Count(Case(When(marks__marks__gte=F('max_marks')* 0.60, marks__marks__lt=F('max_marks') * 0.80, then=1), output_field=IntegerField())),
-    #             category_80_90=Count(Case(When(marks__marks__gte=F('max_marks')* 0.80, marks__marks__lt=F('max_marks')* 0.90, then=1), output_field=IntegerField())),
-    #             category_90_100=Count(Case(When(marks__marks__gte=F('max_marks')* 0.90, marks__marks__lt=F('max_marks'), then=1), output_field=IntegerField())),
-    #             category_100=Count(Case(When(marks__marks=F('max_marks') , then=1), output_field=IntegerField()))
-    #     ).filter(marks__student__school__block=block)
-    #     .values('test_name','subject_name', 'avg_marks', 'percentage', 'category_0_33', 'category_33_60', 'category_60_80', 'category_80_90', 'category_90_100', 'category_100')
-    #     .order_by('-percentage')
-    # )
+   
 # Aggregate category counts for pie chart
     
     # Define the raw SQL query
@@ -1103,9 +844,123 @@ def block_dashboard(request):
         'total_tests': tests.count(),
         'tests': tests,
         'schools': schools,
-        'Block_name': block.name_english
+        'Block_name': block.name_english,
+        'results': get_previous_year_data(block),
+        'chart_data': json.dumps(get_dataforbarchart(request))
         })
 
+def get_dataforbarchart(request):
+    # Query for First & Fifth Test results
+    # Set default values if data is missing
+    
+    if request.user.is_block_user:
+        # Get the block ID for block users
+        block = Block.objects.get(admin=request.user)
+        block_filter = f"WHERE sc.block_id = {block.id}"  # Filter only specific block
+    elif request.user.is_district_user:
+        # No filter for district users (fetch all blocks)
+        block_filter = ""  
+    sql_query = f"""
+   WITH student_marks AS (SELECT m.student_id, t.test_number, t.test_name,  t.subject_name, t.max_marks, COALESCE(m.marks, 0) AS marks, 
+        sc.block_id    FROM school_app_marks m    JOIN school_app_test t ON m.test_id = t.test_number    JOIN school_app_student s ON m.student_id = s.id
+    JOIN school_app_school sc ON s.school_id = sc.id    {block_filter}  AND t.test_number IN (2, 6)  -- 2 = First Test, 6 = Fifth Test
+),
+aggregated_marks AS (    SELECT         test_number, COUNT(*) AS total_students,
+        SUM(CASE WHEN marks < max_marks * 0.33 THEN 1 ELSE 0 END) AS category_0_33,
+        SUM(CASE WHEN marks >= max_marks * 0.33 AND marks < max_marks * 0.60 THEN 1 ELSE 0 END) AS category_33_60,
+        SUM(CASE WHEN marks >= max_marks * 0.60 AND marks < max_marks * 0.80 THEN 1 ELSE 0 END) AS category_60_80,
+        SUM(CASE WHEN marks >= max_marks * 0.80 AND marks < max_marks * 0.90 THEN 1 ELSE 0 END) AS category_80_90,
+        SUM(CASE WHEN marks >= max_marks * 0.90 AND marks < max_marks THEN 1 ELSE 0 END) AS category_90_100,
+        SUM(CASE WHEN marks = max_marks THEN 1 ELSE 0 END) AS category_100    FROM student_marks    GROUP BY test_number
+) SELECT 
+    test_number,total_students, '' as ss,    (category_0_33 * 100.0) / total_students AS below_33_perc,    (category_33_60 * 100.0) / total_students AS maths_33_60_perc,
+    (category_60_80 * 100.0) / total_students AS maths_60_80_perc,    (category_80_90 * 100.0) / total_students AS maths_80_90_perc,
+    (category_90_100 * 100.0) / total_students AS maths_90_100_perc,    (category_100 * 100.0) / total_students AS maths_100_perc
+FROM aggregated_marks ORDER BY test_number;
+"""
+   
+# Execute the query
+    with connection.cursor() as cursor:
+      cursor.execute(sql_query)
+      test_results = cursor.fetchall()
+   
+# Process the first and fifth test data
+    first_test = {}
+    fifth_test = {}
+
+    for row in test_results:
+        if row[0] == 2:  # First test
+            first_test = {
+            "below_33": row[3], "maths_33_60": row[4], "maths_60_80": row[5],
+            "maths_80_90": row[6], "maths_90_100": row[7], "maths_100": row[8]
+        }
+        elif row[0] == 6:  # Fifth test
+            fifth_test = {
+            "below_33": row[3], "maths_33_60": row[4], "maths_60_80": row[5],
+            "maths_80_90": row[6], "maths_90_100": row[7], "maths_100": row[8]
+        }
+    
+    if request.user.is_block_user:
+        # Get the block ID for block users
+        block = Block.objects.get(admin=request.user)
+        block_filter = f"WHERE block_id = {block.id}"  # Filter only specific block
+    elif request.user.is_district_user:
+        # No filter for district users (fetch all blocks)
+        block_filter = ""  
+    query = f"""WITH student_count AS (    SELECT session_year,         SUM(total_students) AS total_students,
+        SUM(below33) AS below_33,        SUM(maths_33_60) AS maths_33_60,        SUM(maths_60_80) AS maths_60_80,        SUM(maths_80_90) AS maths_80_90,
+        SUM(maths_90_100) AS maths_90_100,        SUM(maths_100) AS maths_100    FROM student_exam_results   {block_filter}    GROUP BY session_year
+)
+SELECT     session_year,   (below_33 * 100.0) / total_students AS below_33_perc,    (maths_33_60 * 100.0) / total_students AS maths_33_60_perc,
+    (maths_60_80 * 100.0) / total_students AS maths_60_80_perc,    (maths_80_90 * 100.0) / total_students AS maths_80_90_perc,
+    (maths_90_100 * 100.0) / total_students AS maths_90_100_perc,    (maths_100 * 100.0) / total_students AS maths_100_perc
+FROM student_count ORDER BY session_year;
+"""
+   
+# Execute the query
+    with connection.cursor() as cursor:
+     cursor.execute(query)
+     result = cursor.fetchall()
+
+# Convert SQL result to dictionary
+    previous_year_data = {row[0]: {
+    "below_33": row[1], "maths_33_60": row[2], "maths_60_80": row[3],
+    "maths_80_90": row[4], "maths_90_100": row[5], "maths_100": row[6]
+    } for row in result}
+
+# Convert to JSON format for Chart.js
+    chart_data = {
+    "categories": ["Below 33%", "33-60%", "60-80%", "80-90%", "90-100%", "100%"],
+    "data_2023": [float(previous_year_data.get("2022-23", {}).get(cat, 0)) for cat in first_test.keys()],
+    "data_2024": [float(previous_year_data.get("2023-24", {}).get(cat, 0)) for cat in first_test.keys()],
+    "first_test": [float(first_test[cat]) for cat in first_test.keys()],
+    "fifth_test": [float(fifth_test[cat]) for cat in first_test.keys()]
+    }
+    return chart_data
+
+def get_previous_year_data(block):
+        query = """ SELECT     session_year,      SUM(total_students) AS total_students, SUM(below33) AS below_33,    SUM(maths_33_60) AS maths_33_60,    SUM(maths_60_80) AS maths_60_80,
+    SUM(maths_80_90) AS maths_80_90,    SUM(maths_90_100) AS maths_90_100,    SUM(maths_100) AS maths_100 FROM student_exam_results where block_id=%s GROUP BY session_year, block_name ORDER BY session_year , block_name;"""
+        with connection.cursor() as cursor:
+         cursor.execute(query,[block.id])
+         result = cursor.fetchall()
+        # Convert result to a list of dictionaries
+        results_dict = [
+        {
+           
+            'session_year': row[0],
+            'total_students': row[1],
+            'below33': row[2],
+            'maths_33_60': row[3],
+            'maths_60_80': row[4],
+            'maths_80_90': row[5],
+            'maths_90_100': row[6],
+            'maths_100': row[7],
+        }
+        for row in result
+    
+        ]
+        return results_dict
 def get_block_data(block):
     block_sql_query = """
     WITH student_marks AS (
@@ -1291,28 +1146,8 @@ def collector_dashboard(request):
         'district_name': district_name
     })
 	
-@login_required
-# def view_test_results(request, test_number):
-#     test = get_object_or_404(Test, test_number=test_number)
-#     results = Marks.objects.filter(test_id=test_number).select_related('student')
 
-#     # Get sorting parameters
-#     sort_by = request.GET.get('sort_by', 'student__name')  # Default sorting by student name
-#     order = request.GET.get('order', 'asc')  # Default order is ascending
 
-#     # Adjust the ordering
-#     if order == 'desc':
-#         sort_by = f"-{sort_by}"
-    
-#     results = results.order_by(sort_by)
-
-#     context = {
-#         'test': test,
-#         'results': results,
-#         'current_sort_by': request.GET.get('sort_by', 'student__name'),
-#         'current_order': request.GET.get('order', 'asc'),
-#     }
-#     return render(request, 'school_app/test_results.html', context)
 def view_test_results(request, test_number):
     test = get_object_or_404(Test, test_number=test_number)
     
@@ -1615,12 +1450,10 @@ def dashboard(request):
         category_90_100_percent = [item['category_90_100_percent'] for item in result]
         category_100_percent = [item['category_100_percent'] for item in result]
 
-        query = """    SELECT se.school_name_with_nic_code, s.nic_code, 
-        se.school_nic_code, se.session_year, se.total_students, se.passed_students, 
-        se.first_division_students, se.overall_exam_result, se.math_exam_result, se.math_above_80, 
-        se.math_above_90, se.math_100_percent,
-		se.below33,se.maths_33_60,se.maths_60_80,se.maths_80_90,se.maths_90_100,se.maths_100      FROM student_exam_results se     INNER JOIN 
-        school_app_school s      ON    se.school_nic_code = s.nic_code  WHERE s.nic_code =%s    """
+        query = """ SELECT se.school_name_with_nic_code, s.nic_code, se.school_nic_code, se.session_year, se.total_students, se.passed_students, 
+        se.first_division_students, se.overall_exam_result, se.math_exam_result, se.math_above_80, se.math_above_90, se.math_100_percent,
+        se.below33,se.maths_33_60,se.maths_60_80,se.maths_80_90,se.maths_90_100,se.maths_100 FROM student_exam_results se INNER JOIN school_app_school s 
+        ON se.school_nic_code = s.nic_code  WHERE s.nic_code =%s """
         with connection.cursor() as cursor:
          cursor.execute(query,[school.nic_code])
          result = cursor.fetchall()
@@ -1992,21 +1825,21 @@ def get_book_chapters(book_id):
 
 @login_required
 def math_tools(request):
-	# 1️⃣ Try to get model_type from GET
+    # 1️⃣ Try to get model_type from GET
     model_type = request.GET.get("model")
     # 2️⃣ If not in GET, use session value (previously stored)
     if not model_type:
         model_type = request.session.get("model_type", "sarvam")
 
     # 3️⃣ Save it back to session (so it persists)
-    request.session["model_type"] = model_type 
+    request.session["model_type"] = model_type  
     context = {
         'books': get_available_books(),
         'selected_book': request.session.get('selected_book'),
         'selected_chapter': request.session.get('selected_chapter'),
-		'model_type': model_type
+        'model_type': model_type
     }
-    
+   
     # If a book is selected, load its chapters
     if context['selected_book']:
         context['chapters'] = get_book_chapters(context['selected_book'])
@@ -2019,6 +1852,7 @@ def load_questions(request):
         book_id = request.POST.get('book')
         chapter_id = request.POST.get('chapter')
         model_type = request.session["model_type"]
+        
         if not book_id or not chapter_id:
             messages.error(request, 'Please select both book and chapter')
             return redirect('math_tools')
@@ -2035,7 +1869,7 @@ def load_questions(request):
             'selected_book': book_id,
             'chapters': get_book_chapters(book_id),
             'selected_chapter': chapter_id,
-			'model_type': model_type
+            'model_type': model_type
         }
         
         if content:
@@ -2081,7 +1915,7 @@ from django.views.decorators.http import require_http_methods
 from django.http import HttpResponse, JsonResponse
 from asgiref.sync import async_to_sync
 
-
+from django.contrib.sessions.models import Session
 
 @login_required
 @require_http_methods(["POST"])
@@ -2141,8 +1975,7 @@ def solve_math(request):
                         )
                         
                         if os.path.exists(img_path):
-                            raw_solution = async_to_sync(async_solve_math_problem)(request,
-                                question=question,
+                            raw_solution = async_to_sync(async_solve_math_problem)(request,             question=question,
                                 image_path=img_path,
                                 language=language
                             )
@@ -2156,6 +1989,7 @@ def solve_math(request):
                 
                 # Format the solution using the SolutionFormatter
                 formatted_solution = SolutionFormatter.format_solution(raw_solution)
+                #print(formatted_solution)
                 # formatted_question = SolutionFormatter.format_question(
                 #     question if 'question' in locals() else question_data
                 # )
@@ -2174,7 +2008,7 @@ def solve_math(request):
                 'language': language,
                 'original_book': book_id,
                 'original_chapter': request.session.get('selected_chapter'),
-				'model_type':model_type
+                'model_type':model_type
             }
 
             return render(request, 'school_app/solutions.html', context)
@@ -2190,6 +2024,7 @@ def solve_math(request):
     
     return redirect('math_tools')
 
+#10-10-2025
 @login_required
 @require_http_methods(["POST"])
 def solve_again(request):
@@ -2242,7 +2077,7 @@ def solve_again(request):
                 'language': language,
                 'original_book': book_id,
                 'original_chapter': request.session.get('selected_chapter'),
-				'model_type':model_type
+                'model_type':model_type
             }
 
             return render(request, 'school_app/solutions.html', context)
@@ -2264,6 +2099,7 @@ def generate_math(request):
         questions_json = request.POST.get('questions')
         book_id = request.session.get('selected_book')
         model_type = request.session["model_type"]
+        
         if not questions_json:
             messages.error(request, 'No questions selected')
             return redirect('math_tools')
@@ -2334,7 +2170,7 @@ def generate_math(request):
                 'difficulty': difficulty,
                 'num_questions': num_questions,
                 'questions_json': questions_json,
-				'model_type': model_type
+                'model_type': model_type 
             }
 
             return render(request, 'school_app/math_tools.html', context)
@@ -2509,7 +2345,6 @@ def get_student_analysis(request, student_id):
         print(f"Error in get_student_analysis: {str(e)}")  # Debug print
         return JsonResponse({'error': str(e)}, status=500)
 
-
 # 30102025 For testing Sarvam API
 from django.shortcuts import render
 from django.db import connection
@@ -2531,12 +2366,22 @@ def ask_pai(request):
         client = SarvamAI(api_subscription_key=api_key)
 
         messages = [
-            {"role": "system", "content": "You are a helpful tutor. Answer clearly."},
+            {"role": "system", "content": """You are an experienced mathematics teacher. Solve the questions given, following these guidelines:
+                1. Include step-by-step solutions
+                2. Use LaTeX formatting for mathematical expressions (use $ for inline math and $$ for display math)
+                3. Show complete solution with final answers written as Final Answer: <answer>
+                4. Ensure that the last step, with the final value of the variable, is displayed at the end of the solution. The value should be in numbers, do not write an unsolved equation as the final value
+                5. Whenever showing the solution, first explain the concept that is being tested by the question in simple terms 
+                6. While explaining a concept, besides giving an example, also give a counter-example at the beginning. That always makes things clear
+                7. Any time you write a solution, explain the solution in a way that is extremely easy to understand by children struggling with complex technical terms 
+                8. Whenever trying to explain in simple terms: 1. use colloquial local language terms and try to avoid technical terms. When using technical terms, re explain those terms in local colloquial terms 
+                9. Recheck the solution for any mistakes
+                10. If an image is provided, analyze it carefully as it may contain important visual information needed to solve the problem"""},
             {"role": "user", "content": question},
         ]
 
         try:
-            response = client.chat.completions(messages=messages, temperature=0.2, max_tokens=4096, top_p=0.5,)
+            response = client.chat.completions(messages=messages, temperature=0.2, max_tokens=8192, top_p=0.5,)
             answer = response.choices[0].message.content
         except ApiError as e:
             answer = f"API Error {e.status_code}: {e.body}"
@@ -2556,3 +2401,251 @@ def ask_pai(request):
             answer = f"Database Error: {str(db_error)}"
 
     return render(request, "ask_pai.html", {"question": question, "answer": answer})
+
+
+
+#21012025
+
+@login_required
+def block_attendance_report(request):
+    
+    if request.user.is_district_user:
+     blocks = Block.objects.all()
+    elif request.user.is_block_user:
+     blocks = Block.objects.get(admin=request.user)
+    report = []
+
+    for block in blocks:
+        #schools = School.objects.get(block=block)
+        schools = block.schools.all()
+        total_students = 0
+        total_present = 0
+        total_absent = 0
+
+        for school in schools:
+            total_students += school.student_set.count()
+            attendance_records = Attendance.objects.filter(student__school=school)
+            total_present += attendance_records.filter(is_present=True).count()
+            total_absent += attendance_records.filter(is_present=False).count()
+
+        # Calculate attendance percentage
+        percentage = (total_present / total_students * 100) if total_students > 0 else 0
+
+        # Append block data to the report
+        report.append({
+            "block_name": block.name_english,
+            "total_students": total_students,
+            "total_present": total_present,
+            "total_absent": total_absent,
+            "percentage": f"{percentage:.2f}%",
+        })
+
+    return render(request, "block_attendance_report.html", {"report": report})
+
+@login_required
+def school_daily_attendance_summary(request):
+    # Fetch attendance data grouped by school and date
+    attendance_summary = (
+        Attendance.objects.values('student__school__name', 'date')
+        .annotate(
+            total_students=Count('student'),
+            present_students=Count('student', filter=Q(is_present=True)),
+            absent_students=Count('student', filter=Q(is_present=False)),
+        )
+        .order_by('date', 'student__school__name')
+    )
+
+    # Restructure data for the template
+    summary_by_school_and_date = {}
+    for record in attendance_summary:
+        school_name = record['student__school__name']
+        date = record['date']
+        if date not in summary_by_school_and_date:
+            summary_by_school_and_date[date] = []
+        summary_by_school_and_date[date].append({
+            'school_name': school_name,
+            'total_students': record['total_students'],
+            'present_students': record['present_students'],
+            'absent_students': record['absent_students'],
+        })
+
+    return render(request, 'school_daily_attendance_summary.html', {
+        'summary_by_school_and_date': summary_by_school_and_date
+    })
+#1401025 Sushil Agrawal
+@login_required
+def block_wise_attendance_summary(request):
+    # Get filter inputs
+    start_date = parse_date(request.GET.get('start_date', ''))
+    end_date = parse_date(request.GET.get('end_date', ''))
+
+    # Fetch attendance data with optional date filtering
+    attendance_queryset = Attendance.objects.all()
+    if start_date and end_date:
+        attendance_queryset = attendance_queryset.filter(date__range=(start_date, end_date))
+
+    attendance_summary = (
+        attendance_queryset.values('student__school__block__name_english', 'date')
+        .annotate(
+            total_students=Count('student'),
+            present_students=Count('student', filter=Q(is_present=True)),
+            absent_students=Count('student', filter=Q(is_present=False)),
+        )
+        .order_by('date', 'student__school__block__name_english')
+    )
+
+    # Restructure data for the template
+    summary_by_block_and_date = {}
+    for record in attendance_summary:
+        block_name = record['student__school__block__name_english']
+        date = record['date']
+        if date not in summary_by_block_and_date:
+            summary_by_block_and_date[date] = []
+        summary_by_block_and_date[date].append({
+            'block_name': block_name,
+            'total_students': record['total_students'],
+            'present_students': record['present_students'],
+            'absent_students': record['absent_students'],
+        })
+
+    return render(request, 'block_wise_attendance_summary.html', {
+        'summary_by_block_and_date': summary_by_block_and_date,
+        'start_date': start_date,
+        'end_date': end_date
+    })
+@login_required
+def district_wise_attendance_summary(request):
+    # Fetch attendance data grouped by district and date
+    attendance_summary = (
+        Attendance.objects.values('student__school__block__name_english', 'date')
+        .annotate(
+            total_students=Count('student'),
+            present_students=Count('student', filter=Q(is_present=True)),
+            absent_students=Count('student', filter=Q(is_present=False)),
+        )
+        .order_by('date', 'student__school__block__name_english')
+    )
+
+    # Restructure data for template
+    summary_by_district_and_date = {}
+    for record in attendance_summary:
+        district_name = record['student__school__block__name_english']
+        date = record['date']
+        if date not in summary_by_district_and_date:
+            summary_by_district_and_date[date] = []
+        summary_by_district_and_date[date].append({
+            'district_name': district_name,
+            'total_students': record['total_students'],
+            'present_students': record['present_students'],
+            'absent_students': record['absent_students'],
+        })
+
+    return render(request, 'district_wise_attendance_summary.html', {
+        'summary_by_district_and_date': summary_by_district_and_date
+    })
+@login_required
+def date_wise_attendance_summary(request):
+    # Fetch attendance data grouped by school and date
+    attendance_summary = (
+        Attendance.objects.values('student__school__name', 'date')
+        .annotate(
+            total_students=Count('student'),
+            present_students=Count('student', filter=Q(is_present=True)),
+            absent_students=Count('student', filter=Q(is_present=False)),
+        )
+        .order_by('date', 'student__school__name')
+    )
+
+    # Restructure data for easy use in the template
+    summary_by_date = {}
+    for record in attendance_summary:
+        school_name = record['student__school__name']
+        date = record['date']
+        if date not in summary_by_date:
+            summary_by_date[date] = []
+        summary_by_date[date].append({
+            'school_name': school_name,
+            'total_students': record['total_students'],
+            'present_students': record['present_students'],
+            'absent_students': record['absent_students'],
+        })
+
+    return render(request, 'date_wise_attendance_summary.html', {'summary_by_date': summary_by_date})
+#1201025 Sushil Agrawal
+# View to calculate test results by percentage ranges
+
+@login_required
+def submit_attendance(request):
+    if request.user.is_school_user:
+        try:
+            school = School.objects.get(admin=request.user)
+            students = Student.objects.filter(school=school)
+        except School.DoesNotExist:
+            return redirect('error_page')
+
+        if request.method == 'POST':
+            selected_students = request.POST.getlist('absent_students')
+            for student in students:
+                is_present = str(student.id) not in selected_students
+                try:
+                    # Use filter() and update() instead of update_or_create() to avoid duplicates
+                    attendance, created = Attendance.objects.get_or_create(
+                        student=student,
+                        date=timezone.now().date(),
+                        defaults={'is_present': is_present}
+                    )
+                    if not created:
+                        attendance.is_present = is_present
+                        attendance.save()
+                except IntegrityError:
+                    # Log error and handle it gracefully
+                    print(f"Duplicate attendance record for student {student.id} on {timezone.now().date()}")
+            return redirect('attendance_summary')
+
+        context = {'students': students}
+        return render(request, 'attendance_submit.html', context)
+
+    return redirect('system_admin_dashboard')
+@login_required
+def attendance_summary(request):
+    user = request.user
+    today = date.today()
+    attendance = []
+
+    if user.is_district_user:
+        # District-level summary
+        attendance = Attendance.objects.filter(date=today).values(
+            'student__school__name'
+        ).annotate(
+            present_count=Count('is_present', filter=F('is_present')),
+            total_count=Count('student'),
+            Percentage=Count('is_present', filter=F('is_present'))*100/Count('student'),
+        )
+
+    elif user.is_block_user:
+        # Block-level summary
+        attendance = Attendance.objects.filter(
+            date=today, student__school__created_by=user
+        ).values('student__school__name').annotate(
+            present_count=Count('is_present', filter=F('is_present')),
+            total_count=Count('student'),
+            Percentage=Count('is_present', filter=F('is_present'))*100/Count('student'),
+        )
+
+    elif user.is_school_user:
+        # School-level summary
+        try:
+            school = School.objects.get(admin=request.user)
+            #students = Student.objects.filter(school=school)
+            attendance = Attendance.objects.filter(
+                 student__school=school
+            ).values('student__school__name').annotate(
+                present_count=Count('is_present', filter=F('is_present')),
+                total_count=Count('student'),
+                Percentage=Count('is_present', filter=F('is_present'))*100/Count('student'),
+            )
+        except School.DoesNotExist:
+            return render(request, 'error_page.html', {'message': 'School not found.'})
+
+    context = {'attendance_summary': attendance,  'attendance_date': today,}
+    return render(request, 'attendance_summary.html', context)
