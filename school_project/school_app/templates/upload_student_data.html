@@ -5,13 +5,7 @@
         <!-- Page Title -->
         <h2 class="text-center mb-4">Upload Student Data</h2>
         <div class="mb-4"></div>
-        <div class="container mt-6">
-            <b>Sample Format for Excel UploadM</b>
-            <p style="color: red; font-weight: bold;">
-                Excel sheet should be structured, with columns for "name", "roll_number", "class_name".<br>
-                roll_number->Student Shaladaran NIC ID
-            </p>          .
-            </div>
+        
 
         <!-- Form Card -->
         <div class="card shadow-sm">
@@ -20,7 +14,7 @@
                 <form method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="form-group mb-3">
-                        <label for="excel_file" class="form-label">Upload Excel File</label>
+                        <label for="excel_file" class="form-label">Upload Student information Excel File</label>
                         {{ form.as_p }}
                     </div>
                     <button type="submit" class="btn btn-primary btn-lg w-30">Upload Data</button>
@@ -41,5 +35,29 @@
             </div>
         {% endif %}
     </div>
+
+<div class="alert alert-info">
+    <h5>Excel अपलोड के लिए निर्देश (Sample Format for Excel Upload)</h5>
+    <p>कृपया यह सुनिश्चित करें कि आपकी Excel शीट निम्न कॉलम के साथ सही तरीके से बनी हो:</p>
+    <ul>
+        <li><code>name</code> – विद्यार्थी का पूरा नाम</li>
+        <li><code>roll_number</code> – विद्यार्थी का शाला दर्पण NIC ID (यह यूनिक होना चाहिए)</li>
+        <li><code>class_name</code> – कक्षा (जैसे: 10, 9, 8)</li>
+    </ul>
+
+    <p><b>महत्वपूर्ण बिंदु:</b></p>
+    <ul>
+        <li>कॉलम के नाम बिल्कुल यही होने चाहिए: <code>name</code>, <code>roll_number</code>, <code>class_name</code></li>
+        <li><b>roll_number</b> में शाला दर्पण का NIC ID ही दर्ज करें – यह विद्यार्थी की यूनिक पहचान है।</li>
+        <li>एक ही विद्यार्थी को दो बार अपलोड न करें, अन्यथा डुप्लीकेट एंट्री की समस्या आ सकती है।</li>
+        <li>फ़ाइल को सेव करके फिर यहाँ से चुनें (Choose File) और "Upload" बटन दबाएँ।</li>
+    </ul>
+    <p>उदाहरण (Example):</p>
+    <pre>name           | roll_number     | class_name
+------------------------------------------------
+Sushil Agrawal | 202510123456    | 10
+Bhaskar Mishra | 202510123457    | 10
+    </pre>
+</div>
     <a href="{% url 'student_list' %}" class="action-btn edit-btn" style="margin-left: 20px;">Back to Dashboard</a>
 {% endblock %}
