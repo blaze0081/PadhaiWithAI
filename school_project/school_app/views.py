@@ -1167,25 +1167,28 @@ def get_block_data(block):
 def collector_dashboard(request):
     from django.db.models import Avg, Count, Case, When, F, Value, IntegerField
     from django.db import connection
+    results_dict = []
     # Fetch tests created by the collector
     if not request.user.groups.filter(name='Collector').exists():
         return HttpResponseForbidden("You are not authorized to access this page.")
+    
     #tests = Test.objects.all().order_by('test_number')
     # tests = Test.objects.filter(created_by=request.user)
     tests = Test.objects.filter(created_by=request.user).order_by('test_number')
     # Fetch all schools (You can add filters here if necessary)
+    # Collector’s District
     try:
         district = District.objects.get(admin=request.user)
     except District.DoesNotExist:
         return render(request, '403.html')
-    #schools = School.objects.all()
     district_name=district.name_english
     print(district_name)
     blocks = Block.objects.filter(district=district)
     schools = School.objects.filter(block__in=blocks)
     students = Student.objects.filter(school__in=schools)
+    #schools = School.objects.all()
     live_sessions = Session.objects.filter(expire_date__gte=timezone.now())
-	
+
     data = (
         Test.objects.annotate(
             avg_marks=Avg('marks__marks'),
@@ -1248,19 +1251,6 @@ def collector_dashboard(request):
             'category_90_100': row[6],
             'category_100': row[7]
         })
-    
-    return render(request, 'school_app/collector_dashboard.html', {
-        'tests': tests,
-        'schools': schools,
-        'total_schools': School.objects.count(),
-        'total_students': Student.objects.count(),
-        'total_tests': Test.objects.count(),
-        'get_active_users': live_sessions.count(),
-        'data': data,
-        'result': result_data,
-		'district_name': district_name
-    })
-
     #Previuos year data
     block_ids = [b.id for b in blocks]   
     query = """ SELECT     session_year,     SUM(total_students) AS total_students,   
@@ -1300,6 +1290,7 @@ def collector_dashboard(request):
         'chart_data': json.dumps(get_dataforbarchart(request)),
         'district_name': district_name
     })
+
 
 @login_required
 # def view_test_results(request, test_number):
