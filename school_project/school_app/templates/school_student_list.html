@@ -5,7 +5,7 @@
 {% block content %}
 
 <h1 style="text-align: center; font-size: 2.5em; color: #333; margin-top: 30px;">School Wise Student List</h1>
-
+{% if school_students %}
 <div style="padding: 20px; background-color: #f4f7fa;">
     <table style="width: 100%; border-collapse: collapse; margin-top: 20px; border: 1px solid #ddd;">
         <thead>
@@ -57,5 +57,14 @@
         </tbody>
     </table>
 </div>
-
+{% else %}
+<p style="text-align:center; margin-top:30px; color:#6c757d; font-size:1.2em;">
+    No School and Students records available.
+</p>
+{% endif %}
+<div class="text-center mt-4">
+    <a onclick="window.history.back();" class="btn btn-secondary" style="font-size: 1.1em; padding: 10px 20px;">
+        Back to Dashboard
+    </a>
+</div>
 {% endblock %}
