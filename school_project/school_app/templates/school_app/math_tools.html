@@ -154,7 +154,31 @@
                         {% endfor %}
                     </div>
                 {% else %}
-                    <p class="text-muted">Select a book and chapter to view questions.</p>
+                     {% if solution or generated_questions %}
+                            <p class="text-muted">Select a book and chapter to view questions.</p>
+                         {% else %}
+                            <p class="text-muted">Select a book and chapter to view questions.</p>
+                            <div  style="font-size:14px;">
+                                <h4><b>Instructions / निर्देश</b></h4>
+                                <ul><b>English:</b>
+                                    <li>Select a <b>Book</b> and then choose a <b>Chapter</b> to load questions.</li>
+                                    <li>Click <b>Load Questions</b> to view all questions of that chapter.</li>
+                                    <li>Click on any question to add it to the <b>Selected Questions Queue</b>.</li>
+                                    <li>Use <b>Solve</b> to get AI-based step-by-step solutions.</li>
+                                    <li>Use <b>Generate More</b> to create new practice questions with AI.</li>
+                                    <li>Click <b>Clear Selected</b> to remove questions from the queue.</li>
+                                </ul>
+                                <hr>
+                                 <ul><b>हिन्दी:</b>
+                                    <li><b>पुस्तक (Book)</b> चुनें और फिर <b>अध्याय (Chapter)</b> चुनकर प्रश्न लोड करें।</li>
+                                    <li><b>Load Questions</b> पर क्लिक करते ही अध्याय के सभी प्रश्न दिखाई देंगे।</li>
+                                    <li>किसी भी प्रश्न पर क्लिक करके उसे <b>Selected Questions Queue</b> में जोड़ें।</li>
+                                    <li><b>Solve</b> बटन दबाकर AI से स्टेप-बाय-स्टेप समाधान देखें।</li>
+                                    <li><b>Generate More</b> पर क्लिक कर नए अभ्यास प्रश्न प्राप्त करें।</li>
+                                    <li><b>Clear Selected</b> क्लिक करके चुने हुए प्रश्न हटाएँ।</li>
+                                </ul>
+                            </div>
+                            {% endif %}
                 {% endif %}
                 </div>
             </div>
