@@ -55,7 +55,7 @@ class CustomUser(AbstractUser):
 class District(models.Model):
     name_english = models.CharField(max_length=100)
     name_hindi = models.CharField(max_length=100)
-
+    admin = models.OneToOneField(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='district_admin')
     def __str__(self):
         return self.name_english
 
