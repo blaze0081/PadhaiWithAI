@@ -1167,26 +1167,14 @@ def get_block_data(block):
 def collector_dashboard(request):
     from django.db.models import Avg, Count, Case, When, F, Value, IntegerField
     from django.db import connection
-    results_dict = []
     # Fetch tests created by the collector
     if not request.user.groups.filter(name='Collector').exists():
         return HttpResponseForbidden("You are not authorized to access this page.")
-    
-    #tests = Test.objects.all().order_by('test_number')
+    tests = Test.objects.all().order_by('test_number')
     # tests = Test.objects.filter(created_by=request.user)
-    tests = Test.objects.filter(created_by=request.user).order_by('test_number')
+
     # Fetch all schools (You can add filters here if necessary)
-    # Collector’s District
-    try:
-        district = District.objects.get(admin=request.user)
-    except District.DoesNotExist:
-        return render(request, '403.html')
-    district_name=district.name_english
-    print(district_name)
-    blocks = Block.objects.filter(district=district)
-    schools = School.objects.filter(block__in=blocks)
-    students = Student.objects.filter(school__in=schools)
-    #schools = School.objects.all()
+    schools = School.objects.all()
     live_sessions = Session.objects.filter(expire_date__gte=timezone.now())
 
     data = (
@@ -1251,46 +1239,17 @@ def collector_dashboard(request):
             'category_90_100': row[6],
             'category_100': row[7]
         })
-    #Previuos year data
-    block_ids = [b.id for b in blocks]   
-    query = """ SELECT     session_year,     SUM(total_students) AS total_students,   
-            SUM(below33) AS below_33,    SUM(maths_33_60) AS maths_33_60,    SUM(maths_60_80) AS maths_60_80,    SUM(maths_80_90) AS maths_80_90,    SUM(maths_90_100) AS maths_90_100,    SUM(maths_100) AS maths_100 FROM student_exam_results
-                WHERE block_id = ANY(%s) GROUP BY session_year ORDER BY session_year ;"""
-    
-    with connection.cursor() as cursor:
-         cursor.execute(query, [block_ids])
-         result = cursor.fetchall()
-        # Convert result to a list of dictionaries
-       
-    results_dict = [
-        {
-           
-            'session_year': row[0],
-            'total_students': row[1],
-            'below33': row[2],
-            'maths_33_60': row[3],
-            'maths_60_80': row[4],
-            'maths_80_90': row[5],
-            'maths_90_100': row[6],
-            'maths_100': row[7],
-        }
-        for row in result
-    ]
     
     return render(request, 'school_app/collector_dashboard.html', {
         'tests': tests,
         'schools': schools,
-        'total_schools': schools.count(),
-        'total_students': students.count(),
+        'total_schools': School.objects.count(),
+        'total_students': Student.objects.count(),
         'total_tests': Test.objects.count(),
         'get_active_users': live_sessions.count(),
         'data': data,
-        'result': result_data,
-        'results': results_dict,
-        'chart_data': json.dumps(get_dataforbarchart(request)),
-        'district_name': district_name
+        'result': result_data
     })
-
 
 @login_required
 # def view_test_results(request, test_number):
