@@ -1170,13 +1170,22 @@ def collector_dashboard(request):
     # Fetch tests created by the collector
     if not request.user.groups.filter(name='Collector').exists():
         return HttpResponseForbidden("You are not authorized to access this page.")
-    tests = Test.objects.all().order_by('test_number')
+    #tests = Test.objects.all().order_by('test_number')
     # tests = Test.objects.filter(created_by=request.user)
-
+	tests = Test.objects.filter(created_by=request.user).order_by('test_number')
     # Fetch all schools (You can add filters here if necessary)
-    schools = School.objects.all()
+	try:
+        district = District.objects.get(admin=request.user)
+    except District.DoesNotExist:
+        return render(request, '403.html')
+    #schools = School.objects.all()
+	district_name=district.name_english
+    print(district_name)
+	blocks = Block.objects.filter(district=district)
+	schools = School.objects.filter(block__in=blocks)
+    students = Student.objects.filter(school__in=schools)
     live_sessions = Session.objects.filter(expire_date__gte=timezone.now())
-
+	
     data = (
         Test.objects.annotate(
             avg_marks=Avg('marks__marks'),
@@ -1248,7 +1257,8 @@ def collector_dashboard(request):
         'total_tests': Test.objects.count(),
         'get_active_users': live_sessions.count(),
         'data': data,
-        'result': result_data
+        'result': result_data,
+		'district_name': district_name
     })
 
 
