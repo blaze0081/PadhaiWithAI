@@ -2682,7 +2682,7 @@ def submit_attendance(request):
 def attendance_summary(request):
     user = request.user
     today = date.today()
-    attendance = []
+    attendance = Attendance.objects.filter(date=today)
 
     if user.is_district_user:
         # District-level summary
@@ -2710,7 +2710,7 @@ def attendance_summary(request):
             school = School.objects.get(admin=request.user)
             #students = Student.objects.filter(school=school)
             attendance = Attendance.objects.filter(
-                 student__school=school
+                 date=today, student__school=school
             ).values('student__school__name').annotate(
                 present_count=Count('is_present', filter=F('is_present')),
                 total_count=Count('student'),
