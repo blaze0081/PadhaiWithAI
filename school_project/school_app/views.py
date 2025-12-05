@@ -2423,6 +2423,7 @@ from django.db import connection
 import os
 from sarvamai import SarvamAI
 from sarvamai.core.api_error import ApiError
+sarvam_key = os.getenv("SARVAM_API_KEY")
 
 def ask_pai(request):
     answer = None
@@ -2435,7 +2436,7 @@ def ask_pai(request):
             answer = "Please enter your question before submitting."
             return render(request, "ask_pai.html", {"question": question, "answer": answer})
         api_key = os.getenv("SARVAM_API_KEY", "sk_hrlgmheh_oXiiFZN2CuzfjKSCVdqmfiDa")
-        client = SarvamAI(api_subscription_key=api_key)
+        client = SarvamAI(api_subscription_key=sarvam_key)
 
         messages = [
             {"role": "system", "content": """You are an experienced mathematics teacher. Solve the questions given, following these guidelines:
@@ -2682,7 +2683,7 @@ def submit_attendance(request):
 def attendance_summary(request):
     user = request.user
     today = date.today()
-    attendance = Attendance.objects.filter(date=today)
+    attendance = []
 
     if user.is_district_user:
         # District-level summary
@@ -2721,3 +2722,38 @@ def attendance_summary(request):
 
     context = {'attendance_summary': attendance,  'attendance_date': today,}
     return render(request, 'attendance_summary.html', context)
+
+sarvam_key = os.getenv("SARVAM_API_KEY")
+client = SarvamAI(api_subscription_key=sarvam_key)
+def chat_view(request):
+    # Get or create history from session
+    history = request.session.get("history", [])
+
+    # Clear chat if ?clear=1
+    if request.GET.get("clear") == "1":
+        request.session["history"] = []
+        return redirect("chat_page")   # make sure this matches your URL name
+
+    if request.method == "POST":
+        user_prompt = (request.POST.get("prompt") or "").strip()
+
+        if user_prompt:
+            # 1. Add user message
+            history.append({"role": "user", "content": user_prompt})
+
+            # 2. Call OpenAI Chat Completions (sync)
+            # response = client.chat.completions.create(
+            #     model="gpt-4o",        # or "gpt-4o-mini", etc.
+            #     messages=history,
+            # )
+            response = client.chat.completions(messages=history, temperature=0.2, max_tokens=8192, top_p=0.5,)
+            assistant_reply = response.choices[0].message.content
+
+            # 3. Add assistant message
+            history.append({"role": "assistant", "content": assistant_reply})
+
+            # 4. Save updated history in session
+            request.session["history"] = history
+
+    # Render template with full history
+    return render(request, "chat_page.html", {"history": history})
