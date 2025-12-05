@@ -100,5 +100,6 @@ urlpatterns = [
     path('block-dashboard/', views.block_dashboard, name='block_dashboard'),
      #17102025
     path("ask-pai/", views.ask_pai, name="ask-pai"),
+    path("chat/", views.chat_view, name="chat_page"),
 ]
 
