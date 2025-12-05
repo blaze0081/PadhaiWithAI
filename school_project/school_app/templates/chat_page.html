@@ -1,0 +1,554 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat with PAI</title>
+
+    <!-- MathJax for Mathematics Rendering -->
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']],
+          processEscapes: true,
+          packages: { '[+]': ['ams'] },
+        },
+        options: {
+          skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        },
+        chtml: { scale: 1 },
+        svg:   { scale: 1, fontCache: 'global' }
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+    <style>
+        :root {
+            /* Default = dark theme */
+            --bg-body: #0f172a;
+            --bg-card: linear-gradient(135deg, rgba(15,23,42,0.98), rgba(15,23,42,0.96));
+            --bg-input: #020617;
+            --header-bg: radial-gradient(circle at top left, rgba(56,189,248,0.25), transparent 55%);
+            --footer-bg: rgba(15, 23, 42, 0.98);
+
+            --accent: #38bdf8;
+            --accent-soft: rgba(56, 189, 248, 0.1);
+            --accent-strong: #0ea5e9;
+
+            --text-main: #e5e7eb;
+            --text-muted: #9ca3af;
+
+            --user-bubble: #4ade80;
+            --assistant-bubble: radial-gradient(circle at top left, rgba(15,23,42,0.95), rgba(17,24,39,0.98));
+
+            --border-subtle: rgba(148, 163, 184, 0.35);
+            --border-strong: rgba(55, 65, 81, 0.9);
+
+            --chip-bg: transparent;
+        }
+
+        /* Light theme overrides */
+        :root[data-theme="light"] {
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-input: #f1f5f9;
+            --header-bg: linear-gradient(to right, #e0f2fe, #eff6ff);
+            --footer-bg: #e5e7eb;
+
+            --text-main: #0f172a;
+            --text-muted: #6b7280;
+
+            --user-bubble: linear-gradient(135deg, #22c55e, #4ade80);
+            --assistant-bubble: #e5e7eb;
+
+            --border-subtle: rgba(148, 163, 184, 0.6);
+            --border-strong: rgba(148, 163, 184, 0.8);
+
+            --chip-bg: #e5f3ff;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: var(--bg-body);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .page-wrap {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 24px 16px 64px;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 960px;
+            background: var(--bg-card);
+            border-radius: 24px;
+            border: 1px solid var(--border-subtle);
+            box-shadow:
+                0 18px 45px rgba(15, 23, 42, 0.9),
+                0 0 0 1px rgba(15, 23, 42, 0.9);
+            overflow: hidden;
+            backdrop-filter: blur(18px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .chat-header {
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-strong);
+            background: var(--header-bg);
+        }
+
+        .chat-header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chat-logo {
+            width: 55px;
+            height: 60px;
+            border-radius: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #020617;
+            overflow: hidden;
+        }
+
+        .chat-logo img {
+            max-height: 56px;
+            width: auto;
+            display: block;
+        }
+
+        .chat-title {
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+        }
+
+        .chat-subtitle {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .chat-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chip {
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--border-subtle);
+            color: var(--text-muted);
+            background: var(--chip-bg);
+        }
+
+        .btn-secondary {
+            border-radius: 999px;
+            border: 1px solid var(--border-subtle);
+            background: transparent;
+            color: var(--text-main);
+            padding: 6px 12px;
+            font-size: 12px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent-strong);
+            color: var(--accent-strong);
+        }
+
+        /* Chat area */
+        .chat-body {
+            display: flex;
+            flex-direction: column;
+            padding: 12px 16px 8px;
+            gap: 10px;
+            height: 580px;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+
+        .chat-body::-webkit-scrollbar { width: 6px; }
+        .chat-body::-webkit-scrollbar-track { background: transparent; }
+        .chat-body::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.7);
+            border-radius: 999px;
+        }
+
+        .empty-state {
+            margin: auto;
+            text-align: center;
+            color: var(--text-muted);
+            max-width: 360px;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        /* Message bubbles */
+        .msg-row {
+            display: flex;
+            margin-bottom: 4px;
+        }
+
+        .msg-row.user { justify-content: flex-end; }
+        .msg-row.assistant { justify-content: flex-start; }
+
+        .avatar {
+            width: 26px;
+            height: 26px;
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        .avatar-user {
+            background: radial-gradient(circle at 30% 30%, #4ade80, #16a34a);
+            color: #022c22;
+            margin-left: 8px;
+        }
+
+        .avatar-assistant {
+            background: radial-gradient(circle at 30% 30%, #38bdf8, #0ea5e9);
+            color: #0b1120;
+            margin-right: 8px;
+        }
+
+        .bubble-wrap {
+            max-width: 82%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .bubble-meta {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin: 0 2px 2px;
+        }
+
+        .bubble {
+            padding: 10px 12px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.45;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+
+        .bubble-user {
+            background: var(--user-bubble);
+            color: #022c22;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 3px 8px rgba(22, 163, 74, 0.35);
+        }
+
+        .bubble-assistant {
+            background: var(--assistant-bubble);
+            border: 1px solid var(--border-strong);
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 3px 10px rgba(15,23,42,0.8);
+        }
+
+        /* Input area */
+        .chat-input-area {
+            border-top: 1px solid var(--border-strong);
+            padding: 12px 16px 14px;
+            background: radial-gradient(circle at bottom right, rgba(56,189,248,0.16), rgba(15,23,42,1) 48%);
+        }
+
+        :root[data-theme="light"] .chat-input-area {
+            background: #f8fafc;
+        }
+
+        .input-row {
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            background: var(--bg-input);
+            border-radius: 999px;
+            border: 1px solid var(--border-strong);
+            padding: 6px 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: var(--accent-strong);
+            box-shadow: 0 0 0 1px rgba(56,189,248,0.4);
+        }
+
+        .input-pill-label {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: var(--accent-soft);
+            color: var(--accent);
+            border: 1px solid rgba(56,189,248,0.55);
+        }
+
+        textarea[name="prompt"] {
+            background: transparent;
+            border: none;
+            resize: none;
+            outline: none;
+            color: var(--text-main);
+            font-size: 14px;
+            flex: 1;
+            padding: 6px 0;
+            max-height: 120px;
+        }
+
+        textarea[name="prompt"]::placeholder {
+            color: rgba(148, 163, 184, 0.7);
+        }
+
+        .btn-primary {
+            border: none;
+            border-radius: 999px;
+            padding: 10px 18px;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            cursor: pointer;
+            background: radial-gradient(circle at 30% 0%, #38bdf8, #0ea5e9);
+            color: #0b1120;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 8px 18px rgba(56,189,248,0.5);
+            white-space: nowrap;
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.06);
+            transform: translateY(-1px);
+            box-shadow: 0 10px 22px rgba(56,189,248,0.65);
+        }
+
+        .helper-text {
+            margin-top: 6px;
+            font-size: 11px;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .helper-text span.key-hint {
+            padding: 2px 6px;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.6);
+            font-size: 10px;
+        }
+
+        /* Footer */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: var(--footer-bg);
+            color: #e5e7eb;
+            text-align: center;
+            padding: 6px 8px;
+            font-size: 12px;
+            border-top: 1px solid rgba(31, 41, 55, 0.95);
+            backdrop-filter: blur(12px);
+        }
+
+        @media (max-width: 768px) {
+            .page-wrap {
+                padding: 12px 8px 72px;
+            }
+
+            .chat-container {
+                border-radius: 18px;
+            }
+
+            .chat-body {
+                height: 420px;
+            }
+
+            .chat-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 6px;
+            }
+
+            .chat-header-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="page-wrap">
+    <div class="chat-container">
+        <!-- Header -->
+        <header class="chat-header">
+            <div class="chat-header-left">
+                <div class="chat-logo">
+                    <img src="{% static 'school_app/images/pailogo.png' %}" alt="PAI Logo">
+                </div>
+                <div>
+                    <div class="chat-title">PadhaiWithAI – Tonk</div>
+                    <div class="chat-subtitle">Personal AI assistant for learning and experimentation</div>
+                </div>
+            </div>
+            <div class="chat-header-actions">
+                <span class="chip">Chat · S</span>
+                <button type="button" class="btn-secondary" id="themeToggle"></button>
+                <a href="?clear=1" class="btn-secondary" title="Start a fresh conversation">
+                    ⟲ New chat
+                </a>
+            </div>
+        </header>
+
+        <!-- Chat history -->
+        <main class="chat-body" id="chat-body">
+            {% if history %}
+                {% for msg in history %}
+                    {% if msg.role == "user" %}
+                        <div class="msg-row user">
+                            <div class="bubble-wrap">
+                                <div class="bubble-meta">You</div>
+                                <div class="bubble bubble-user">{{ msg.content }}</div>
+                            </div>
+                            <div class="avatar avatar-user">U</div>
+                        </div>
+                    {% else %}
+                        <div class="msg-row assistant">
+                            <div class="avatar avatar-assistant">AI</div>
+                            <div class="bubble-wrap">
+                                <div class="bubble-meta">PAI Assistant</div>
+                                <div class="bubble bubble-assistant">{{ msg.content }}</div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <h3>Welcome to PadhaiWithAI Chat</h3>
+                    <p>Ask questions about Maths (with steps), Science, or anything you’re curious about.  
+                       Your conversation will appear here as you start chatting.</p>
+                    <p>Start a conversation by typing below!</p>
+                </div>
+            {% endif %}
+        </main>
+
+        <!-- Input -->
+        <form method="post" class="chat-input-area">
+            {% csrf_token %}
+            <div class="input-row">
+                <div class="input-wrapper">
+                    <span class="input-pill-label">Prompt</span>
+                    <textarea name="prompt"
+                              rows="1"
+                              placeholder="Ask a maths doubt, explain a concept, or say ‘help me solve this equation…’"
+                              required></textarea>
+                </div>
+                <button type="submit" class="btn-primary">
+                    Send
+                    <span>➜</span>
+                </button>
+            </div>
+            <div class="helper-text">
+                <span>Try: “Explain Real Numbers for class 10 with examples.”</span>
+<span class="key-hint">Your chat is not stored permanently.</span>
+                <!-- <span class="key-hint">Math formulas support LaTeX: like $a^2 + b^2$.</span> -->
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="footer">
+    PadhaiWithAI – Tonk, Rajasthan
+</div>
+
+<script>
+    // Auto-scroll to bottom on load so latest messages are visible
+    const chatBody = document.getElementById('chat-body');
+    if (chatBody) {
+        chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    // Theme toggle with localStorage
+    (function() {
+        const root = document.documentElement;
+        const toggle = document.getElementById('themeToggle');
+
+        function setLabel(theme) {
+            if (!toggle) return;
+            if (theme === 'light') {
+                toggle.textContent = '🌙 Dark mode';
+            } else {
+                toggle.textContent = '☀️ Light mode';
+            }
+        }
+
+        const saved = localStorage.getItem('pai-theme') || 'light';
+        root.setAttribute('data-theme', saved);
+        setLabel(saved);
+
+        if (toggle) {
+            toggle.addEventListener('click', () => {
+                const current = root.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+                const next = current === 'light' ? 'dark' : 'light';
+                root.setAttribute('data-theme', next);
+                localStorage.setItem('pai-theme', next);
+                setLabel(next);
+            });
+        }
+    })();
+
+    // Ensure MathJax typesets after load
+    window.addEventListener('load', () => {
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            window.MathJax.typesetPromise();
+        }
+    });
+</script>
+
+</body>
+</html>
