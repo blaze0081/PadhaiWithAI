@@ -5,7 +5,7 @@
 
 <h2>Schools Not Logged In/Inactive Schools</h2>
 <a href="{% url 'report_dashboard' %}" align="right">Back to Report Dashboard</a>
-<table class="table table-bordered table-striped">
+<table class="table table-bordered table-striped" id="inactiveSchoolsTable">
   <thead>
     <tr>
         <th>S.No.</th>
@@ -33,4 +33,17 @@
 </table>
 <a href="{% url 'report_dashboard' %}">Back to Report Dashboard</a>
 
+
+<script>
+	$(document).ready(function() {
+		$('#inactiveSchoolsTable').DataTable({
+			"paging": true,          // Enable pagination
+			"searching": true,       // Enable searching
+			"ordering": true,        // Enable sorting
+			"info": true,            // Display information about the table
+			"lengthChange": true   // Disable changing number of rows per page
+             
+		});
+	});
+</script>
 {% endblock %}
