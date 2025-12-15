@@ -68,7 +68,7 @@
 		
 </div>
 <div class="container">
-    <h5>Mathematics Result of the Previous Years</h5>
+    <h5>Previous Years’ Mathematics Results</h5>
 
     {% if error %}
         <p class="error">{{ error }}</p>
@@ -337,150 +337,182 @@
 </div>
 {% endif %}
 <style>
-        /* ✅ General Styles */
-        .calendar-container {
-            text-align: center;
-            margin: 20px auto;
-            max-width: 100%;
-            padding: 20px;
-            background: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
+    /* ===============================
+       GENERAL STYLES (SAME THEME)
+    =============================== */
+    .calendar-container {
+        text-align: center;
+        margin: 20px auto;
+        max-width: 100%;
+        padding: 20px;
+        background: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
 
-        h2 {
-            margin-bottom: 20px;
-            font-size: 1.8em;
-            color: #333;
-        }
+    h2 {
+        margin-bottom: 16px;
+        font-size: 1.8em;
+        color: #333;
+        font-weight: 600;
+    }
 
-        /* ✅ Navigation Controls */
-        .navigation {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
+    /* ===============================
+       NAVIGATION (REFINED)
+    =============================== */
+    .navigation {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+        padding: 8px 10px;
+    }
+
+    .navigation button {
+        background-color: #007BFF;
+        color: #fff;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.2s ease;
+    }
+
+    .navigation button:hover {
+        background-color: #0056b3;
+    }
+
+    .current-month {
+        font-size: 1.4em;
+        font-weight: 600;
+        color: #333;
+    }
+
+    /* ===============================
+       CALENDAR TABLE (SAME LOOK)
+    =============================== */
+    .calendar {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+    }
+
+    .calendar th,
+    .calendar td {
+        border: 1px solid #ddd;
+        text-align: center;
+        padding: 6px;
+        vertical-align: top;
+    }
+
+    .calendar th {
+        background-color: #007BFF;
+        color: white;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .calendar td {
+        background-color: #ffffff;
+        min-height: 70px;
+    }
+
+    .calendar .day {
+        font-weight: 600;
+        font-size: 14px;
+        color: #333;
+        margin-bottom: 4px;
+    }
+
+    /* ===============================
+       EVENTS (UNCHANGED COLORS)
+    =============================== */
+    .calendar .event {
+        font-size: 11px;
+        text-align: left;
+        margin-top: 4px;
+        background-color: #e3f2fd;
+        padding: 3px 5px;
+        border-radius: 4px;
+        line-height: 1.3;
+        word-break: break-word;
+    }
+
+    /* ===============================
+       EMPTY CELLS
+    =============================== */
+    .calendar td.no-event {
+        height: 40px;
+        background-color: #fafafa;
+    }
+
+    /* ===============================
+       RESPONSIVE (SOFT TUNING)
+    =============================== */
+    @media (max-width: 768px) {
+        .calendar th,
+        .calendar td {
+            padding: 4px;
+            font-size: 12px;
         }
 
         .navigation button {
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .navigation button:hover {
-            background-color: #0056b3;
+            padding: 6px 12px;
+            font-size: 12px;
         }
 
         .current-month {
-            font-size: 1.4em;
-            font-weight: bold;
+            font-size: 1.2em;
         }
 
-        /* ✅ Calendar Table */
-        .calendar {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: fixed;
+        h2 {
+            font-size: 1.5em;
         }
+    }
 
+    @media (max-width: 480px) {
         .calendar th,
         .calendar td {
-            border: 1px solid #ddd;
-            text-align: center;
-            padding: 5px;
-            vertical-align: top;
-            min-height: 50px;
-        }
-
-        .calendar th {
-            background-color: #007BFF;
-            color: white;
-            font-weight: bold;
-        }
-
-        .calendar td {
-            background-color: #ffffff;
-        }
-
-        .calendar .day {
-            font-weight: bold;
-            font-size: 14px;
-            color: #333;
-            margin-bottom: 5px;
+            font-size: 10px;
+            padding: 3px;
         }
 
         .calendar .event {
             font-size: 10px;
-            text-align: left;
-            margin-top: 5px;
-            background-color: #e3f2fd;
-           // border-left: 4px solid #2196f3;
-            padding: 1px;
-            border-radius: 4px;
-            //overflow: hidden;
-            text-overflow: ellipsis;
-            //white-space: nowrap;
         }
 
-        /* ✅ Dynamic Height for Empty Cells */
-        .calendar td.no-event {
-            height: 40px; /* Minimal height for empty cells */
+        .navigation button {
+            padding: 5px 8px;
+            font-size: 10px;
         }
 
-        /* ✅ Responsive Design */
-        @media (max-width: 768px) {
-            .calendar th,
-            .calendar td {
-                padding: 5px;
-                font-size: 12px;
-            }
-
-            .navigation button {
-                padding: 5px 10px;
-                font-size: 12px;
-            }
-
-            .current-month {
-                font-size: 1.2em;
-            }
-
-            h2 {
-                font-size: 1.4em;
-            }
+        .current-month {
+            font-size: 1em;
         }
-
-        @media (max-width: 480px) {
-            .calendar th,
-            .calendar td {
-                font-size: 10px;
-                padding: 4px;
-            }
-
-            .event {
-                font-size: 10px;
-            }
-
-            .navigation button {
-                padding: 4px 8px;
-                font-size: 10px;
-            }
-
-            .current-month {
-                font-size: 1em;
-            }
-
-            h2 {
-                font-size: 1.2em;
-            }
+        
+        h2 {
+            font-size: 1.2em;
         }
-    </style>
+    }
+    /* Highlight current date */
+.calendar td.today {
+    background-color: #e8f0ff;   /* light blue – same theme */
+    border: 2px solid #007BFF;
+}
+
+.calendar td.today .day {
+    color: #007BFF;
+    font-weight: bold;
+}
+
+</style>
+
 <div class="calendar-container">
-        <h2> कक्षा 10 वाले विद्यार्थियों के अध्यापन हेतु समय सारणी</h2>
+        
+        <div class="calendar-title">
+       <h3> कक्षा 10 वाले विद्यार्थियों के अध्यापन हेतु समय सारणी</h3>
+    </div>
         <div class="navigation">
             <button onclick="prevMonth()">← Previous</button>
             <span id="currentMonth" class="current-month"></span>
@@ -505,80 +537,95 @@
     <script>
         const events = [
             //{ start: '2025-01-07', end: '2025-01-07', title: 'Trainings' }, 
-            { start: '2025-01-08', end: '2025-01-10', title: '- <b>अध्याय 01 एवं 03</b><br>01-वास्तविक संख्याएँ <br>03–दो चर वाले रैखिक समीकरण ' }, 
-            { start: '2025-01-11', end: '2025-01-11', title: '<p style="color: red;">-<b> अध्याय 01 एवं 03 का मूल्यांकन (प्रथम)</b><br>-अभिभावक-शिक्षक मीटिंग में लक्ष्य 2025 की जानकारी </p>' },
-            { start: '2025-01-13', end: '2025-01-13', title: '- <b>अध्याय 02,05</b> <br>02 - बहुपद<br>05 – समान्तर श्रेणी' },
+            { start: '2025-01-08', end: '2025-01-10', title: '<b>अध्याय 01 एवं 03</b><br>01-वास्तविक संख्याएँ <br>03–दो चर वाले रैखिक समीकरण ' }, 
+            { start: '2025-01-11', end: '2025-01-11', title: '<p style="color: red;"><b> अध्याय 01 एवं 03 का मूल्यांकन (प्रथम)</b><br>-अभिभावक-शिक्षक मीटिंग में लक्ष्य 2025 की जानकारी </p>' },
+            { start: '2025-01-13', end: '2025-01-13', title: '<b>अध्याय 02,05</b> <br>02 - बहुपद<br>05 – समान्तर श्रेणी' },
            // { start: '2025-01-14', end: '2025-01-14', title: '- HoliDay' },
             { start: '2025-01-15', end: '2025-01-16', title: '<b>अध्याय 02 एवं 05</b><br>02-बहुपद<br>05–समान्तर श्रेणी' },
-	        { start: '2025-01-20', end: '2025-01-20', title: '<p style="color: red;">-अध्याय 02 एवं 05 का मूल्यांकन (द्वितीय)</p>' },
-            { start: '2025-01-21', end: '2025-01-24', title: '- <b>अध्याय 04, 07,14</b> <br>04- द्विघात समीकरण <br>07- निर्देशांक ज्यामिति<br>14-प्रायिकता' },
-	        { start: '2025-01-25', end: '2025-01-25', title: '<p style="color: red;">- अध्याय 04, 07, 14 का मूल्यांकन (तृतीय)</p>' },
-	        { start: '2025-01-27', end: '2025-01-31', title: '- <b>अध्याय 10,11,13</b><br>10 - वृत <br>11 - वृतों से संबंधित क्षेत्रफल <br>13 - सांख्यिकी' },
-      	    { start: '2025-02-01', end: '2025-02-01', title: '<p style="color: red;">- अध्याय 10, 11, 13 का मूल्यांकन (चतुर्थ)</p>' },
-	        { start: '2025-02-07', end: '2025-02-08', title: '-<b> अध्याय  06,08,09,12</b><br>06 - त्रिभुज <br>08 - त्रिकोणमिति का परिचय <br>09 - त्रिकोणमिति का अनुप्रयोग <br>12 - पृष्ठीय क्षेत्रफल एवं आयतन' },
-            { start: '2025-02-10', end: '2025-02-14', title: '- <b>अध्याय  06,08,09,12</b><br>06 - त्रिभुज <br>08 - त्रिकोणमिति का परिचय <br>09 - त्रिकोणमिति का अनुप्रयोग <br>12 - पृष्ठीय क्षेत्रफल एवं आयतन' },	    
+	        { start: '2025-01-20', end: '2025-01-20', title: '<p style="color: red;">अध्याय 02 एवं 05 का मूल्यांकन (द्वितीय)</p>' },
+            { start: '2025-01-21', end: '2025-01-24', title: '<b>अध्याय 04, 07,14</b> <br>04- द्विघात समीकरण <br>07- निर्देशांक ज्यामिति<br>14-प्रायिकता' },
+	        { start: '2025-01-25', end: '2025-01-25', title: '<p style="color: red;">अध्याय 04, 07, 14 का मूल्यांकन (तृतीय)</p>' },
+	        { start: '2025-01-27', end: '2025-01-31', title: '<b>अध्याय 10,11,13</b><br>10 - वृत <br>11 - वृतों से संबंधित क्षेत्रफल <br>13 - सांख्यिकी' },
+      	    { start: '2025-02-01', end: '2025-02-01', title: '<p style="color: red;">अध्याय 10, 11, 13 का मूल्यांकन (चतुर्थ)</p>' },
+	        { start: '2025-02-07', end: '2025-02-08', title: '<b> अध्याय  06,08,09,12</b><br>06 - त्रिभुज <br>08 - त्रिकोणमिति का परिचय <br>09 - त्रिकोणमिति का अनुप्रयोग <br>12 - पृष्ठीय क्षेत्रफल एवं आयतन' },
+            { start: '2025-02-10', end: '2025-02-14', title: '<b>अध्याय  06,08,09,12</b><br>06 - त्रिभुज <br>08 - त्रिकोणमिति का परिचय <br>09 - त्रिकोणमिति का अनुप्रयोग <br>12 - पृष्ठीय क्षेत्रफल एवं आयतन' },	    
             { start: '2025-02-15', end: '2025-02-15', title: '<p style="color: red;">- अध्याय 06,08,09 एवं 12 का मूल्यांकन (पंचम)</p>' },
-			//2025-26
-        { start: '2025-12-03', end: '2025-12-06', title: '- <b>अध्याय 01 एवं 03</b><br>01-वास्तविक संख्याएँ <br>03–दो चर वाले रैखिक समीकरण ' }, 
-        { start: '2025-12-08', end: '2025-12-08', title: '<p style="color: red;">-<b> अध्याय 01 एवं 03 का मूल्यांकन (प्रथम)</b><br>-अभिभावक-शिक्षक मीटिंग में लक्ष्य 2026 की जानकारी </p>' },
+            
+            //2025-26
+        { start: '2025-12-03', end: '2025-12-06', title: '<b>अध्याय 01 एवं 03</b><br>01-वास्तविक संख्याएँ <br>03–दो चर वाले रैखिक समीकरण ' }, 
+        { start: '2025-12-08', end: '2025-12-08', title: '<p style="color: red;"><b> अध्याय 01 एवं 03 का मूल्यांकन (प्रथम)</b></p>' },
         
-        { start: '2025-12-09', end: '2025-12-13', title: '- <b>अध्याय 02,05</b> <br>02 - बहुपद<br>05 – समान्तर श्रेणी' },       
-        { start: '2025-12-15', end: '2025-12-15', title: '<p style="color: red;">-अध्याय 02 एवं 05 का मूल्यांकन (द्वितीय)</p>' },
+        { start: '2025-12-09', end: '2025-12-13', title: '<b>अध्याय 02,05</b> <br>02 - बहुपद<br>05 – समान्तर श्रेणी' },       
+        { start: '2025-12-15', end: '2025-12-15', title: '<p style="color: red;"><b> अध्याय 02 एवं 05 का मूल्यांकन (द्वितीय)</b></p>' },
 
         { start: '2025-12-16', end: '2025-12-20', title: '<b>अध्याय 04, 07,14</b> <br>04- द्विघात समीकरण <br>07- निर्देशांक ज्यामिति<br>14-प्रायिकता' },
         { start: '2025-12-22', end: '2025-12-22', title: '<b>अध्याय 04, 07,14</b> <br>04- द्विघात समीकरण <br>07- निर्देशांक ज्यामिति<br>14-प्रायिकता' },
-        { start: '2025-12-23', end: '2025-01-23', title: '<p style="color: red;">- अध्याय 04, 07, 14 का मूल्यांकन (तृतीय)</p>' },
+        { start: '2025-12-23', end: '2025-12-23', title: '<p style="color: red;"><b>  अध्याय 04, 07, 14 का मूल्यांकन (तृतीय)</b></p>' },
        
-        { start: '2026-01-06', end: '2026-01-10', title: '- <b>अध्याय 10,11,13</b><br>10 - वृत <br>11 - वृतों से संबंधित क्षेत्रफल <br>13 - सांख्यिकी' },
-        { start: '2026-01-12', end: '2026-01-15', title: '- <b>अध्याय 10,11,13</b><br>10 - वृत <br>11 - वृतों से संबंधित क्षेत्रफल <br>13 - सांख्यिकी' },        
-        { start: '2026-01-16', end: '2026-01-16', title: '<p style="color: red;">- अध्याय 10, 11, 13 का मूल्यांकन (चतुर्थ)</p>' },
+        { start: '2026-01-06', end: '2026-01-10', title: '<b>अध्याय 10,11,13</b><br>10 - वृत <br>11 - वृतों से संबंधित क्षेत्रफल <br>13 - सांख्यिकी' },
+        { start: '2026-01-12', end: '2026-01-15', title: '<b>अध्याय 10,11,13</b><br>10 - वृत <br>11 - वृतों से संबंधित क्षेत्रफल <br>13 - सांख्यिकी' },        
+        { start: '2026-01-16', end: '2026-01-16', title: '<p style="color: red;"><b>अध्याय 10, 11, 13 का मूल्यांकन (चतुर्थ)</b></p>' },
 
-        { start: '2026-01-17', end: '2026-01-17', title: '-<b> अध्याय  08,09</b><br>08 - त्रिकोणमिति का परिचय <br>09 - त्रिकोणमिति का अनुप्रयोग ' },
-        { start: '2026-01-19', end: '2026-01-23', title: '-<b> अध्याय  08,09</b><br>08 - त्रिकोणमिति का परिचय <br>09 - त्रिकोणमिति का अनुप्रयोग ' },   
+        { start: '2026-01-17', end: '2026-01-17', title: '<b> अध्याय  08,09</b><br>08 - त्रिकोणमिति का परिचय <br>09 - त्रिकोणमिति का अनुप्रयोग ' },
+        { start: '2026-01-19', end: '2026-01-23', title: '<b> अध्याय  08,09</b><br>08 - त्रिकोणमिति का परिचय <br>09 - त्रिकोणमिति का अनुप्रयोग ' },   
         
-        { start: '2026-01-24', end: '2026-01-24', title: '<p style="color: red;">- अध्याय 08,09  का मूल्यांकन (पंचम)</p>' },
+        { start: '2026-01-24', end: '2026-01-24', title: '<p style="color: red;"><b>अध्याय 08,09  का मूल्यांकन (पंचम)<b></p>' },
 
-        { start: '2026-01-27', end: '2026-01-31', title: '- <b>अध्याय  06,12</b><br>06 - त्रिभुज <br>12 - पृष्ठीय क्षेत्रफल एवं आयतन' },
-        { start: '2026-02-02', end: '2026-02-02', title: '<p style="color: red;">- अध्याय 06,12  का मूल्यांकन (षष्टम)</p>' },	 
-        { start: '2026-02-05', end: '2026-02-05', title: '<p style="color: red;">प्रीबोर्ड परीक्षा (सम्पूर्ण पाठ्यक्रम)</p>' },
+        { start: '2026-01-27', end: '2026-01-31', title: '<b>अध्याय  06,12</b><br>06 - त्रिभुज <br>12 - पृष्ठीय क्षेत्रफल एवं आयतन' },
+        { start: '2026-02-02', end: '2026-02-02', title: '<p style="color: red;"><b>अध्याय 06,12  का मूल्यांकन (षष्टम)</b></p>' },	 
+        { start: '2026-02-05', end: '2026-02-05', title: '<p style="color: red;"><b>प्रीबोर्ड परीक्षा (सम्पूर्ण पाठ्यक्रम)</b></p>' },	
         ];
 
         let currentDate = new Date();
 
         function renderCalendar(date) {
-            const calendarBody = document.getElementById('calendar-body');
-            const currentMonth = document.getElementById('currentMonth');
-            calendarBody.innerHTML = '';
+    const calendarBody = document.getElementById('calendar-body');
+    const currentMonth = document.getElementById('currentMonth');
+    calendarBody.innerHTML = '';
 
-            const year = date.getFullYear();
-            const month = date.getMonth();
+    const year = date.getFullYear();
+    const month = date.getMonth();
 
-            currentMonth.innerText = `${date.toLocaleString('default', { month: 'long' })} ${year}`;
+    currentMonth.innerText = `${date.toLocaleString('default',{month:'long'})} ${year}`;
 
-            const firstDay = new Date(year, month, 1).getDay();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-            let row = '<tr>';
-            for (let i = 0; i < firstDay; i++) row += '<td></td>';
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
 
-            for (let day = 1; day <= daysInMonth; day++) {
-                let fullDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                let eventHTML = events.filter(e => fullDate >= e.start && fullDate <= e.end)
-                                      .map(e => `<div class="event">${e.title}</div>`).join('');
-                let cellClass = eventHTML ? '' : 'no-event';
-                row += `<td class="${cellClass}"><div class="day">${day}</div>${eventHTML}</td>`;
-                if ((day + firstDay) % 7 === 0) row += '</tr><tr>';
-            }
+    let row = '<tr>';
+    for (let i = 0; i < firstDay; i++) row += '<td></td>';
 
-            row += '</tr>';
-            calendarBody.innerHTML = row;
-        }
+    for (let day = 1; day <= daysInMonth; day++) {
+        let fullDate = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
 
+        let eventHTML = events
+            .filter(e => fullDate >= e.start && fullDate <= e.end)
+            .map(e => `<div class="event">${e.title}</div>`)
+            .join('');
+
+        let cellClass = eventHTML ? '' : 'no-event';
+        let isToday = fullDate === todayStr ? 'today' : '';
+
+        row += `
+        <td class="${cellClass} ${isToday}">
+            <div class="day">${day}</div>
+            ${eventHTML}
+        </td>`;
+
+        if ((day + firstDay) % 7 === 0) row += '</tr><tr>';
+    }
+
+    row += '</tr>';
+    calendarBody.innerHTML = row;
+}
         function prevMonth() { currentDate.setMonth(currentDate.getMonth() - 1); renderCalendar(currentDate); }
         function nextMonth() { currentDate.setMonth(currentDate.getMonth() + 1); renderCalendar(currentDate); }
 
         renderCalendar(currentDate);
-    </script>
+       
+	</script>
 	
 <h4>List of Active Tests</h4>
 <table class="table table-bordered mt-3">
