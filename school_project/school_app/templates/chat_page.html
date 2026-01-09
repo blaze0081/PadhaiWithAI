@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Chat with PAI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
     <!-- MathJax for Mathematics Rendering -->
     <script>
@@ -420,7 +421,100 @@
                 justify-content: flex-end;
             }
         }
+        .action-buttons {
+    float: right;
+    display: flex;
+    gap: 6px;
+}
+
+.action-buttons button {
+    background: transparent;
+    border: 1px solid var(--border-subtle);
+    color: var(--text-muted);
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    cursor: pointer;
+}
+
+.action-buttons button:hover {
+    color: var(--accent-strong);
+    border-color: var(--accent-strong);
+}
+/* ---------------- PDF WATERMARK ---------------- */
+.pdf-watermark {
+    display: none;              /* Hidden on screen */
+}
+
+/* ---------- PDF WATERMARK (html2pdf compatible) ---------- */
+.pdf-watermark {
+    display: none; /* hidden by default */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-30deg);
+    font-size: 64px;
+    font-weight: 800;
+    color: rgba(120, 120, 120, 0.15);
+    z-index: 1000;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+/* Ensure parent allows overlay */
+.solution-content {
+    position: relative;
+}
+
+.pdf-watermark img {
+    opacity: 0.25;
+    margin-bottom: 10px;
+}
+/* ---------- SEND BUTTON (CIRCLE + UP ARROW) ---------- */
+.send-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    background: radial-gradient(circle at 30% 30%, #38bdf8, #0ea5e9);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 18px rgba(56,189,248,0.45);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+
+.send-btn:hover {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 22px rgba(56,189,248,0.6);
+}
+
+.send-btn:active {
+    transform: scale(0.95);
+    box-shadow: 0 4px 10px rgba(56,189,248,0.4);
+}
+
+.send-btn:focus-visible {
+    outline: 2px solid var(--accent-strong);
+    outline-offset: 3px;
+}
+
+.send-icon {
+    width: 20px;
+    height: 20px;
+    fill: #0b1120; /* dark arrow for contrast */
+}
+
+/* Light theme arrow color tweak */
+:root[data-theme="light"] .send-icon {
+    fill: #0f172a;
+}
+
+
     </style>
+    
 </head>
 <body>
 <div class="page-wrap">
@@ -458,13 +552,25 @@
                             <div class="avatar avatar-user">U</div>
                         </div>
                     {% else %}
-                        <div class="msg-row assistant">
-                            <div class="avatar avatar-assistant">AI</div>
-                            <div class="bubble-wrap">
-                                <div class="bubble-meta">PAI Assistant</div>
-                                <div class="bubble bubble-assistant">{{ msg.content }}</div>
+                            <div class="msg-row assistant">
+                                <div class="avatar avatar-assistant"><img src="{% static 'school_app/images/pailogo.png' %}" width="25"></div>
+                                <div class="bubble-wrap">
+                                    <div class="bubble-meta">
+                                        PAI Assistant
+                                        <span class="action-buttons">                                           
+                                            <button onclick="downloadPDF(this)">📄 PDF</button>
+                                            <button onclick="regenerateSolution(this)">🔁 Regenerate</button>
+                                            
+                                        </span>
+                                    </div>
+                                    <div class="bubble bubble-assistant solution-content">
+                                        <div class="pdf-watermark">
+                                            <img src="{% static 'school_app/images/pailogo.png' %}" width="250"><br>PadhaiWithAI</div>
+                                        {{ msg.content }}
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+
                     {% endif %}
                 {% endfor %}
             {% else %}
@@ -482,20 +588,22 @@
             {% csrf_token %}
             <div class="input-row">
                 <div class="input-wrapper">
-                    <span class="input-pill-label">Prompt</span>
-                    <textarea name="prompt"
+                    <!-- <span class="input-pill-label">Prompt</span> -->
+                    <textarea name="prompt" id="chatPrompt"
                               rows="1"
                               placeholder="Ask a maths doubt, explain a concept, or say ‘help me solve this equation…’"
                               required></textarea>
                 </div>
-                <button type="submit" class="btn-primary">
-                    Send
-                    <span>➜</span>
-                </button>
+               
+                <button type="submit" class="send-btn" aria-label="Send message">
+    <svg viewBox="0 0 24 24" class="send-icon" aria-hidden="true">
+        <path d="M12 4l6 6h-4v6h-4v-6H6z"></path>
+    </svg>
+</button>
             </div>
             <div class="helper-text">
                 <span>Try: “Explain Real Numbers for class 10 with examples.”</span>
-<span class="key-hint">Your chat is not stored permanently.</span>
+                <span class="key-hint">Your chat is not stored permanently.</span>
                 <!-- <span class="key-hint">Math formulas support LaTeX: like $a^2 + b^2$.</span> -->
             </div>
         </form>
@@ -505,8 +613,39 @@
 <div class="footer">
     PadhaiWithAI – Tonk, Rajasthan
 </div>
+<script>
+(function () {
+    const textarea = document.getElementById('chatPrompt');
+    const form = textarea.closest('form');
+
+    textarea.addEventListener('keydown', function (e) {
+        // ENTER → submit
+        if (e.key === 'Enter' && !e.altKey) {
+            e.preventDefault(); // stop newline
+            form.submit();
+        }
+
+        // ALT + ENTER → new line
+        if (e.key === 'Enter' && e.altKey) {
+            e.preventDefault();
+            const start = this.selectionStart;
+            const end = this.selectionEnd;
+            this.value = this.value.substring(0, start) + "\n" + this.value.substring(end);
+            this.selectionStart = this.selectionEnd = start + 1;
+        }
+    });
+
+    // Auto-grow textarea height (optional but recommended)
+    textarea.addEventListener('input', function () {
+        this.style.height = 'auto';
+        this.style.height = this.scrollHeight + 'px';
+    });
+})();
+</script>
 
 <script>
+
+    
     // Auto-scroll to bottom on load so latest messages are visible
     const chatBody = document.getElementById('chat-body');
     if (chatBody) {
@@ -548,6 +687,66 @@
             window.MathJax.typesetPromise();
         }
     });
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+function downloadPDF(btn) {
+    const solution = btn.closest('.bubble-wrap')
+        .querySelector('.solution-content');
+
+    const watermark = solution.querySelector('.pdf-watermark');
+
+    // 1️⃣ Show watermark before PDF render
+    if (watermark) {
+        watermark.style.display = 'block';
+    }
+
+    const opt = {
+        margin: 10,
+        filename: 'PadhaiWithAI_Solution.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: {
+            scale: 2,
+            useCORS: true
+        },
+        jsPDF: {
+            unit: 'mm',
+            format: 'a4',
+            orientation: 'portrait'
+        }
+    };
+
+    html2pdf().from(solution).set(opt).save().then(() => {
+        // 2️⃣ Hide watermark again after download
+        if (watermark) {
+            watermark.style.display = 'none';
+        }
+    });
+}
+</script>
+
+
+<script>
+function regenerateSolution(btn) {
+    const userQuestion = btn.closest('.msg-row')
+        .previousElementSibling
+        .querySelector('.bubble-user').innerText;
+
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '';
+
+    const csrf = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    form.innerHTML = `
+        <input type="hidden" name="csrfmiddlewaretoken" value="${csrf}">
+        <input type="hidden" name="prompt" value="Explain again with different steps: ${userQuestion}">
+    `;
+
+    document.body.appendChild(form);
+    form.submit();
+}
 </script>
 
 </body>
