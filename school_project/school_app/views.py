@@ -2757,3 +2757,70 @@ def chat_view(request):
 
     # Render template with full history
     return render(request, "chat_page.html", {"history": history})
+
+sarvam_key = os.getenv("SARVAM_API_KEY")
+client = SarvamAI(api_subscription_key=sarvam_key)
+
+def chat_smart_tutor(request):
+    history = request.session.get("history", [])
+
+    if request.GET.get("clear") == "1":
+        request.session.flush()
+        return redirect("ai_sathi")
+
+    # Store guardrail once
+    if request.method == "POST":
+        if not request.session.get("guardrail_set"):
+            # First time only
+            request.session["class_level"] = request.POST.get("class_level")
+            request.session["subject"] = request.POST.get("subject")
+            request.session["chapter"] = request.POST.get("chapter")
+            request.session["guardrail_set"] = True
+        else:
+            # 🔒 Ignore any attempt to change
+            request.POST = request.POST.copy()
+            request.POST["class_level"] = request.session["class_level"]
+            request.POST["subject"] = request.session["subject"]
+            request.POST["chapter"] = request.session["chapter"]
+
+
+    class_level = request.session.get("class_level")
+    subject = request.session.get("subject")
+    chapter = request.session.get("chapter")
+
+    if request.method == "POST":
+        user_prompt = request.POST.get("prompt", "").strip()
+
+        if user_prompt:
+            system_prompt = f"""
+                    You are an government school teacher.
+
+                    Class: {class_level}
+                    Subject: {subject}
+                    Chapter: {chapter}
+
+                    Rules:
+                    - Answer ONLY from this chapter
+                    - Use NCERT textbook language
+                    - Step-by-step explanation
+                    - If outside syllabus, politely refuse
+                    """
+
+            messages = (
+                [{"role": "system", "content": system_prompt}]
+                + history
+                + [{"role": "user", "content": user_prompt}]
+            )
+
+           
+            response = client.chat.completions(messages=messages, temperature=0.2, max_tokens=8192, top_p=0.5,)
+            reply = response.choices[0].message.content
+
+            history.append({"role": "user", "content": user_prompt})
+            history.append({"role": "assistant", "content": reply})
+            request.session["history"] = history
+
+    return render(request, "chat_smart_tutor.html", {
+        "history": history,
+        "guardrail": class_level
+    })
