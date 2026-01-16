@@ -101,5 +101,6 @@ urlpatterns = [
      #17102025
     path("ask-pai/", views.ask_pai, name="ask-pai"),
     path("chat/", views.chat_view, name="chat_page"),
+    path("ai_sathi/", views.chat_smart_tutor, name="ai_sathi"),
 ]
 
