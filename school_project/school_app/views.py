@@ -1506,7 +1506,7 @@ def dashboard(request):
         query = """ SELECT se.school_name_with_nic_code, s.nic_code, se.school_nic_code, se.session_year, se.total_students, se.passed_students, 
         se.first_division_students, se.overall_exam_result, se.math_exam_result, se.math_above_80, se.math_above_90, se.math_100_percent,
         se.below33,se.maths_33_60,se.maths_60_80,se.maths_80_90,se.maths_90_100,se.maths_100 FROM student_exam_results se INNER JOIN school_app_school s 
-        ON se.school_nic_code = s.nic_code  WHERE s.nic_code =%s """
+        ON se.school_nic_code = s.nic_code  WHERE s.nic_code =%s   order by se.session_year asc """
         with connection.cursor() as cursor:
          cursor.execute(query,[school.nic_code])
          result = cursor.fetchall()
