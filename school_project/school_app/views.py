@@ -880,7 +880,7 @@ def block_dashboard(request):
         'schools': schools,
         'Block_name': block.name_english,
         'results': get_previous_year_data(block),
-        'chart_data': json.dumps(get_dataforbarchart(request))
+        # 'chart_data': json.dumps(get_dataforbarchart(request))
         })
 
 def get_dataforbarchart(request):
@@ -1176,7 +1176,7 @@ def collector_dashboard(request):
         'data': data,
         'result': result_data,
         'results': results_dict,
-        'chart_data': json.dumps(get_dataforbarchart(request)),
+        # 'chart_data': json.dumps(get_dataforbarchart(request)),
         'district_name': district_name
     })
 	
