@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>PAI-AI Study Sathi, Tonk</title>
+    <title>PAI-AI Sathi, Tonk, Raj.</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
     <!-- MathJax for Mathematics Rendering -->
@@ -47,6 +47,9 @@
             --border-strong: rgba(55, 65, 81, 0.9);
 
             --chip-bg: transparent;
+            --surface: rgba(15, 23, 42, 0.95);
+            --input: #020617;
+            --border: rgba(55, 65, 81, 0.9);
         }
 
         /* Light theme overrides */
@@ -60,13 +63,16 @@
             --text-main: #0f172a;
             --text-muted: #6b7280;
 
-            --user-bubble: linear-gradient(135deg, #22c55e, #4ade80);
+            --user-bubble: linear-gradient(135deg,  #38bdf8, #0ea5e9);
             --assistant-bubble: #e5e7eb;
 
             --border-subtle: rgba(148, 163, 184, 0.6);
             --border-strong: rgba(148, 163, 184, 0.8);
 
             --chip-bg: #e5f3ff;
+            --surface: #ffffff;
+            --input: #f1f5f9;
+            --border: rgba(148, 163, 184, 0.8);
         }
 
         * { box-sizing: border-box; }
@@ -91,7 +97,7 @@
 
         .chat-container {
             width: 100%;
-            max-width: 960px;
+            max-width: 980px;
             background: var(--bg-card);
             border-radius: 24px;
             border: 1px solid var(--border-subtle);
@@ -189,7 +195,7 @@
             flex-direction: column;
             padding: 12px 16px 8px;
             gap: 10px;
-            height: 480px;
+            height: 460px;
             overflow-y: auto;
             scroll-behavior: smooth;
         }
@@ -482,18 +488,23 @@
     align-items: center;
     justify-content: center;
     box-shadow: 0 8px 18px rgba(56,189,248,0.45);
-    transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease, opacity 0.2s ease;
 }
 
-.send-btn:hover {
+.send-btn:hover:not(:disabled) {
     filter: brightness(1.08);
     transform: translateY(-1px);
     box-shadow: 0 10px 22px rgba(56,189,248,0.6);
 }
 
-.send-btn:active {
+.send-btn:active:not(:disabled) {
     transform: scale(0.95);
     box-shadow: 0 4px 10px rgba(56,189,248,0.4);
+}
+
+.send-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .send-btn:focus-visible {
@@ -507,46 +518,168 @@
     fill: #0b1120; /* dark arrow for contrast */
 }
 
+.spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(11, 17, 32, 0.3);
+    border-top-color: #0b1120;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
 /* Light theme arrow color tweak */
 :root[data-theme="light"] .send-icon {
     fill: #0f172a;
 }
 
+/* Typing Indicator */
+.typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 12px;
+}
+
+.typing-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    animation: typing 1.4s infinite;
+}
+
+.typing-dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typing {
+    0%, 60%, 100% { opacity: 0.5; }
+    30% { opacity: 1; }
+}
+
+/* Message Timestamp */
+.message-timestamp {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
 /* ---------- CONTEXT BAR ---------- */
-.context-bar{
+.context-bar {
     margin-top: 5px;
-    background:var(--surface);
-    border-bottom:1px solid var(--border);
-    color:var(--text);
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    color: var(--text-main);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.context-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.context-bar .chip {
+    padding: 8px 14px;
+    border-radius: 18px;
+    background: var(--accent-soft);
+    border: 1px solid var(--accent);
+    color: var(--text-main);
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(56,189,248,0.15);
+}
+
+.context-bar .chip strong {
+    font-weight: 700;
+    color: var(--accent-strong);
 }
 .guardrails{
-    padding:14px 16px;
-    border-bottom:1px solid var(--border);
+    padding: 6px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(135deg, rgba(56,189,248,0.08), rgba(15,23,42,0.98));
+}
+
+.guardrails h4 {
+    margin: 0 0 8px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-main);
 }
 .guardrail-row{
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
 }
+
 .guardrail-row select{
-    flex:1;
-    min-width:140px;
-    padding:8px;
-    border-radius:8px;
-    background:var(--input);
-    color:var(--text);
-    border:1px solid var(--border);
+    flex: 1;
+    min-width: 140px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: var(--input);
+    color: var(--text-main);
+    border: 1px solid var(--border-subtle);
+    font-size: 13px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.guardrail-row select:hover:not(:disabled) {
+    border-color: var(--accent);
+}
+
+.guardrail-row select:focus {
+    outline: none;
+    border-color: var(--accent-strong);
+    box-shadow: 0 0 0 3px var(--accent-soft);
 }
 .guardrails button{
-    margin-top:10px;
-    padding:10px 18px;
-    border-radius:999px;
-    background:var(--accent);
-    color:#020617;
-    border:none;
-    cursor:pointer;
+    margin-top: 12px;
+    padding: 10px 24px;
+    border-radius: 999px;
+    background: radial-gradient(circle at 30% 30%, var(--accent), var(--accent-strong));
+    color: #020617;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+    box-shadow: 0 4px 12px rgba(56,189,248,0.3);
 }
-.guardrails button:disabled{opacity:.5}
+
+.guardrails button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(56,189,248,0.4);
+    filter: brightness(1.05);
+}
+
+.guardrails button:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(56,189,248,0.2);
+}
+
+.guardrails button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
 /* ================= FIX: DROPDOWN VISIBILITY (DARK THEME) ================= */
 
 /* Base select styling */
@@ -576,7 +709,7 @@
 .start-chat-wrapper {
     display: flex;
     justify-content: center;
-    margin-top: 12px;
+    margin-top: 16px;
 }
 
     </style>
@@ -592,8 +725,8 @@
                     <img src="{% static 'school_app/images/pailogo.png' %}" alt="PAI Logo">
                 </div>
                 <div>
-                    <div class="chat-title">PadhaiWithAI – AI Study Sathi (Smart Tutor)</div>
-                    <div class="chat-subtitle">Personal AI assistant for learning Class-wise • Subject-wise • Chapter-wise</div>
+                    <div class="chat-title">PadhaiWithAI – AI Study Sathi</div>
+                    <div class="chat-subtitle">Your AI Learning Companion</div>
                 </div>
             </div>
             <div class="chat-header-actions">
@@ -661,12 +794,12 @@
 <!-- ================= CONTEXT BAR ================= -->
 <div class="context-bar" id="contextBar" style="display:none">
     <div class="context-left">
-        <span class="chip">🔒 Class <strong id="ctxClass"></strong></span>
-        <span class="chip"><strong id="ctxSubject"></strong></span>
-        <span class="chip"><strong id="ctxChapter"></strong></span>
+        <span class="chip">🔒 Class: <strong id="ctxClass"></strong></span>
+        <span class="chip">📚 Subject: <strong id="ctxSubject"></strong></span>
+        <span class="chip">📖 Chapter: <strong id="ctxChapter"></strong></span>
     </div>
 
-    <a href="?clear=1" class="btn-secondary">⟲ Reset</a>
+    <a href="?clear=1" class="btn-secondary">🔄 Reset</a>
     
 </div>
 
@@ -677,7 +810,7 @@
                     {% if msg.role == "user" %}
                         <div class="msg-row user">
                             <div class="bubble-wrap">
-                                <div class="bubble-meta">You</div>
+                                <div class="bubble-meta">You {% if msg.timestamp %}<span class="message-timestamp">{{ msg.timestamp }}</span>{% endif %}</div>
                                 <div class="bubble bubble-user">{{ msg.content }}
                                     <button onclick="speakText(this)" class="btn-secondary">🔊 Listen</button>
                                 </div>
@@ -690,10 +823,11 @@
                                 <div class="avatar avatar-assistant"><img src="{% static 'school_app/images/pailogo.png' %}" width="25"></div>
                                 <div class="bubble-wrap">
                                     <div class="bubble-meta">
-                                        PAI Assistant
+                                        PAI Assistant {% if msg.timestamp %}<span class="message-timestamp">{{ msg.timestamp }}</span>{% endif %}
                                         <span class="action-buttons">                                           
+                                           
                                             <button onclick="downloadPDF(this)">📄 PDF</button>
-                                            <button onclick="regenerateSolution(this)">🔁 Regenerate</button>
+                                            <button onclick="regenerateSolution(this)"> 🔄 Regenerate</button>
                                             
                                         </span>
                                     </div>
@@ -712,18 +846,15 @@
                 {% endfor %}
             {% else %}
                 <div class="empty-state">
-                    <h3>Welcome to PadhaiWithAI AI Study Sathi</h3>
-                    <p>Select learning context from the above 
-                        Class-wise -> Subject-wise -> Chapter-wise </p>
-                     <p>   Ask questions about or anything you’re curious about. </p> 
-                       <p>Your conversation will appear here as you start chatting.</p>
-                    <p>Start a conversation by typing below!</p>
+                    <h1>Welcome to AI Sathi</h1>                   
+                    <p>Your conversation will appear here as you start chatting.</p>
+                    <p><strong>Start a conversation by typing below!</strong></p>
                 </div>
             {% endif %}
         </main>
 
         <!-- Input -->
-        <form method="post" class="chat-input-area">
+        <form method="post" class="chat-input-area" id="chatForm">
             {% csrf_token %}
             <div class="input-row">
                 <div class="input-wrapper">
@@ -736,15 +867,31 @@
          {% if not guardrail %}disabled{% endif %}           required></textarea>
                 </div>
                
-                <button type="submit" class="send-btn" aria-label="Send message">    
-                    <svg viewBox="0 0 24 24" class="send-icon" aria-hidden="true">
+                <button type="submit" class="send-btn" id="sendBtn" aria-label="Send message">    
+                    <svg viewBox="0 0 24 24" class="send-icon" aria-hidden="true" id="sendIcon">
                       <path d="M12 4l6 6h-4v6h-4v-6H6z"></path>
-                          </svg>
+                    </svg>
                     </button>
             </div>
             <div class="helper-text">
                 <span>Try: “Explain Real Numbers for class 10 with examples.”</span>
-                <span class="key-hint">Your chat is not stored permanently.</span>
+               
+                <span class="key-hint">🔒 Private • Not permanently stored</span>
+                <!-- <span class="key-hint">Math formulas support LaTeX: like $a^2 + b^2$.</span> -->
+            </div>
+            <div class="helper-text">
+                <span style="text-align: center; width: 100%; font-size: 11px;">
+                    <strong>📝 What you can request:</strong> Quizzes • Explanations • Step-by-step solutions • Practice problems
+                </span>
+            </div>
+            <div class="helper-text">
+           
+                “Make a short quiz from this section”  “Give me 5 multiple-choice questions on this abstract”  "Multiple-choice or short-answer questions"
+
+                "Hints and rationales for each answer"  "Explanations that reference the source directly"
+            </div>
+               
+                
                 <!-- <span class="key-hint">Math formulas support LaTeX: like $a^2 + b^2$.</span> -->
             </div>
             <input type="hidden" name="class_level" id="class_level">
@@ -760,13 +907,57 @@
 <script>
 (function () {
     const textarea = document.getElementById('chatPrompt');
-    const form = textarea.closest('form');
+    const form = document.getElementById('chatForm');
+    const sendBtn = document.getElementById('sendBtn');
+    const sendIcon = document.getElementById('sendIcon');
+    const chatBody = document.getElementById('chat-body');
+    const typingIndicator = document.getElementById('typingIndicator');
+
+    // Auto-scroll to latest message
+    function scrollToBottom() {
+        setTimeout(() => {
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }, 0);
+    }
+
+    // Show typing indicator
+    function showTypingIndicator() {
+        typingIndicator.style.display = 'flex';
+        scrollToBottom();
+    }
+
+    // Hide typing indicator
+    function hideTypingIndicator() {
+        typingIndicator.style.display = 'none';
+    }
+
+    // Loading state handler
+    function setLoadingState(isLoading) {
+        sendBtn.disabled = isLoading;
+        if (isLoading) {
+            sendIcon.innerHTML = '<circle cx="12" cy="12" r="10" fill="none" stroke="#0b1120" stroke-width="2" class="spinner"></circle>';
+            showTypingIndicator();
+        } else {
+            sendIcon.innerHTML = '<path d="M12 4l6 6h-4v6h-4v-6H6z"></path>';
+            hideTypingIndicator();
+        }
+    }
+
+    // Form submission handler
+    form.addEventListener('submit', function (e) {
+        setLoadingState(true);
+    });
+
+    // Auto-scroll on page load
+    document.addEventListener('DOMContentLoaded', scrollToBottom);
 
     textarea.addEventListener('keydown', function (e) {
         // ENTER → submit
         if (e.key === 'Enter' && !e.altKey) {
             e.preventDefault(); // stop newline
-            form.submit();
+            if (!sendBtn.disabled) {
+                form.submit();
+            }
         }
 
         // ALT + ENTER → new line
@@ -779,11 +970,19 @@
         }
     });
 
-    // Auto-grow textarea height (optional but recommended)
+    // Auto-grow textarea height
     textarea.addEventListener('input', function () {
         this.style.height = 'auto';
         this.style.height = this.scrollHeight + 'px';
     });
+
+    // Scroll to bottom when new messages arrive
+    const observer = new MutationObserver(() => {
+        scrollToBottom();
+        setLoadingState(false);
+    });
+
+    observer.observe(chatBody, { childList: true, subtree: true });
 })();
 </script>
 
@@ -891,6 +1090,99 @@ function regenerateSolution(btn) {
     document.body.appendChild(form);
     form.submit();
 }
+
+/* ================= MARKDOWN TO HTML PARSER ================= */
+function convertMarkdownToHtml(node) {
+    if (!node) return;
+    
+    // Process all text nodes
+    const walker = document.createTreeWalker(
+        node,
+        NodeFilter.SHOW_TEXT,
+        null,
+        false
+    );
+    
+    let textNode;
+    const nodesToReplace = [];
+    
+    while (textNode = walker.nextNode()) {
+        // Skip if inside button or script tags
+        if (textNode.parentElement.closest('button, script, style')) {
+            continue;
+        }
+        
+        const text = textNode.textContent;
+        
+        // Check if text contains markdown
+        if (text.includes('**') || text.includes('*') || text.match(/^#{1,6}\s/m)) {
+            nodesToReplace.push(textNode);
+        }
+    }
+    
+    // Replace collected nodes
+    nodesToReplace.forEach(textNode => {
+        let html = textNode.textContent;
+        
+        // Split by lines to handle headings
+        const lines = html.split('\n');
+        const processedLines = lines.map(line => {
+            // Convert headings: # to <h1>, ## to <h2>, etc.
+            const headingMatch = line.match(/^(#{1,6})\s+(.+)$/);
+            if (headingMatch) {
+                const level = headingMatch[1].length;
+                const text = headingMatch[2];
+                return `<h${level} style="margin: 8px 0; font-weight: 700;">${text}</h${level}>`;
+            }
+            
+            // Convert **bold** to <strong>bold</strong>
+            let processed = line.replace(/\*\*([^\*]+)\*\*/g, '<strong>$1</strong>');
+            
+            // Convert *italic* to <em>italic</em>
+            processed = processed.replace(/\*([^\*]+)\*/g, '<em>$1</em>');
+            
+            return processed;
+        }).join('\n');
+        
+        // Create span with parsed HTML
+        const span = document.createElement('span');
+        span.innerHTML = processedLines;
+        
+        // Replace text node with new span
+        textNode.parentNode.replaceChild(span, textNode);
+    });
+}
+
+// Apply markdown parsing to assistant messages on page load
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.bubble-assistant').forEach(bubble => {
+        convertMarkdownToHtml(bubble);
+    });
+    
+    // Watch for new messages
+    const chatBody = document.getElementById('chat-body');
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.addedNodes.length) {
+                mutation.addedNodes.forEach(function(node) {
+                    if (node.nodeType === 1) { // Element node
+                        const bubble = node.querySelector ? node.querySelector('.bubble-assistant') : null;
+                        if (bubble) {
+                            convertMarkdownToHtml(bubble);
+                        }
+                    }
+                });
+            }
+        });
+    });
+    
+    if (chatBody) {
+        observer.observe(chatBody, {
+            childList: true,
+            subtree: true
+        });
+    }
+});
 </script>
 <script>
 const chapters = {
@@ -915,14 +1207,14 @@ const chapters = {
     ],
     "Hindi": [
       "वह चिड़िया जो","बचपन","नादान दोस्त","चाँद से थोड़ी-सी गप्पें",
-      "अक्षरों का महत्व","पार नज़र के","साथी हाथ बढ़ाना"
+      "अक्षरों का महत्व","पार नज़र के","साथी हाथ बढ़ाना","मैं हूँ","किताब से दोस्ती"
     ],
     "Social Science": [
       "History: What, Where, How and When","From Hunting-Gathering to Growing Food",
       "In the Earliest Cities","What Books and Burials Tell Us",
-      "Kingdoms, Kings and an Early Republic",
-      "Geography: The Earth in the Solar System","Globe: Latitudes and Longitudes",
-      "Civics: Understanding Diversity","Diversity and Discrimination"
+      "Kingdoms, Kings and an Early Republic","Understanding Chakravartin",
+      "Geography: The Earth in the Solar System","Globe: Latitudes and Longitudes","Maps",
+      "Civics: Understanding Diversity","Diversity and Discrimination","What is Government","Key Elements of Democratic Institutions"
     ]
   },
 
@@ -943,17 +1235,18 @@ const chapters = {
     ],
     "English": [
       "Three Questions","A Gift of Chappals","Gopal and the Hilsa Fish",
-      "The Ashes That Made Trees Bloom","Quality",
-      "Expert Detectives","The Invention of Vita-Wonk"
+      "The Ashes That Made Trees Bloom","Quality","Expert Detectives","The Invention of Vita-Wonk",
+      "Keeping It from Harold","Chivvy","The Rebel"
     ],
     "Hindi": [
       "हम पंछी उन्मुक्त गगन के","दादी माँ","हिमालय की बेटियाँ",
-      "कंचा","मीठाईवाला","रक्त और हमारा शरीर"
+      "कंचा","मीठाईवाला","रक्त और हमारा शरीर","पापा खो गए","साखी","वाख","ऋतुराज"
     ],
     "Social Science": [
-      "Tracing Changes Through a Thousand Years","New Kings and Kingdoms",
-      "Environment","Inside Our Earth",
-      "On Equality","Role of the Government in Health"
+      "Tracing Changes Through a Thousand Years","New Kings and Kingdoms","The Delhi Sultanate",
+      "The Mughal Empire","Rulers and Buildings","Town, Bazaar and Trade",
+      "Environment","Inside Our Earth","Our Changing Earth",
+      "On Equality","Role of the Government in Health","How the State Government Works","Understanding Media"
     ]
   },
 
@@ -977,16 +1270,29 @@ const chapters = {
     ],
     "English": [
       "The Best Christmas Present","The Tsunami","Glimpses of the Past",
-      "Bepin Choudhury’s Lapse of Memory","The Summit Within"
+      "Bepin Choudhury's Lapse of Memory","The Summit Within","The School Play","Reaching for the Stars","Jalebis","Black Aeroplane"
     ],
     "Hindi": [
-      "ध्वनि","लाख की चूड़ियाँ","बस की यात्रा",
-      "दीवानों की हस्ती","चिट्ठियों की अनूठी दुनिया"
+      "ध्वनि","लाख की चूड़ियाँ","बस की यात्रा","दीवानों की हस्ती",
+      "चिट्ठियों की अनूठी दुनिया","भगवान के डाकिए","क्या निराश हुआ जाए","यह दीप अकेला",
+      "कबीरवाणी","संसार"
     ],
     "Social Science": [
-      "How, When and Where","The British Took Control",
-      "Resources","Agriculture",
-      "The Indian Constitution","Understanding Secularism"
+      "How, When and Where","The British Took Control","Ruling the Roost","India After Independence",
+      "Understanding the Secular State","Resources","Agriculture","Minerals and Power Resources",
+      "The Indian Constitution","Understanding Secularism","Vivekananda: His Four Yogas","Bhagat Singh: Courage and Sacrifice"
+    ],
+    "Computer Science": [
+      "Introduction to Computers","Introduction to Python Programming",
+      "Python Programming - Data Types and Variables","Operators and Expressions",
+      "Control Structures - Conditional Statements","Control Structures - Loops",
+      "Functions","Lists and Strings","Dictionaries and Sets","File Handling"
+    ],
+    "Physical Education": [
+      "Physical Fitness and Wellness","Sports and Games Rules",
+      "Yoga and its Benefits","First Aid and Safety","Sports Nutrition",
+      "Movement and Posture","Athletic Skills","Team Sports Fundamentals",
+      "Individual Sports Fundamentals","Healthy Lifestyle"
     ]
   },
 
@@ -1010,16 +1316,33 @@ const chapters = {
     ],
     "English": [
       "The Fun They Had","The Sound of Music","The Little Girl",
-      "A Truly Beautiful Mind","My Childhood","Packing","Reach for the Top"
+      "A Truly Beautiful Mind","My Childhood","Packing","Reach for the Top",
+      "The Bond of Love","Katrina","If I Were You"
     ],
     "Hindi": [
       "दो बैलों की कथा","ल्हासा की ओर","उपभोक्तावाद की संस्कृति",
-      "साँवले सपनों की याद","नाना साहब की पुत्री देवी मैना"
+      "साँवले सपनों की याद","नाना साहब की पुत्री देवी मैना","प्रेमचंद की कहानी उपहार",
+      "मेरे बचपन के दिन","संस्कृति","गिरगिट","अग्नि पथ"
     ],
     "Social Science": [
-      "The French Revolution","Socialism in Europe",
-      "India – Size and Location","Physical Features of India",
-      "What is Democracy","Constitutional Design"
+      "The French Revolution","Socialism in Europe and the Russian Revolution",
+      "Nazism and the Rise of Hitler","India – Size and Location","Physical Features of India",
+      "Drainage","Climate","Natural Vegetation and Fauna",
+      "Population","What is Democracy","Constitutional Design","Electoral Politics"
+    ],
+    "Computer Science": [
+      "Python Programming - Basics","Python Programming - Control Structures",
+      "Functions and Modules","Data Structures - Lists and Tuples",
+      "Data Structures - Dictionaries and Sets","File Handling",
+      "Error Handling and Exceptions","Object-Oriented Programming Concepts",
+      "Database Concepts","Networking Basics"
+    ],
+    "Physical Education": [
+      "Physical Fitness - Cardiovascular Endurance","Physical Fitness - Muscular Strength",
+      "Physical Fitness - Flexibility","Yoga - Asanas and Benefits",
+      "Sports - Athletics and Games","Sports - Racket Games",
+      "Sports - Aquatic Activities","First Aid in Sports",
+      "Nutrition and Health","Mental Health and Stress Management"
     ]
   },
 
@@ -1036,11 +1359,42 @@ const chapters = {
       "Metals and Non-Metals","Carbon and Its Compounds",
       "Life Processes","Control and Coordination",
       "How Do Organisms Reproduce","Heredity and Evolution",
-      "Environment","Management of Natural Resources",
-      "Light – Reflection and Refraction",
-      "The Human Eye and the Colourful World",
+      "Light – Reflection and Refraction","The Human Eye and the Colourful World",
       "Electricity","Magnetic Effects of Electric Current",
-      "Sources of Energy"
+      "Sources of Energy","Our Environment","Management of Natural Resources"
+    ],
+    "English": [
+      "A Letter to God","Nelson Mandela: A Long Walk to Freedom","Two Stories About Flying",
+      "From a Railway Carriage & The Road Not Taken","A Tiger in the House","The Midnight Visitor",
+      "Bholi","The Book That Saved My Life","The Proposal","The Necklace"
+    ],
+    "Hindi": [
+      "पद","राम-लक्ष्मण-परशुराम संवाद","आत्मत्राण","उत्साह और हिमालय",
+      "यमराज का दूत","छायावाद","छायावाद काव्य संग्रह","आदमी का मूल्य",
+      "नेताजी का चश्मा","बड़े भाई साहब","डायरी का एक पन्ना","ल्हासा की ओर"
+    ],
+    "Social Science": [
+      "The Rise of Nationalism in Europe","The Indus Valley Civilization",
+      "The Vedic Age","Early Kingdoms","The Mauryan Empire","The Post Mauryan Period",
+      "The Sultanate Period","The Mughal Empire","colonialism","The British Raj",
+      "The Revolt of 1857","Indian National Movement","Resources and Development",
+      "Forest and Wildlife","Water Resources","Mineral and Energy Resources",
+      "Agriculture","Democratic Politics","Power Sharing Arrangements",
+      "Competition Among Political Parties","Challenges to Democracy"
+    ],
+    "Computer Science": [
+      "Introduction to Algorithm and Flowchart","Fundamentals of Python Programming",
+      "Python - Data Types and Variables","Python - Control Structures",
+      "Functions and Parameters","Strings and String Manipulation",
+      "Lists and Tuples","Dictionaries and Sets","File Handling and Exception Handling",
+      "Introduction to Database Management Systems"
+    ],
+    "Physical Education": [
+      "Planning and Organization of Physical Education","Physical Fitness Assessment",
+      "Training Principles and Adaptations","Sports and Games - Rules and Techniques",
+      "Yoga for Health and Wellness","First Aid and Safety Measures",
+      "Health and Nutrition for Athletes","Stress Management and Relaxation",
+      "Performance Appraisal","Life Skills and Character Development"
     ]
   },
 
@@ -1048,23 +1402,25 @@ const chapters = {
     "Physics": [
       "Physical World and Measurement","Kinematics","Laws of Motion",
       "Work, Energy and Power","Motion of System of Particles and Rigid Body",
-      "Gravitation","Properties of Bulk Matter","Thermodynamics",
-      "Behaviour of Perfect Gas and Kinetic Theory","Oscillations and Waves"
+      "Gravitation","Properties of Bulk Matter – Elasticity","Properties of Bulk Matter – Fluid Pressure",
+      "Thermal Properties of Matter","Thermodynamics",
+      "Kinetic Theory of Gases","Oscillations","Waves"
     ],
     "Chemistry": [
       "Some Basic Concepts of Chemistry","Structure of Atom",
-      "Classification of Elements and Periodicity",
+      "Classification of Elements and Periodicity in Properties",
       "Chemical Bonding and Molecular Structure","States of Matter",
       "Thermodynamics","Equilibrium","Redox Reactions","Hydrogen",
-      "The s-Block Element","Organic Chemistry – Basic Principles",
+      "The s-Block Element","The p-Block Element – Group 13 and 14",
+      "Organic Chemistry: Some Basic Principles and Techniques",
       "Hydrocarbons","Environmental Chemistry"
     ],
     "Biology": [
       "The Living World","Biological Classification","Plant Kingdom",
       "Animal Kingdom","Morphology of Flowering Plants",
       "Anatomy of Flowering Plants","Structural Organisation in Animals",
-      "Cell: Structure and Function","Biomolecules","Cell Cycle and Cell Division",
-      "Transport in Plants","Mineral Nutrition","Photosynthesis",
+      "Cell: The Unit of Life","Biomolecules","Cell Cycle and Cell Division",
+      "Transport in Plants","Mineral Nutrition","Photosynthesis in Higher Plants",
       "Respiration in Plants","Plant Growth and Development"
     ],
     "Math": [
@@ -1076,6 +1432,40 @@ const chapters = {
       "Conic Sections","Introduction to Three Dimensional Geometry",
       "Limits and Derivatives","Mathematical Reasoning",
       "Statistics","Probability"
+    ],
+    "Accounting": [
+      "Introduction to Accounting","Theory Base of Accounting",
+      "Recording of Transactions - I","Recording of Transactions - II",
+      "Bank Reconciliation Statement","Trial Balance and Rectification of Errors",
+      "Depreciation, Provisions and Reserves","Bills of Exchange",
+      "Final Accounts - I","Final Accounts - II","Final Accounts - III",
+      "Accounts of Not-for-Profit Organizations","Partnership Accounts - Fundamentals",
+      "Partnership Accounts - Admission of a Partner"
+    ],
+    "Business Studies": [
+      "Nature and Significance of Management","Principles of Management",
+      "Business Environment","Planning","Organising","Staffing",
+      "Directing","Controlling","Financial Management","Financial Planning",
+      "Working Capital Management","Marketing Management","Consumer Protection"
+    ],
+    "Economics": [
+      "Introduction to Economics","Consumer Equilibrium and Demand",
+      "Producer Equilibrium and Supply","The Market Forms and Price Determination",
+      "National Income Accounting","Money Supply and Inflation",
+      "Banking and Finance","Government Budget and Fiscal Policy",
+      "Balance of Payments","Aggregate Demand and Supply"
+    ],
+    "Computer Science": [
+      "Computer Organization and Architecture","Boolean Algebra and Logic Gates",
+      "Programming in Python - Basics","Programming in Python - Data Structures",
+      "Database Management Systems","Computer Networks",
+      "Web Technologies","Software Engineering","Cybersecurity"
+    ],
+    "Informatics Practices": [
+      "Introduction to Informatics Practices","Database Concepts",
+      "Structured Query Language - Basics","Structured Query Language - Advanced",
+      "Web Applications","Software Development","Cloud Computing",
+      "Cybersecurity Fundamentals","Data Analysis and Visualization"
     ]
   },
 
@@ -1088,22 +1478,21 @@ const chapters = {
       "Three Dimensional Geometry","Linear Programming","Probability"
     ],
     "Physics": [
-      "Electrostatics","Current Electricity",
-      "Magnetic Effects of Current and Magnetism",
-      "Electromagnetic Induction","Alternating Current",
-      "Electromagnetic Waves","Ray Optics","Wave Optics",
-      "Dual Nature of Radiation and Matter",
-      "Atoms","Nuclei","Semiconductor Electronics"
+      "Electric Charges and Fields","Electrostatic Potential and Capacitance",
+      "Current Electricity","Moving Charges and Magnetism",
+      "Magnetism and Matter","Electromagnetic Induction",
+      "Alternating Current","Electromagnetic Waves",
+      "Ray Optics and Optical Instruments","Wave Optics",
+      "Dual Nature of Radiation and Matter","Atoms",
+      "Nuclei","Semiconductor Electronics"
     ],
     "Chemistry": [
       "Solid State","Solutions","Electrochemistry","Chemical Kinetics",
-      "Surface Chemistry","General Principles of Metallurgy",
-      "p-Block Elements","d- and f-Block Elements",
+      "Surface Chemistry","General Principles and Processes of Isolation of Elements",
+      "The p-Block Elements","The d- and f-Block Elements",
       "Coordination Compounds","Haloalkanes and Haloarenes",
-      "Alcohols, Phenols and Ethers",
-      "Aldehydes, Ketones and Carboxylic Acids",
-      "Amines","Biomolecules","Polymers",
-      "Chemistry in Everyday Life"
+      "Alcohols, Phenols and Ethers","Aldehydes, Ketones and Carboxylic Acids",
+      "Amines","Biomolecules","Polymers","Chemistry in Everyday Life"
     ],
     "Biology": [
       "Reproduction in Organisms","Sexual Reproduction in Flowering Plants",
@@ -1117,6 +1506,40 @@ const chapters = {
       "Biotechnology and Its Applications",
       "Organisms and Populations","Ecosystem",
       "Biodiversity and Conservation","Environmental Issues"
+    ],
+    "Accounting": [
+      "Accounting for Partnership Firms - Fundamentals","Reconstitution of Partnership - Retirement/Death",
+      "Dissolution of Partnership Firm","Accounting for Share Capital",
+      "Accounting for Debentures","Financial Statements of a Company",
+      "Analysis of Financial Statements – I","Analysis of Financial Statements – II",
+      "Cash Flow Statement","Accounting Ratios","Accounts from Incomplete Records"
+    ],
+    "Business Studies": [
+      "Corporate Governance and Business Ethics","Financial Management and Analysis",
+      "Business Administration","Consumer Protection","Entrepreneurship",
+      "Strategic Management","International Business","Supply Chain Management",
+      "Corporate Responsibility and Sustainability","Marketing Strategy"
+    ],
+    "Economics": [
+      "Macroeconomics - Introduction","National Income Accounting",
+      "Money and Inflation","Banking System","Government Budget",
+      "Foreign Exchange and Balance of Payments","Aggregate Demand and Supply",
+      "Consumption and Investment Functions","Aggregate Demand and Output",
+      "Monetary Policy and Fiscal Policy"
+    ],
+    "Computer Science": [
+      "Python Programming - Advanced","Object-Oriented Programming",
+      "Data Structures and Algorithms","Databases and SQL",
+      "Web Development","Cybersecurity and Cryptography",
+      "Artificial Intelligence and Machine Learning","Software Engineering Practices",
+      "Cloud Computing and IoT"
+    ],
+    "Informatics Practices": [
+      "Advanced Database Concepts","Data Analytics with Python",
+      "Web Development with HTML, CSS and JavaScript","Backend Development",
+      "Mobile Application Development","Cloud Technologies",
+      "Security in Applications","Big Data Fundamentals",
+      "IoT and Smart Systems"
     ]
   }
 
@@ -1134,6 +1557,17 @@ cls.onchange = () => {
     sub.disabled = !cls.value;
     ch.disabled = true;
     btn.disabled = true;
+    
+    // Clear and populate only available subjects for this class
+    sub.innerHTML = "<option value=''>Subject</option>";
+    if (cls.value && chapters[cls.value]) {
+        Object.keys(chapters[cls.value]).forEach(subject => {
+            const opt = document.createElement("option");
+            opt.value = subject;
+            opt.textContent = subject;
+            sub.appendChild(opt);
+        });
+    }
 };
 
 sub.onchange = () => {
