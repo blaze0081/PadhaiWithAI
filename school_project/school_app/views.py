@@ -2454,7 +2454,7 @@ def ask_pai(request):
         ]
 
         try:
-            response = client.chat.completions(messages=messages, temperature=0.2, max_tokens=4096, top_p=0.5,)
+            response = client.chat.completions(messages=messages, temperature=0.2, max_tokens=2000, top_p=0.5,)
             answer = response.choices[0].message.content
         except ApiError as e:
             answer = f"API Error {e.status_code}: {e.body}"
@@ -2746,7 +2746,7 @@ def chat_view(request):
             #     model="gpt-4o",        # or "gpt-4o-mini", etc.
             #     messages=history,
             # )
-            response = client.chat.completions(messages=history, temperature=0.2, max_tokens=4096, top_p=0.5,)
+            response = client.chat.completions(messages=history, temperature=0.2, max_tokens=2000, top_p=0.5,)
             assistant_reply = response.choices[0].message.content
 
             # 3. Add assistant message
@@ -2813,7 +2813,7 @@ def chat_smart_tutor(request):
             )
 
            
-            response = client.chat.completions(messages=messages, temperature=0.2, max_tokens=4096, top_p=0.5,)
+            response = client.chat.completions(messages=messages, temperature=0.2, max_tokens=2000, top_p=0.5,)
             reply = response.choices[0].message.content
 
             history.append({"role": "user", "content": user_prompt})
