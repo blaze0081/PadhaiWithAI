@@ -165,7 +165,7 @@ async def async_generate_similar_questions(request,question: str, difficulty: st
             # {"role": "user", "content": "What are the two main styles?"}
         ],
         temperature=0.2,
-        max_tokens=4096
+        max_tokens=2000
       )
 #print(response.choices[0].message.content)
     generated_content = response.choices[0].message.content
@@ -259,7 +259,7 @@ async def async_solve_math_problem(request,question: str, image_path: Optional[s
             response = client.chat.completions(
             messages=messages,
             temperature=0.2,
-            max_tokens=4096,
+            max_tokens=2000,
             top_p=0.5,
           #  wiki_grounding=True,
             #seed=12345
