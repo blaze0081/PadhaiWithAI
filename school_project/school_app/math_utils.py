@@ -9,7 +9,6 @@ from sarvamai import SarvamAI
 load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
 sarvam_key = os.getenv("SARVAM_API_KEY")
-
 async_client = AsyncOpenAI(api_key=api_key)
 
 def init_openai():
@@ -130,7 +129,7 @@ async def async_generate_similar_questions(request,question: str, difficulty: st
                 2. [दूसरे प्रश्न के लिए आसान भाषा में हर कदम का विस्तार से हल, जिसमें अवधारणाओं को समझाने के लिए उदाहरण और उल्टा उदाहरण भी दिए गए हों।]
                 ...""",
 
-                                        "English": f"""Based on this example question:
+                "English": f"""Based on this example question:
                 Example: {question}:Generate {num_questions} new {difficulty} level variations.Create the questions in the specified format '{question_type}.
                 If changing difficulty from original, use more complex numbers or situations while maintaining the same mathematical concept.
                 Structure the response as follows:
@@ -147,7 +146,7 @@ async def async_generate_similar_questions(request,question: str, difficulty: st
     prompt = prompts.get(language, prompts["English"])
     if model_type == "gpt":
         response = await async_client.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-5.1",
             messages=[
                 {"role": "system", "content": system_message},
                 {"role": "user", "content": prompt}
@@ -158,19 +157,27 @@ async def async_generate_similar_questions(request,question: str, difficulty: st
     
         client = SarvamAI(api_subscription_key=sarvam_key)
         response = client.chat.completions(
+        model="sarvam-30b",
         messages=[
             {"role": "system", "content": system_message},
             {"role": "user", "content": prompt},
             # {"role": "assistant", "content": "Indian classical music is one of the oldest musical traditions in the world..."},
             # {"role": "user", "content": "What are the two main styles?"}
         ],
-        temperature=0.2,
-        max_tokens=2000
+        temperature=0.3,
+        max_tokens=4000,
+        top_p=0.9,
       )
 #print(response.choices[0].message.content)
-    generated_content = response.choices[0].message.content
-    return generated_content
-
+    # generated_content = response.choices[0].message.content
+    # if not generated_content:
+    #     # sarvam-30b is a reasoning model; on long outputs it can exhaust the
+    #     # token budget during reasoning and return no content.
+    #     generated_content = "Sorry, no questions could be generated. Please try again or reduce the number of questions."
+    # return generated_content
+    msg = response.choices[0].message
+    raw = msg.content or getattr(msg, 'reasoning_content', None) or ''
+    return _strip_think(raw)
 
 def encode_image(image_path):
     """Encode image to base64 string."""
@@ -197,27 +204,45 @@ async def async_solve_math_problem(request,question: str, image_path: Optional[s
 
     model_type = request.session.get("model_type", "sarvam")
     print("Using model:", model_type)
-    messages = [
-        {
-            "role": "system", 
-            "content": """You are an experienced mathematics teacher. Solve the questions given, following these guidelines:
+    solve_system_messages = {
+        "Hindi": """आप एक अनुभवी गणित शिक्षक हैं। दिए गए प्रश्नों को हल करें और इन नियमों का पालन करें:
+                1. चरण-दर-चरण समाधान दें।
+                2. गणितीय अभिव्यक्तियों के लिए LaTeX फॉर्मेटिंग का उपयोग करें (इनलाइन गणित के लिए $ और बड़े गणित के लिए $$ का उपयोग करें)।
+                3. पूरा समाधान दिखाएं और अंतिम उत्तर को "अंतिम उत्तर: <उत्तर>" के रूप में लिखें।
+                4. समाधान के अंत में अंतिम मान संख्या में दिखाएं, अनसुलझे समीकरण के रूप में नहीं।
+                5. समाधान दिखाने से पहले प्रश्न में पूछी जा रही अवधारणा को सरल शब्दों में समझाएं।
+                6. अवधारणा समझाते समय एक उदाहरण और एक उल्टा उदाहरण भी दें।
+                7. समाधान को इस तरह समझाएं कि कठिन तकनीकी शब्दों से जूझने वाले बच्चों को भी आसानी से समझ आए।
+                8. आम बोलचाल के शब्दों का उपयोग करें और तकनीकी शब्दों से बचें। यदि तकनीकी शब्द जरूरी हों तो उन्हें भी आसान भाषा में समझाएं।
+                9. समाधान की पुनः जांच करें।
+                10. यदि कोई छवि दी गई हो, तो उसे ध्यान से देखें क्योंकि उसमें प्रश्न हल करने के लिए जरूरी जानकारी हो सकती है।
+                11. सभी प्रश्न और उत्तर हिंदी में होने चाहिए।""",
+        "English": """You are an experienced mathematics teacher. Solve the questions given, following these guidelines:
                 1. Include step-by-step solutions
                 2. Use LaTeX formatting for mathematical expressions (use $ for inline math and $$ for display math)
                 3. Show complete solution with final answers written as Final Answer: <answer>
                 4. Ensure that the last step, with the final value of the variable, is displayed at the end of the solution. The value should be in numbers, do not write an unsolved equation as the final value
-                5. Whenever showing the solution, first explain the concept that is being tested by the question in simple terms 
+                5. Whenever showing the solution, first explain the concept that is being tested by the question in simple terms
                 6. While explaining a concept, besides giving an example, also give a counter-example at the beginning. That always makes things clear
-                7. Any time you write a solution, explain the solution in a way that is extremely easy to understand by children struggling with complex technical terms 
-                8. Whenever trying to explain in simple terms: 1. use colloquial local language terms and try to avoid technical terms. When using technical terms, re explain those terms in local colloquial terms 
+                7. Any time you write a solution, explain the solution in a way that is extremely easy to understand by children struggling with complex technical terms
+                8. Whenever trying to explain in simple terms: 1. use colloquial local language terms and try to avoid technical terms. When using technical terms, re explain those terms in local colloquial terms
                 9. Recheck the solution for any mistakes
                 10. If an image is provided, analyze it carefully as it may contain important visual information needed to solve the problem"""
+    }
+    messages = [
+        {
+            "role": "system",
+            "content": solve_system_messages.get(language, solve_system_messages["English"])
         }
     ]
    # print (messages)
     # Add the question content
     
        
-    user_content = f"Please solve this mathematics question step by step in {language}: {question}"
+    if language == "Hindi":
+        user_content = f"कृपया इस गणित के प्रश्न को हिंदी में चरण-दर-चरण हल करें। सभी स्पष्टीकरण और उत्तर केवल हिंदी में होने चाहिए, अंग्रेजी में नहीं: {question}"
+    else:
+        user_content = f"Please solve this mathematics question step by step in {language}: {question}"
     #print(user_content)
     print(f"Looking for image at: {image_path}")
     if image_path:
@@ -246,28 +271,46 @@ async def async_solve_math_problem(request,question: str, image_path: Optional[s
         messages.append({"role": "user", "content": user_content})
     
     try:
-        if model_type == "gpt":
-            response = await async_client.chat.completions.create(
-                model="gpt-4o",
-                messages=messages,
-                temperature=0.7,
-                max_tokens=4096
-            )
-            return response.choices[0].message.content
-        elif model_type == "sarvam":
-            client = SarvamAI(api_subscription_key=sarvam_key)
-            response = client.chat.completions(
-            messages=messages,
-            temperature=0.2,
-            max_tokens=2000,
-            top_p=0.5,
-          #  wiki_grounding=True,
-            #seed=12345
-            #reasoning_effort="high"
-            )
-            return response.choices[0].message.content
+        if image_path:  
+                response = await async_client.chat.completions.create(
+                    model="gpt-4o",
+                    messages=messages,
+                    temperature=0.7,
+                    max_tokens=4096
+                )
+                return response.choices[0].message.content
         else:
-           return "error: Invalid model type.status=400"
+            if model_type == "gpt":
+                response = await async_client.chat.completions.create(
+                    model="gpt-4o",
+                    messages=messages,
+                    temperature=0.7,
+                    max_tokens=4096
+                )
+                return response.choices[0].message.content
+            elif model_type == "sarvam":
+                client = SarvamAI(api_subscription_key=sarvam_key)
+                response = client.chat.completions(
+                model="sarvam-30b",
+                messages=messages,
+                temperature=0.3,
+                max_tokens=4000,
+                top_p=0.9,
+            #  wiki_grounding=True,
+                #seed=12345
+                #reasoning_effort="high"
+                )
+                content = response.choices[0].message.content
+                msg = response.choices[0].message
+                raw = msg.content or getattr(msg, 'reasoning_content', None) or ''
+                return _strip_think(raw.strip())
+                if not raw:
+                    # sarvam-30b is a reasoning model; on hard problems the
+                    # reasoning can exhaust the token budget, leaving no content.
+                    content = "Sorry, the answer could not be generated within the current limit. Please try a simpler question."
+                return content
+            else:
+             return "error: Invalid model type.status=400"
 
     except Exception as e:
         print(f"Error calling OpenAI API: {e}")
@@ -282,3 +325,29 @@ async def async_solve_math_problem(request,question: str, image_path: Optional[s
 # 0.5	Balanced creativity and accuracy
 # 0.8 - 1.0	Very creative, open-ended responses
 # 1.0 (default)	Full probability space used
+import re
+
+
+def _strip_think(text: str) -> str:
+    """Remove Sarvam reasoning model's <think>...</think> block.
+    Strategy: if </think> exists, take everything after it.
+    If only <think> with no closing tag, strip from <think> onward.
+    This handles cases where the model wraps JSON inside <think>.
+    """
+    if not text:
+        return ''
+    # Case 1: properly closed — take content after </think>
+    if '</think>' in text:
+        after = text.split('</think>', 1)[1].strip()
+        if after:
+            return after
+        # nothing after </think> — extract what was inside
+        inner = re.search(r'<think>(.*?)</think>', text, re.DOTALL)
+        return inner.group(1).strip() if inner else text.strip()
+    # Case 2: unclosed <think> tag — strip it and everything before first {
+    if '<think>' in text:
+        text = text.split('<think>', 1)[1]
+        # find first JSON-like start
+        brace = text.find('{')
+        return text[brace:].strip() if brace != -1 else text.strip()
+    return text.strip()
