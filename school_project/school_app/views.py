@@ -39,6 +39,7 @@ from django.utils.dateparse import parse_date
 from django.db.models import Avg, F, ExpressionWrapper, FloatField,Sum
 from django.db.models import Count, Case, When, IntegerField,Value
 from django.db import connection
+
 @login_required
 def test_results_analysis(request):
     # Determine filter based on user type
@@ -1506,7 +1507,7 @@ def dashboard(request):
         query = """ SELECT se.school_name_with_nic_code, s.nic_code, se.school_nic_code, se.session_year, se.total_students, se.passed_students, 
         se.first_division_students, se.overall_exam_result, se.math_exam_result, se.math_above_80, se.math_above_90, se.math_100_percent,
         se.below33,se.maths_33_60,se.maths_60_80,se.maths_80_90,se.maths_90_100,se.maths_100 FROM student_exam_results se INNER JOIN school_app_school s 
-        ON se.school_nic_code = s.nic_code  WHERE s.nic_code =%s   order by se.session_year asc """
+        ON se.school_nic_code = s.nic_code  WHERE s.nic_code =%s  order by se.session_year asc"""
         with connection.cursor() as cursor:
          cursor.execute(query,[school.nic_code])
          result = cursor.fetchall()
@@ -2423,6 +2424,7 @@ from django.db import connection
 import os
 from sarvamai import SarvamAI
 from sarvamai.core.api_error import ApiError
+
 sarvam_key = os.getenv("SARVAM_API_KEY")
 
 def ask_pai(request):
@@ -2435,7 +2437,7 @@ def ask_pai(request):
         if not question:
             answer = "Please enter your question before submitting."
             return render(request, "ask_pai.html", {"question": question, "answer": answer})
-        api_key = os.getenv("SARVAM_API_KEY", "sk_hrlgmheh_oXiiFZN2CuzfjKSCVdqmfiDa")
+        api_key = os.getenv("SARVAM_API_KEY", "")
         client = SarvamAI(api_subscription_key=sarvam_key)
 
         messages = [
@@ -2454,8 +2456,12 @@ def ask_pai(request):
         ]
 
         try:
-            response = client.chat.completions(messages=messages, temperature=0.2, max_tokens=2000, top_p=0.5,)
+            response = client.chat.completions(model="sarvam-30b", messages=messages, temperature=0.2, max_tokens=2000, top_p=0.5,)
             answer = response.choices[0].message.content
+            if not answer:
+                # sarvam-30b is a reasoning model; on hard questions the reasoning
+                # can exhaust the token budget, leaving no answer content.
+                answer = "Sorry, the answer could not be generated within the current limit. Please try a simpler question."
         except ApiError as e:
             answer = f"API Error {e.status_code}: {e.body}"
         except Exception as e:
@@ -2746,8 +2752,15 @@ def chat_view(request):
             #     model="gpt-4o",        # or "gpt-4o-mini", etc.
             #     messages=history,
             # )
-            response = client.chat.completions(messages=history, temperature=0.2, max_tokens=2000, top_p=0.5,)
-            assistant_reply = response.choices[0].message.content
+            try:
+                response = client.chat.completions(model="sarvam-30b", messages=history, temperature=0.2, max_tokens=2000, top_p=0.5,)
+                assistant_reply = response.choices[0].message.content
+            except ApiError as e:
+                assistant_reply = f"API Error {e.status_code}: {e.body}"
+            except Exception as e:
+                assistant_reply = f"Error: {str(e)}"
+            if not assistant_reply:
+                assistant_reply = "Sorry, the answer could not be generated within the current limit. Please try a simpler question."
 
             # 3. Add assistant message
             history.append({"role": "assistant", "content": assistant_reply})
@@ -2757,6 +2770,7 @@ def chat_view(request):
 
     # Render template with full history
     return render(request, "chat_page.html", {"history": history})
+
 
 sarvam_key = os.getenv("SARVAM_API_KEY")
 client = SarvamAI(api_subscription_key=sarvam_key)
@@ -2813,8 +2827,15 @@ def chat_smart_tutor(request):
             )
 
            
-            response = client.chat.completions(messages=messages, temperature=0.2, max_tokens=2000, top_p=0.5,)
-            reply = response.choices[0].message.content
+            try:
+                response = client.chat.completions(model="sarvam-30b", messages=messages, temperature=0.2, max_tokens=2000, top_p=0.5,)
+                reply = response.choices[0].message.content
+            except ApiError as e:
+                reply = f"API Error {e.status_code}: {e.body}"
+            except Exception as e:
+                reply = f"Error: {str(e)}"
+            if not reply:
+                reply = "Sorry, the answer could not be generated within the current limit. Please try a simpler question."
 
             history.append({"role": "user", "content": user_prompt})
             history.append({"role": "assistant", "content": reply})
