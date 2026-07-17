@@ -167,6 +167,7 @@ async def async_generate_similar_questions(request,question: str, difficulty: st
         temperature=0.3,
         max_tokens=4000,
         top_p=0.9,
+		reasoning_effort=None
       )
 #print(response.choices[0].message.content)
     # generated_content = response.choices[0].message.content
@@ -296,6 +297,7 @@ async def async_solve_math_problem(request,question: str, image_path: Optional[s
                 temperature=0.3,
                 max_tokens=4000,
                 top_p=0.9,
+				reasoning_effort=None
             #  wiki_grounding=True,
                 #seed=12345
                 #reasoning_effort="high"
