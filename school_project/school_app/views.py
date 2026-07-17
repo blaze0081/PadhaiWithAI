@@ -2456,7 +2456,7 @@ def ask_pai(request):
         ]
 
         try:
-            response = client.chat.completions(model="sarvam-30b", messages=messages, temperature=0.2, max_tokens=2000, top_p=0.5,)
+            response = client.chat.completions(model="sarvam-30b", messages=messages, temperature=0.2, max_tokens=2000, top_p=0.5,reasoning_effort=None)
             answer = response.choices[0].message.content
             if not answer:
                 # sarvam-30b is a reasoning model; on hard questions the reasoning
@@ -2753,7 +2753,7 @@ def chat_view(request):
             #     messages=history,
             # )
             try:
-                response = client.chat.completions(model="sarvam-30b", messages=history, temperature=0.2, max_tokens=2000, top_p=0.5,)
+                response = client.chat.completions(model="sarvam-30b", messages=history, temperature=0.2, max_tokens=2000, top_p=0.5,reasoning_effort=None)
                 assistant_reply = response.choices[0].message.content
             except ApiError as e:
                 assistant_reply = f"API Error {e.status_code}: {e.body}"
@@ -2828,7 +2828,7 @@ def chat_smart_tutor(request):
 
            
             try:
-                response = client.chat.completions(model="sarvam-30b", messages=messages, temperature=0.2, max_tokens=2000, top_p=0.5,)
+                response = client.chat.completions(model="sarvam-30b", messages=messages, temperature=0.2, max_tokens=2000, top_p=0.5,reasoning_effort=None)
                 reply = response.choices[0].message.content
             except ApiError as e:
                 reply = f"API Error {e.status_code}: {e.body}"
