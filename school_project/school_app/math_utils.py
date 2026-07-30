@@ -157,7 +157,7 @@ async def async_generate_similar_questions(request,question: str, difficulty: st
     
         client = SarvamAI(api_subscription_key=sarvam_key)
         response = client.chat.completions(
-        model="Sarvam-105B",
+        model="sarvam-105b",
         messages=[
             {"role": "system", "content": system_message},
             {"role": "user", "content": prompt},
@@ -292,7 +292,7 @@ async def async_solve_math_problem(request,question: str, image_path: Optional[s
             elif model_type == "sarvam":
                 client = SarvamAI(api_subscription_key=sarvam_key)
                 response = client.chat.completions(
-                model="Sarvam-105B",
+                model="sarvam-105b",
                 messages=messages,
                 temperature=0.3,
                 max_tokens=4000,
