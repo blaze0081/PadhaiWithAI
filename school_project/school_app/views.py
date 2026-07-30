@@ -2828,7 +2828,7 @@ def chat_smart_tutor(request):
 
            
             try:
-                response = client.chat.completions(model="sarvam-30b", messages=messages, temperature=0.2, max_tokens=2000, top_p=0.5,reasoning_effort=None)
+                response = client.chat.completions(model="Sarvam-105B", messages=messages, temperature=0.2, max_tokens=2000, top_p=0.5,reasoning_effort=None)
                 reply = response.choices[0].message.content
             except ApiError as e:
                 reply = f"API Error {e.status_code}: {e.body}"
