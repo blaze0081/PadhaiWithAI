@@ -157,7 +157,7 @@ async def async_generate_similar_questions(request,question: str, difficulty: st
     
         client = SarvamAI(api_subscription_key=sarvam_key)
         response = client.chat.completions(
-        model="sarvam-30b",
+        model="Sarvam-105B",
         messages=[
             {"role": "system", "content": system_message},
             {"role": "user", "content": prompt},
@@ -172,7 +172,7 @@ async def async_generate_similar_questions(request,question: str, difficulty: st
 #print(response.choices[0].message.content)
     # generated_content = response.choices[0].message.content
     # if not generated_content:
-    #     # sarvam-30b is a reasoning model; on long outputs it can exhaust the
+    #     # Sarvam-105B is a reasoning model; on long outputs it can exhaust the
     #     # token budget during reasoning and return no content.
     #     generated_content = "Sorry, no questions could be generated. Please try again or reduce the number of questions."
     # return generated_content
@@ -292,7 +292,7 @@ async def async_solve_math_problem(request,question: str, image_path: Optional[s
             elif model_type == "sarvam":
                 client = SarvamAI(api_subscription_key=sarvam_key)
                 response = client.chat.completions(
-                model="sarvam-30b",
+                model="Sarvam-105B",
                 messages=messages,
                 temperature=0.3,
                 max_tokens=4000,
@@ -307,7 +307,7 @@ async def async_solve_math_problem(request,question: str, image_path: Optional[s
                 raw = msg.content or getattr(msg, 'reasoning_content', None) or ''
                 return _strip_think(raw.strip())
                 if not raw:
-                    # sarvam-30b is a reasoning model; on hard problems the
+                    # Sarvam-105B is a reasoning model; on hard problems the
                     # reasoning can exhaust the token budget, leaving no content.
                     content = "Sorry, the answer could not be generated within the current limit. Please try a simpler question."
                 return content
